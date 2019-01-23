@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8">
+
+    <script src="/config.js"></script>
+    <script src="/lib/flash.js"></script>
+    <script src="/lib/location.js"></script>
+    <script src="/lib/fengari-web.js"></script>
+
+    <link rel="stylesheet" href="/lib/duck-tape/duck-tape.css">
+
+    <link rel="shortcut icon" type="image/png" href="/images/favicon.png"/>
+
+    <title>Energy Access :: Admin</title>
+  </head>
+
+  <body>
+    <main>
+      <nav>
+        <a href="/?model=countries">Countries</a>
+
+        <a href="/?model=categories">Categories</a>
+      </nav>
+    </main>
+  </body>
+
+  <script src="/lib/duck-tape/lua/tools.lua"
+          type="application/lua"></script>
+
+  <script src="/lib/duck-tape/lua/schema.lua"
+          type="application/lua"></script>
+
+  <script src="/lib/duck-tape/lua/serialize.lua"
+          type="application/lua" async></script>
+
+  <script src="/lib/duck-tape/lua/formalize.lua"
+          type="application/lua" async></script>
+
+  <script src="/lib/duck-tape/lua/search.lua"
+          type="application/lua" async></script>
+
+  <script src="/lib/require.js"
+          data-main="/javascripts/init" async></script>
+</html>
