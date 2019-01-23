@@ -27,6 +27,8 @@ define(['sortable'], (sortable) => {
       });
 
     if (!model.get('category_tree')) {
+      console.log("empty 'category_tree'. filling in with default...");
+
       const form = document.querySelector(`form[id="edit-form"]`)
 
       form.querySelector(`fieldset[name="category_tree"]`).remove();
@@ -83,88 +85,83 @@ define(['sortable'], (sortable) => {
 
   const category_tree_default = [{
     "name": "demand",
-    "subbranches": [
-      {
-        "name": "demographics",
-        "datasets": [
-          {
-            "id": "population",
-            "invert": []
-          },
-          {
-            "id": "poverty",
-            "invert": ["eai", "demand", "supply"]
-          },
-          {
-            "id": "districts",
-            "invert": ["ani"]
-          }
-        ]
-      },
-      {
-        "name": "productive-uses",
-        "datasets": [
-          {
-            "id": "schools",
-            "invert": ["eai", "ani", "demand", "supply"]
-          },
-          {
-            "id": "health",
-            "invert": ["eai", "ani", "demand", "supply"]
-          },
-          {
-            "id": "crops",
-            "invert": ["ani"]
-          },
-          {
-            "id": "mines",
-            "invert": ["eai"]
-          }
-        ]
-      }
+    "subbranches": [{
+      "name": "demographics",
+      "datasets": [
+        {
+          "id": "population",
+          "invert": []
+        },
+        {
+          "id": "poverty",
+          "invert": ["eai", "demand", "supply"]
+        },
+        {
+          "id": "districts",
+          "invert": ["ani"]
+        }
+      ]
+    }, {
+      "name": "productive-uses",
+      "datasets": [
+        {
+          "id": "schools",
+          "invert": ["eai", "ani", "demand", "supply"]
+        },
+        {
+          "id": "health",
+          "invert": ["eai", "ani", "demand", "supply"]
+        },
+        {
+          "id": "crops",
+          "invert": ["ani"]
+        },
+        {
+          "id": "mines",
+          "invert": ["eai"]
+        }
+      ]
+    }
     ]
   }, {
     "name": "supply",
-    "subbranches": [
-      {
-        "name": "resources",
-        "datasets": [
-          {
-            "id": "ghi",
-            "invert": ["ani"]
-          },
-          {
-            "id": "windspeed",
-            "invert": ["ani"]
-          },
-          {
-            "id": "hydro",
-            "invert": ["ani"]
-          }
-        ]
-      },
-      {
-        "name": "infrastructure",
-        "datasets": [
-          {
-            "id": "powerplants",
-            "invert": ["eai", "demand", "supply"]
-          },
-          {
-            "id": "minigrids",
-            "invert": ["eai", "demand", "supply"]
-          },
-          {
-            "id": "transmission-lines",
-            "invert": ["eai", "supply", "demand"]
-          },
-          {
-            "id": "nighttime-lights",
-            "invert": ["ani"]
-          }
-        ]
-      }
-    ]
+    "subbranches": [{
+      "name": "resources",
+      "datasets": [
+        {
+          "id": "ghi",
+          "invert": ["ani"]
+        },
+        {
+          "id": "windspeed",
+          "invert": ["ani"]
+        },
+        {
+          "id": "hydro",
+          "invert": ["ani"]
+        }
+      ]
+    }, {
+      "name": "infrastructure",
+      "datasets": [
+        {
+          "id": "powerplants",
+          "invert": ["eai", "demand", "supply"]
+        },
+        {
+          "id": "minigrids",
+          "invert": ["eai", "demand", "supply"]
+        },
+        {
+          "id": "transmission-lines",
+          "invert": ["eai", "supply", "demand"]
+        },
+        {
+          "id": "nighttime-lights",
+          "invert": ["ani"]
+        }
+      ]
+    }]
   }];
 
   var model = {
