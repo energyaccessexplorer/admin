@@ -1,4 +1,4 @@
-define(['sortable'], (sortable) => {
+dt_model_module = (function() {
   var country_id  = location.get_query_param('id');
 
   let ds_options = [];
@@ -248,4 +248,4 @@ table td:nth-of-type(3) {
     TableRow: row,
     Style: style,
   };
-});
+})();

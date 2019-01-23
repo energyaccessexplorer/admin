@@ -1,4 +1,4 @@
-define([], _ => {
+dt_model_module = (function() {
   var dataset_id = location.get_query_param('id');
   var country_id = location.get_query_param('country_id');
   var category_id = location.get_query_param('category_id');
@@ -173,4 +173,4 @@ define([], _ => {
     TableRow: table_row,
     Style: style,
   };
-});
+})();

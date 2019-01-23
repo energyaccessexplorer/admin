@@ -1,4 +1,4 @@
-define([], _ => {
+dt_model_module = (function() {
   var class_id  = location.get_query_param('id');
 
   var model = {
@@ -195,4 +195,4 @@ table td:nth-of-type(4) {
     TableRow: row,
     Style: style,
   };
-});
+})();

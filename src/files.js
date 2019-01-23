@@ -1,4 +1,4 @@
-define([], _ => {
+dt_model_module = (function() {
   var file_id = location.get_query_param('id');
   var dataset_id = location.get_query_param('dataset_id');
 
@@ -80,4 +80,4 @@ table td:nth-of-type(2) {
     TableRow: row,
     Style: style,
   };
-});
+})();
