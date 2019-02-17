@@ -5,9 +5,7 @@
     <meta charset="utf-8">
 
     <script src="/config.js"></script>
-    <script src="/lib/duck-tape/dist/duck-tape-bundle.js"></script>
-
-    <link rel="stylesheet" href="/lib/duck-tape/duck-tape.css">
+    <script src="/lib/duck-tape/duck-tape-bundle.js"></script>
 
     <link rel="shortcut icon" type="image/png" href="/images/favicon.png"/>
 
@@ -23,9 +21,6 @@
       </nav>
     </main>
   </body>
-
-  <script src="/lib/duck-tape/dist/duck-tape.lua"
-          type="application/lua" async></script>
 
   <script>
     dt_fetchables = {
@@ -102,18 +97,5 @@
         }
       },
     };
-  </script>
-
-  <script>
-    dt_model = location.get_query_param('model');
-
-    (function(d, script) {
-      script = d.createElement('script');
-      script.async = true;
-      script.src = `/javascripts/${dt_model}.js`;
-      script.onload = _ => dt_generic(dt_model_module);
-
-      d.getElementsByTagName('head')[0].appendChild(script);
-    }(document));
   </script>
 </html>
