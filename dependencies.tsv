@@ -1,8 +1,2 @@
-backbone.js	https://raw.githubusercontent.com/jashkenas/backbone/master/backbone-min.js
-htmlsortable.js	https://raw.githubusercontent.com/lukasoppermann/html5sortable/master/dist/html5sortable.min.js
-jquery.js	https://code.jquery.com/jquery-3.1.1.min.js
-location.js	https://raw.githubusercontent.com/svexican/web-extras/master/dist/location.js
-require.js	http://requirejs.org/docs/release/2.3.2/minified/require.js
-underscore.js	https://raw.githubusercontent.com/jashkenas/underscore/master/underscore-min.js
-fengari-web.js	https://github.com/fengari-lua/fengari-web/releases/download/v0.1.2/fengari-web.js
+location.js	https://gitlab.com/fabbe/web-toolbelt/raw/master/location.js
 flash.js	https://gitlab.com/fabbe/web-toolbelt/raw/master/flash.js

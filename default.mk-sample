@@ -1,7 +1,7 @@
 DIST = ./dist
 
 PGREST_PORT = 8777
-PGREST_PROXY = "eaapi.localhost"
+PGREST_PROXY = "http://eaapi.localhost"
 PGREST_SECRET = "supersecret"
 
 SSH_PORT = 22
@@ -19,6 +19,10 @@ DT_UPLOAD = null
 DT_COURIER = null
 
 AUTH_SERVER = "https://auth.example.org"
+
+WEB_PORT = 8089
+STATIC_SERVER = python3 -m http.server
+WATCH = watch-code
 
 ifeq (${env}, production)
 DB_NAME = ea

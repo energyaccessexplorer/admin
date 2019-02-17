@@ -54,7 +54,7 @@ endif
 		${SRV_USER}@${SRV_SERVER}:${SRV_DEST}
 
 watch:
-	@ WATCH_CMD="make build" ${WATCH} ./src
+	@ WATCH_CMD="make build" ${WATCH} ./src ./views
 
 start:
 	@echo "PostgREST config:"
@@ -66,6 +66,7 @@ ifeq (${env}, production)
 	@ssh -p ${SSH_PORT} ${SRV_USER}@${SRV_SERVER} "/bin/bash --login -c 'postgrest $${PGREST_CONF_FILE} &> /dev/null &'"
 else
 	@postgrest $${PGREST_CONF_FILE} &> /dev/null &
+	@(cd ${DIST} && ${STATIC_SERVER} ${WEB_PORT}) &
 endif
 
 stop:
@@ -74,6 +75,7 @@ ifeq (${env}, production)
 	@ssh -p ${SSH_PORT} ${SRV_USER}@${SRV_SERVER} "lsof -t -i :${PGREST_PORT} | xargs -I {} kill {}"
 else
 	-@lsof -t -i :${PGREST_PORT} | xargs -I {} kill {}
+	-@lsof -t -i :${WEB_PORT} | xargs -I {} kill {}
 endif
 
 reconfig:
