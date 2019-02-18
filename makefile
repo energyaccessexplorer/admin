@@ -81,6 +81,12 @@ endif
 reconfig:
 	@echo $$DT_CONF > ${DIST}/config.js
 
+signin:
+	@psql -d ${DB_NAME} \
+		--pset="pager=off" \
+		--pset="tuples_only=on" \
+		--command="select 'localStorage.setItem(\"token\", \"' || sign(row_to_json(r), '${PGREST_SECRET}') || '\");' from (select 'ea_admin' as role, extract(epoch from now())::integer + 600*60 as exp) as r"
+
 synced:
 	@rsync -OPr \
 		-e "ssh -p ${SSH_PORT}" \
