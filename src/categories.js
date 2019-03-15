@@ -1,9 +1,7 @@
-dt_model_module = (function() {
+dt_modules['categories'] = (function() {
   var class_id  = location.get_query_param('id');
 
   var model = {
-    "base": "/categories",
-
     "schema": {
       "name": {
         "type": "string",
@@ -162,37 +160,36 @@ See also: 'precision' attribute.`
         return `/categories?select=${attrs}`;
     },
 
-    "refresh_after_new": true,
-
     "sort_by": 'name',
   };
 
   var header = `
-<th></th> <th>Name</th> <th>Unit</th>
+<th>Name</th> <th>Unit</th>
 `;
 
-  var row = `
-<td bind="edit"></td>
-<td><%= name %></td>
-<td><%= unit %></td>
+  var row = m => `
+<td><a bind="edit"></a>${m.name_long}</td>
+<td>${m.unit || ''}</td>
 `;
 
   var style = `
-.monospace {
+table td:nth-of-type(2) {
   font-family: monospace;
 }
 
+table td:nth-of-type(2),
 table td:nth-of-type(3),
 table td:nth-of-type(4) {
   text-align: center;
 }`;
 
   return {
-    Model: model,
-    Collection: collection,
-    Header: 'Categories',
-    TableHeader: header,
-    TableRow: row,
-    Style: style,
+    base: "/categories",
+    model: model,
+    collection: collection,
+    header: 'Categories',
+    th: header,
+    row: row,
+    style: style,
   };
 })();

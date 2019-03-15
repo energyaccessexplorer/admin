@@ -1,18 +1,17 @@
-dt_model_module = (function() {
+dt_modules['files'] = (function() {
   var file_id = location.get_query_param('id');
   var dataset_id = location.get_query_param('dataset_id');
 
   window._storage_prefix = "";
 
   var model = {
-    "base": "/files",
-
     "schema": {
       "dataset_id": {
         "type": "uuid",
         "fkey": "datasets",
         "required": true,
         "editable": false,
+        "columns": ['*']
       },
 
       "test": {
@@ -56,28 +55,28 @@ dt_model_module = (function() {
   };
 
   var header = `
-<th></th>
 <th>Label</th>
 <th>Endpoint</th>
 `;
 
-  var row = `
-<td bind="edit"></td>
-<td><%= label %></td>
-<td><%= endpoint %></td>
+  var row = m => `
+<td><a bind="edit"></a> ${m.label}</td>
+<td>${m.endpoint}</td>
 `;
 
   var style = `
+table td:nth-of-type(1),
 table td:nth-of-type(2) {
   font-family: monospace;
 }`;
 
   return {
-    Model: model,
-    Collection: collection,
-    Header: 'Files',
-    TableHeader: header,
-    TableRow: row,
-    Style: style,
+    base: "/files",
+    model: model,
+    collection: collection,
+    header: 'Files',
+    th: header,
+    row: row,
+    style: style,
   };
 })();

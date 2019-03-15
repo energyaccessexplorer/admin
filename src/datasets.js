@@ -1,17 +1,16 @@
-dt_model_module = (function() {
+dt_modules['datasets'] = (function() {
   var dataset_id = location.get_query_param('id');
   var country_id = location.get_query_param('country_id');
   var category_id = location.get_query_param('category_id');
 
   var model = {
-    "base": "/datasets",
-
     "schema": {
       "category_id": {
         "type": "uuid",
         "fkey": "categories",
         "required": true,
         "editable": false,
+        "columns": ['*']
       },
 
       "country_id": {
@@ -19,6 +18,7 @@ dt_model_module = (function() {
         "fkey": "countries",
         "required": true,
         "editable": false,
+        "columns": ['*']
       },
 
       "online": {
@@ -28,17 +28,20 @@ dt_model_module = (function() {
 
       "heatmap_file_id": {
         "type": "uuid",
-        "fkey": "files"
+        "fkey": "files",
+        "columns": ['*']
       },
 
       "vectors_file_id": {
         "type": "uuid",
-        "fkey": "files"
+        "fkey": "files",
+        "columns": ['*']
       },
 
       "csv_file_id": {
         "type": "uuid",
-        "fkey": "files"
+        "fkey": "files",
+        "columns": ['*']
       },
 
       "presets": {
@@ -136,19 +139,16 @@ dt_model_module = (function() {
         return `/datasets?select=${attrs}`;
     },
 
-    "refresh_after_new": true,
-
     "sort_by": 'category_name',
   };
 
   var table_header = `
-<th></th> <th>category</th> <th>files</th>
+<th>category</th> <th>files</th>
 `;
 
-  var table_row = `
-<td bind="edit"></td>
-<td <%= !online ? 'class="disabled"' : '' %>><%= category_name %></td>
-<td><a href="/?model=files&dataset_id=<%= id %>">files</a></td>
+  var row = m => `
+<td ${!m.online ? 'class="disabled"' : ''}><a bind="edit"></a>${m.category_name}</td>
+<td><a href="/?model=files&dataset_id=${m.id}">files</a></td>
 `;
 
   var style = null;
@@ -166,11 +166,12 @@ dt_model_module = (function() {
   })();
 
   return {
-    Model: model,
-    Collection: collection,
-    Header: header,
-    TableHeader: table_header,
-    TableRow: table_row,
-    Style: style,
+    base: "/datasets",
+    model: model,
+    collection: collection,
+    header: header,
+    th: table_header,
+    row: row,
+    style: style,
   };
 })();

@@ -13,13 +13,17 @@
   </head>
 
   <body>
-    <main>
-      <nav>
+    <nav>
+      <a href="/"
+         style="flex: 0;
+                padding: 0.5em;
+                padding-left: 1em;
+                padding-right: 1em;"></a>
         <a href="/?model=countries">Countries</a>
-
         <a href="/?model=categories">Categories</a>
       </nav>
-    </main>
+
+    <main></main>
   </body>
 
   <script>
@@ -27,39 +31,37 @@
       "countries": {
         primary: 'ccn3',
         placeholder: "name or ccn3",
-        handler: function(v, fill_target) {
-          dt_string_fetch_handler({
+        options: function(v) {
+          return {
             table: 'countries',
             query: `select=id,name&name=ilike.*${v}*`,
             input: x => x['id'],
             descriptor: x => x['name'],
             value: v,
-            threshold: 2,
-            fill_target: fill_target
-          });
+            threshold: 2
+          };
         }
       },
 
       "categories": {
         primary: 'id',
         placeholder: "name",
-        handler: function(v, fill_target) {
-          dt_string_fetch_handler({
+        options: function(v) {
+          return {
             table: 'categories',
             query: `select=id,name,name_long,unit&name=ilike.*${v}*`,
             input: x => x['id'],
             descriptor: x => `${x.name} - ${x.name_long}`,
             value: v,
-            threshold: 2,
-            fill_target: fill_target
-          });
+            threshold: 2
+          }
         }
       },
 
       "files": {
         primary: 'id',
         placeholder: "label (optional)",
-        handler: function(v, fill_target) {
+        options: function(v) {
           let em = location.get_query_param('edit_model');
 
           let dataset_param = '';
@@ -69,33 +71,18 @@
             dataset_param = `dataset_id=eq.${em}`;
 
           if (v === '' || v === null) ;
-          else
-            label_param = `&label=ilike.*${v}*`
+          else label_param = `&label=ilike.*${v}*`
 
-          dt_string_fetch_handler({
+          return {
             table: 'files',
             query: `select=id,label,endpoint&${dataset_param}${label_param}`,
             input: x => x['id'],
             descriptor: x => `${x.label} - ${x.endpoint}`,
             value: v,
-            threshold: 0,
-            fill_target: fill_target
-          });
+            threshold: 0
+          };
         }
-      },
-
-      "id": {
-        placeholder: "uuid",
-        handler: function(tablename, v, descriptor) {
-          dt_reverse_string_fetch_handler(
-            tablename,
-            `${tablename}?select=id,${descriptor}&id=eq.${v}`,
-            (x) => x['id'],
-            (x) => x[descriptor],
-            v, 36
-          );
-        }
-      },
+      }
     };
   </script>
 </html>

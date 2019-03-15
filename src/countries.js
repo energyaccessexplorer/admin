@@ -1,4 +1,4 @@
-dt_model_module = (function() {
+dt_modules['countries'] = (function() {
   var country_id  = location.get_query_param('id');
 
   let ds_options = [];
@@ -165,8 +165,6 @@ dt_model_module = (function() {
   }];
 
   var model = {
-    "base": "/countries",
-
     "edit_callback": model => edit_callback(model),
 
     "schema": {
@@ -221,31 +219,30 @@ dt_model_module = (function() {
         return `/countries?select=${attrs}`;
     },
 
-    "refresh_after_new": true,
-
     "sort_by": '',
   };
 
-  var header = '<th colspan="2">Name</th><th>CCN3</th><th>Datasets</th>';
+  var header = '<th>Name</th><th>CCN3</th><th>Datasets</th>';
 
-  var row = `
-<td bind="edit"></td>
-<td <%= !online ? 'class="disabled"' : '' %>><%= name %></td>
-<td><%= ccn3 %></td>
-<td><a href="/?model=datasets&country_id=<%= id %>">datasets</a></td>
+  var row = m => `
+<td ${!m.online ? 'class="disabled"' : ''}><a bind="edit"></a> ${m.name}</td>
+<td>${m.ccn3}</td>
+<td><a href="/?model=datasets&country_id=${m.id}">datasets</a></td>
 `;
 
   var style = `
-table td:nth-of-type(3) {
+table td:nth-of-type(2) {
   text-align: center;
+  font-family: monospace;
 }`;
 
   return {
-    Model: model,
-    Collection: collection,
-    Header: 'Countries',
-    TableHeader: header,
-    TableRow: row,
-    Style: style,
+    base: "/countries",
+    model: model,
+    collection: collection,
+    header: 'Countries',
+    th: header,
+    row: row,
+    style: style,
   };
 })();
