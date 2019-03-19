@@ -153,8 +153,9 @@ dt_modules['datasets'] = (function() {
 
   var style = null;
 
-  var header = (_ => {
+  var header = async function() {
     let h = null;
+    let str = null;
 
     if (country_id)
       h = [`/countries?select=name&id=eq.${country_id}`, 'name'];
@@ -162,8 +163,12 @@ dt_modules['datasets'] = (function() {
     else
       h = "All Datasets";
 
-    return h;
-  })();
+    await fetch(dt_config.origin + h[0])
+      .then(r => r.json())
+      .then(j => str = j[0][h[1]]);
+
+    return str;
+  };
 
   return {
     base: "/datasets",

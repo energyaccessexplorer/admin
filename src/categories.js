@@ -151,7 +151,7 @@ See also: 'precision' attribute.`
 
   var collection = {
     "url": function() {
-      var attrs = 'id,name,unit';
+      var attrs = 'id,name,name_long,unit';
 
       if (class_id)
         return `/categories?id=eq.${class_id}&select=${attrs}`;

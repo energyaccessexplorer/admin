@@ -4,6 +4,8 @@ dt_modules['countries'] = (function() {
   let ds_options = [];
 
   const edit_callback = model => {
+    country_id = country_id || location.get_query_param('edit_model');
+
     sortable('fieldset[name="category"]', { forcePlaceholderSize: true });
     sortable('fieldset[name="subcategories"]', { forcePlaceholderSize: true });
     sortable('fieldset[name="datasets"]', { forcePlaceholderSize: true });
@@ -26,7 +28,7 @@ dt_modules['countries'] = (function() {
         for (let i of ins) i.pattern = pattern;
       });
 
-    if (!model.get('category_tree')) {
+    if (!model['category_tree']) {
       console.log("empty 'category_tree'. filling in with default...");
 
       const form = document.querySelector(`form[id="edit-form"]`)
