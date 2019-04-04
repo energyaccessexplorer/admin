@@ -161,13 +161,13 @@ dt_modules['datasets'] = (function() {
       h = [`/countries?select=name&id=eq.${country_id}`, 'name'];
 
     else
-      h = "All Datasets";
+      h = "";
 
     await fetch(dt_config.origin + h[0])
       .then(r => r.json())
       .then(j => str = j[0][h[1]]);
 
-    return str;
+    return str + " datasets";
   };
 
   return {

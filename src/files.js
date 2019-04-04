@@ -54,7 +54,33 @@ dt_modules['files'] = (function() {
     "sort_by": 'endpoint',
   };
 
-  var header = `
+  const header = async function() {
+    let h = null;
+    let str = null;
+    let country_id;
+
+    if (!dataset_id) return "Files";
+
+    h = [`/datasets?select=name:category_name,country_id&id=eq.${dataset_id}`, 'name'];
+
+    await fetch(dt_config.origin + h[0])
+      .then(r => r.json())
+      .then(j => {
+        country_id = j[0]['country_id'];
+        str = j[0][h[1]];
+      });
+
+    if (dataset_id)
+      h = [`/countries?select=name&id=eq.${country_id}`, 'name'];
+
+    await fetch(dt_config.origin + h[0])
+      .then(r => r.json())
+      .then(j => str = j[0][h[1]] + " " + str)
+
+    return str + " files";
+  };
+
+  var table_header = `
 <th>Label</th>
 <th>Endpoint</th>
 `;
@@ -74,8 +100,8 @@ table td:nth-of-type(2) {
     base: "/files",
     model: model,
     collection: collection,
-    header: 'Files',
-    th: header,
+    header: header,
+    th: table_header,
     row: row,
     style: style,
   };
