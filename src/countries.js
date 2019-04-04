@@ -6,13 +6,13 @@ dt_modules['countries'] = (function() {
   const edit_callback = model => {
     country_id = country_id || location.get_query_param('edit_model');
 
-    sortable('fieldset[name="category"]', { forcePlaceholderSize: true });
-    sortable('fieldset[name="subcategories"]', { forcePlaceholderSize: true });
-    sortable('fieldset[name="datasets"]', { forcePlaceholderSize: true });
+    sortable('[name="category"]', { forcePlaceholderSize: true });
+    sortable('[name="subcategories"]', { forcePlaceholderSize: true });
+    sortable('[name="datasets"]', { forcePlaceholderSize: true });
 
     country_id = location.get_query_param('edit_model');
 
-    fetch(`${dt_config.origin}/datasets?select=category_name&country_id=eq.${country_id}`)
+    fetch(`${dt_config.origin}/datasets?select=category_name&country_id=eq.${model.data.id}`)
       .then(r => r.json())
       .then(j => j.map(x => x['category_name']))
       .then(m => {
@@ -28,14 +28,24 @@ dt_modules['countries'] = (function() {
         for (let i of ins) i.pattern = pattern;
       });
 
-    if (!model['category_tree']) {
+    if (!model.data['category_tree']) {
       console.log("empty 'category_tree'. filling in with default...");
 
-      const form = document.querySelector(`form[id="edit-form"]`)
+      const form = document.querySelector(`dialog[id="edit-modal"] form`);
 
-      form.querySelector(`fieldset[name="category_tree"]`).remove();
+      const ct = form.querySelector(`[name="category_tree"]`);
+      if (ct) ct.remove();
+
       form.querySelector(':scope > fieldset').appendChild(
-        formalize.array_fieldset(category_tree_schema, category_tree_default, "category_tree", "category_tree")
+        formalize.array_fieldset(
+          {
+            "type": "array",
+            "schema": category_tree_schema,
+          },
+          category_tree_default,
+          "category_tree",
+          "category_tree"
+        )
       );
     };
   };
@@ -205,6 +215,7 @@ dt_modules['countries'] = (function() {
       "category_tree": {
         "type": "array",
         "schema": category_tree_schema,
+        "collapsed": false,
         "nullable": true,
       }
     }
@@ -212,7 +223,7 @@ dt_modules['countries'] = (function() {
 
   var collection = {
     "url": function() {
-      var attrs = 'id,name,ccn3,online,bounds,category_tree';
+      var attrs = 'id,name,ccn3,cca3,online,bounds,category_tree';
 
       if (country_id)
         return `/countries?id=eq.${country_id}&select=${attrs}`;
@@ -228,13 +239,17 @@ dt_modules['countries'] = (function() {
 
   var row = m => `
 <td ${!m.online ? 'class="disabled"' : ''}><a bind="edit"></a> ${m.name}</td>
-<td>${m.ccn3}</td>
+<td>${m.cca3}</td>
 <td><a href="/?model=datasets&country_id=${m.id}">datasets</a></td>
 `;
 
   var style = `
+table td:nth-of-type(3),
 table td:nth-of-type(2) {
   text-align: center;
+}
+
+table td:nth-of-type(2) {
   font-family: monospace;
 }`;
 
