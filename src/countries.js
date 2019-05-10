@@ -16,8 +16,6 @@ dt_modules['countries'] = (function() {
       .then(r => r.json())
       .then(j => j.map(x => x['category_name']))
       .then(m => {
-        const pattern = `(${m.join('|')})`;
-
         let options_html = "";
         for (n of m) options_html += `<option value="${n}">${n}</option>`;
 
@@ -25,7 +23,11 @@ dt_modules['countries'] = (function() {
         for (let d of dls) d.innerHTML = options_html;
 
         const ins = document.querySelectorAll(`[name="datasets"] input[name="id"]`);
-        for (let i of ins) i.pattern = pattern;
+
+        if (m.length) {
+          const pattern = m.join('|');
+          for (let i of ins) i.pattern = `(${pattern})`;
+        }
       });
 
     if (!model.data['category_tree']) {
