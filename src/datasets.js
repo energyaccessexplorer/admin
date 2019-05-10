@@ -108,7 +108,8 @@ dt_modules['datasets'] = (function() {
             "nullable": true
           },
           "content_date": {
-            "type": "number",
+            "type": "string",
+            "pattern": "^[0-9]{4}(-[0-9]{4})?$",
             "nullable": true
           }
         }
