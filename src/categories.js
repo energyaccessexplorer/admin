@@ -136,10 +136,6 @@ See also: 'precision' attribute.`
         "type": "object",
         "nullable": true,
         "schema": {
-          "what": {
-            "type": "text",
-            "nullable": true
-          },
           "why": {
             "type": "text",
             "nullable": true
