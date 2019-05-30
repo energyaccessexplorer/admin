@@ -44,6 +44,12 @@ dt_modules['datasets'] = (function() {
         "columns": ['*']
       },
 
+      "configuration": {
+        "type": "json",
+        "schema": null,
+        "nullable": true
+      },
+
       "presets": {
         "type": "array",
         "nullable": true,
@@ -113,12 +119,6 @@ dt_modules['datasets'] = (function() {
             "nullable": true
           }
         }
-      },
-
-      "configuration": {
-        "type": "json",
-        "schema": null,
-        "nullable": true
       }
     }
   };
