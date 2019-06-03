@@ -72,13 +72,6 @@ See also: 'precision' attribute.`
               }
             }
           },
-          "color_stops": {
-            "type": "array",
-            "count": 5,
-            "schema": {
-              "type": "colour"
-            }
-          },
           "init": {
             "type": "object",
             "schema": {
@@ -91,7 +84,14 @@ See also: 'precision' attribute.`
                 "required": true
               }
             }
-          }
+          },
+          "color_stops": {
+            "type": "array",
+            "count": 5,
+            "schema": {
+              "type": "colour"
+            }
+          },
         }
       },
 
@@ -176,6 +176,10 @@ table td:nth-of-type(2),
 table td:nth-of-type(3),
 table td:nth-of-type(4) {
   text-align: center;
+}
+
+details[name="color_stops"] .input-group {
+  display: inline-block !important;
 }`;
 
   return {
