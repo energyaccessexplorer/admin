@@ -36,7 +36,7 @@ dt_modules['categories'] = (function() {
           "scale": {
             "type": "select",
             "required": true,
-            "options": ["identity", "linear", "key-linear", "key-delta"],
+            "options": ["identity", "linear", "key-linear", "key-delta", "multi-key-delta", "intervals"],
             "default": "linear"
           },
           "configuration": {
