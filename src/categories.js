@@ -39,6 +39,12 @@ dt_modules['categories'] = (function() {
             "options": ["identity", "linear", "key-linear", "key-delta"],
             "default": "linear"
           },
+          "configuration": {
+            "type": "json",
+            "schema": null,
+            "nullable": true,
+            "default": ""
+          },
           "clamp": {
             "type": "boolean",
             "default": false,
