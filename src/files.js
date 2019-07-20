@@ -57,21 +57,21 @@ dt_modules['files'] = (function() {
   const header = async function() {
     let h = null;
     let str = null;
-    let country_id;
+    let geography_id;
 
     if (!dataset_id) return "Files";
 
-    h = [`/datasets?select=name:category_name,country_id&id=eq.${dataset_id}`, 'name'];
+    h = [`/datasets?select=name:category_name,geography_id&id=eq.${dataset_id}`, 'name'];
 
     await fetch(dt_config.origin + h[0])
       .then(r => r.json())
       .then(j => {
-        country_id = j[0]['country_id'];
+        geography_id = j[0]['geography_id'];
         str = j[0][h[1]];
       });
 
     if (dataset_id)
-      h = [`/countries?select=name&id=eq.${country_id}`, 'name'];
+      h = [`/geographies?select=name&id=eq.${geography_id}`, 'name'];
 
     await fetch(dt_config.origin + h[0])
       .then(r => r.json())

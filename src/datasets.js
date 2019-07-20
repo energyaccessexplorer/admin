@@ -1,6 +1,6 @@
 dt_modules['datasets'] = (function() {
   var dataset_id = location.get_query_param('id');
-  var country_id = location.get_query_param('country_id');
+  var geography_id = location.get_query_param('geography_id');
   var category_id = location.get_query_param('category_id');
 
   var model = {
@@ -13,9 +13,9 @@ dt_modules['datasets'] = (function() {
         "columns": ['*']
       },
 
-      "country_id": {
+      "geography_id": {
         "type": "uuid",
-        "fkey": "countries",
+        "fkey": "geographies",
         "required": true,
         "editable": false,
         "columns": ['*']
@@ -130,8 +130,8 @@ dt_modules['datasets'] = (function() {
       if (dataset_id)
         return `/datasets?id=eq.${dataset_id}&select=${attrs}`;
 
-      else if (country_id)
-        return `/datasets?country_id=eq.${country_id}&select=${attrs}`;
+      else if (geography_id)
+        return `/datasets?geography_id=eq.${geography_id}&select=${attrs}`;
 
       else if (category_id)
         return `/datasets?category_id=eq.${category_id}&select=${attrs}`;
@@ -158,8 +158,8 @@ dt_modules['datasets'] = (function() {
     let h = null;
     let str = null;
 
-    if (country_id)
-      h = [`/countries?select=name&id=eq.${country_id}`, 'name'];
+    if (geography_id)
+      h = [`/geographies?select=name&id=eq.${geography_id}`, 'name'];
 
     else
       h = "";

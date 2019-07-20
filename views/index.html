@@ -19,7 +19,7 @@
                 padding: 0.5em;
                 padding-left: 1em;
                 padding-right: 1em;"></a>
-        <a href="/?model=countries">Countries</a>
+        <a href="/?model=geographies">Geographies</a>
         <a href="/?model=categories">Categories</a>
       </nav>
 
@@ -28,12 +28,12 @@
 
   <script>
     dt_fetchables = {
-      "countries": {
-        primary: 'ccn3',
-        placeholder: "name or ccn3",
+      "geographies": {
+        primary: 'name',
+        placeholder: "name",
         options: function(v) {
           return {
-            table: 'countries',
+            table: 'geographies',
             query: `select=id,name&name=ilike.*${v}*`,
             input: x => x['id'],
             descriptor: x => x['name'],

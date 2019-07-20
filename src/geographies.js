@@ -1,18 +1,18 @@
-dt_modules['countries'] = (function() {
-  var country_id  = location.get_query_param('id');
+dt_modules['geographies'] = (function() {
+  var geography_id  = location.get_query_param('id');
 
   let ds_options = [];
 
   const edit_callback = model => {
-    country_id = country_id || location.get_query_param('edit_model');
+    geography_id = geography_id || location.get_query_param('edit_model');
 
     sortable('[name="category"]', { forcePlaceholderSize: true });
     sortable('[name="subcategories"]', { forcePlaceholderSize: true });
     sortable('[name="datasets"]', { forcePlaceholderSize: true });
 
-    country_id = location.get_query_param('edit_model');
+    geography_id = location.get_query_param('edit_model');
 
-    fetch(`${dt_config.origin}/datasets?select=category_name&country_id=eq.${model.data.id}`)
+    fetch(`${dt_config.origin}/datasets?select=category_name&geography_id=eq.${model.data.id}`)
       .then(r => r.json())
       .then(j => j.map(x => x['category_name']))
       .then(m => {
@@ -185,15 +185,8 @@ dt_modules['countries'] = (function() {
       "name": {
         "type": "string",
         "required": true,
-        "hint": "The short name of the country.",
-        "label": "Country name"
-      },
-
-      "ccn3": {
-        "type": "number",
-        "required": true,
-        "editable": false,
-        "label": "CCN3 code"
+        "hint": "The short name of the geography.",
+        "label": "Geography name"
       },
 
       "cca3": {
@@ -201,6 +194,13 @@ dt_modules['countries'] = (function() {
         "required": true,
         "editable": false,
         "label": "CCA3 code"
+      },
+
+      "adm": {
+        "type": "number",
+        "required": true,
+        "editable": false,
+        "label": "Administrative Boundary level"
       },
 
       "bounds": {
@@ -215,7 +215,7 @@ dt_modules['countries'] = (function() {
       },
 
       "category_tree": {
-        "type": "array",
+        "type": "json",
         "schema": category_tree_schema,
         "collapsed": false,
         "nullable": true,
@@ -230,24 +230,25 @@ dt_modules['countries'] = (function() {
 
   var collection = {
     "url": function() {
-      var attrs = 'id,name,ccn3,cca3,online,bounds,category_tree';
+      var attrs = 'id,name,cca3,adm,online,bounds,category_tree';
 
-      if (country_id)
-        return `/countries?id=eq.${country_id}&select=${attrs}`;
+      if (geography_id)
+        return `/geographies?id=eq.${geography_id}&select=${attrs}`;
 
       else
-        return `/countries?select=${attrs}`;
+        return `/geographies?select=${attrs}`;
     },
 
     "sort_by": '',
   };
 
-  var header = '<th>Name</th><th>CCN3</th><th>Datasets</th>';
+  var header = '<th>Name</th><th>cca3</th><th>adm</th><th>Datasets</th>';
 
   var row = m => `
 <td ${!m.online ? 'class="disabled"' : ''}><a bind="edit"></a> ${m.name}</td>
 <td>${m.cca3}</td>
-<td><a href="/?model=datasets&country_id=${m.id}">datasets</a></td>
+<td>${m.adm}</td>
+<td><a href="/?model=datasets&geography_id=${m.id}">datasets</a></td>
 `;
 
   var style = `
@@ -261,10 +262,10 @@ table td:nth-of-type(2) {
 }`;
 
   return {
-    base: "/countries",
+    base: "/geographies",
     model: model,
     collection: collection,
-    header: 'Countries',
+    header: 'Geographies',
     th: header,
     row: row,
     style: style,
