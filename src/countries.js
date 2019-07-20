@@ -219,6 +219,11 @@ dt_modules['countries'] = (function() {
         "schema": category_tree_schema,
         "collapsed": false,
         "nullable": true,
+      },
+
+      "configuration": {
+        "type": "json",
+        "schema": null
       }
     }
   };
