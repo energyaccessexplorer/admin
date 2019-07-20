@@ -126,9 +126,22 @@ See also: 'precision' attribute.`
             "type": "colour",
             "nullable": true
           },
+          "stroke-width": {
+            "type": "number",
+            "nullable": false,
+            "default": 1
+          },
           "width": {
+            "label": "width/size",
             "type": "number",
             "nullable": false
+          },
+          "color_stops": {
+            "type": "array",
+            "count": 5,
+            "schema": {
+              "type": "colour"
+            }
           },
           "dasharray": {
             "type": "string",
