@@ -189,6 +189,14 @@ dt_modules['geographies'] = (function() {
         "label": "Geography name"
       },
 
+      "parent_id": {
+        "type": "uuid",
+        "fkey": "geographies",
+        "required": false,
+        "editable": false,
+        "columns": ['*']
+      },
+
       "cca3": {
         "type": "string",
         "required": true,
