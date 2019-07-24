@@ -22,6 +22,7 @@ dt_modules['files'] = (function() {
       "label": {
         "type": "string",
         "default": null,
+        "required": true
       },
 
       "endpoint": {
