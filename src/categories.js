@@ -67,6 +67,7 @@ See also: 'precision' attribute.`
           },
           "domain": {
             "type": "object",
+            "collapsed": false,
             "schema": {
               "min": {
                 "type": "number",
@@ -80,6 +81,7 @@ See also: 'precision' attribute.`
           },
           "init": {
             "type": "object",
+            "collapsed": false,
             "schema": {
               "min": {
                 "type": "number",
@@ -94,6 +96,7 @@ See also: 'precision' attribute.`
           "color_stops": {
             "type": "array",
             "count": 5,
+            "collapsed": false,
             "schema": {
               "type": "colour"
             }
@@ -139,6 +142,7 @@ See also: 'precision' attribute.`
           "color_stops": {
             "type": "array",
             "count": 5,
+            "collapsed": false,
             "schema": {
               "type": "colour"
             }
