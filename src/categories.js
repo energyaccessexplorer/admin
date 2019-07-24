@@ -159,6 +159,23 @@ See also: 'precision' attribute.`
           "why": {
             "type": "text",
             "nullable": true
+          },
+          "path": {
+            "type": "array",
+            "collapsed": false,
+            "schema": {
+              "type": "string",
+              "required": true
+            }
+          },
+          "invert": {
+            "type": "array",
+            "collapsed": false,
+            "schema": {
+              "type": "string",
+              "required": true,
+              "options": ["eai", "ani", "supply", "demand"]
+            }
           }
         }
       }
