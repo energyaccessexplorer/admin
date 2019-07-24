@@ -95,7 +95,6 @@ See also: 'precision' attribute.`
           },
           "color_stops": {
             "type": "array",
-            "count": 5,
             "collapsed": false,
             "schema": {
               "type": "colour"
@@ -141,7 +140,6 @@ See also: 'precision' attribute.`
           },
           "color_stops": {
             "type": "array",
-            "count": 5,
             "collapsed": false,
             "schema": {
               "type": "colour"
