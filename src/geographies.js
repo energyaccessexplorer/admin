@@ -211,11 +211,6 @@ dt_modules['geographies'] = (function() {
         "label": "Administrative Boundary level"
       },
 
-      "bounds": {
-        "type": "json",
-        "schema": null
-      },
-
       "online": {
         "type": "boolean",
         "default": false,
