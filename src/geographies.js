@@ -217,13 +217,6 @@ dt_modules['geographies'] = (function() {
         "label": "Show online?"
       },
 
-      "category_tree": {
-        "type": "json",
-        "schema": category_tree_schema,
-        "collapsed": false,
-        "nullable": true,
-      },
-
       "configuration": {
         "type": "json",
         "schema": null
