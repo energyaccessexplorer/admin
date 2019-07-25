@@ -151,15 +151,10 @@ See also: 'precision' attribute.`
           },
         }
       },
-
-      "metadata": {
+      "configuration": {
         "type": "object",
         "nullable": true,
         "schema": {
-          "why": {
-            "type": "text",
-            "nullable": true
-          },
           "path": {
             "type": "array",
             "collapsed": false,
@@ -178,8 +173,18 @@ See also: 'precision' attribute.`
             }
           }
         }
+      },
+      "metadata": {
+        "type": "object",
+        "nullable": true,
+        "schema": {
+          "why": {
+            "type": "text",
+            "nullable": true
+          },
+        }
       }
-    },
+    }
   };
 
   var collection = {
