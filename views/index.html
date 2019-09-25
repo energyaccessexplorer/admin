@@ -58,6 +58,21 @@
         }
       },
 
+      "datasets": {
+        primary: 'id',
+        placeholder: "category_name",
+        options: function(v) {
+          return {
+            table: 'datasets',
+            query: `select=id,geography_name,category_name,category_id&category_name=ilike.*${v}*`,
+            input: x => x['id'],
+            descriptor: x => `${x.geography_name} - ${x.category_name}`,
+            value: v,
+            threshold: 2
+          }
+        }
+      },
+
       "files": {
         primary: 'id',
         placeholder: "label (optional)",

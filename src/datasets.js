@@ -120,12 +120,41 @@ dt_modules['datasets'] = (function() {
           }
         }
       }
+    },
+
+    "edit_callback": function(model, form) {
+      const metadatadetails = form.querySelector('details[name="metadata"]');
+
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.innerText = "import metadata";
+      button.style = "float: right;";
+
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.onchange = function() {
+        fetch(dt_config.origin + `/datasets?select=metadata&id=eq.${this.value}`)
+          .then(r => r.json())
+          .then(r => {
+            let metadata;
+            if (!r[0] || !(metadata = r[0]['metadata'])) return;
+
+            for (let k in metadata)
+              metadatadetails.querySelector(`[name=${k}]`).value = metadata[k];
+          })
+      };
+
+      button.onclick = function() {
+        dt_model_search_modal('datasets', input, null);
+      };
+
+      metadatadetails.querySelector('summary').append(button);
     }
   };
 
   var collection = {
     "url": function() {
-      var attrs = 'id,online,metadata,category_id,category_name,files(*)';
+      var attrs = 'id,online,metadata,category_id,category_name,files(*),geography_id';
 
       if (dataset_id)
         return `/datasets?id=eq.${dataset_id}&select=${attrs}`;
