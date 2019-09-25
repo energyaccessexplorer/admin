@@ -184,20 +184,31 @@ dt_modules['datasets'] = (function() {
   var style = null;
 
   var header = async function() {
-    let h = null;
     let str = null;
+    let sufix = null;
+    let gid = geography_id;
 
-    if (geography_id)
-      h = [`/geographies?select=name&id=eq.${geography_id}`, 'name'];
+    const geoobj = _ => dt_collections["datasets"][0].array[0];
 
-    else
-      h = "";
+    if (!gid) {
+      await until(geoobj)
+        .then(_ => {
+          const g = geoobj();
+
+          sufix = g['category_name'];
+          gid = g['geography_id'];
+        });
+    }
+
+    const h = [`/geographies?select=name&id=eq.${gid}`, 'name'];
+
+    if (!gid) return "";
 
     await fetch(dt_config.origin + h[0])
       .then(r => r.json())
       .then(j => str = j[0][h[1]]);
 
-    return str + " datasets";
+    return str + " - " + (sufix ? sufix : "datasets");
   };
 
   return {
