@@ -2,6 +2,8 @@ dt_modules['categories'] = (function() {
   var class_id  = location.get_query_param('id');
 
   var model = {
+    "columns": ["*", "datasets(id)"],
+
     "schema": {
       "name": {
         "type": "string",
@@ -40,7 +42,7 @@ dt_modules['categories'] = (function() {
           "scale": {
             "type": "select",
             "required": true,
-            "options": ["identity", "linear", "key-linear", "key-delta", "multi-key-delta", "intervals"],
+            "options": ["linear", "key-delta", "multi-key-delta", "exclusion-buffer", "intervals"],
             "default": "linear"
           },
           "configuration": {
@@ -142,6 +144,10 @@ See also: 'precision' attribute.`
             "type": "number",
             "nullable": false
           },
+          "dasharray": {
+            "type": "string",
+            "nullable": true
+          },
           "color_stops": {
             "type": "array",
             "collapsed": false,
@@ -149,12 +155,13 @@ See also: 'precision' attribute.`
               "type": "colour"
             }
           },
-          "dasharray": {
-            "type": "string",
+          "specs": {
+            "type": "json",
             "nullable": true
-          },
+          }
         }
       },
+
       "configuration": {
         "type": "object",
         "nullable": true,
@@ -175,9 +182,33 @@ See also: 'precision' attribute.`
               "required": true,
               "options": ["eai", "ani", "supply", "demand"]
             }
+          },
+          "controls": {
+            "type": "object",
+            "nullable": false,
+            "schema": {
+              "range": {
+                "type": "select",
+                "options": ["", "single", "double"],
+                "default": "double"
+              },
+              "range_steps": {
+                "type": "number",
+                "nullable": true,
+                "default": 0
+              },
+              "range_label": {
+                "type": "string"
+              },
+              "weight": {
+                "type": "boolean",
+                "default": true
+              }
+            }
           }
         }
       },
+
       "metadata": {
         "type": "object",
         "nullable": true,
@@ -193,25 +224,25 @@ See also: 'precision' attribute.`
 
   var collection = {
     "url": function() {
-      var attrs = 'id,name,name_long,unit';
+      var attrs = 'id,name,name_long,unit,datasets(*)';
 
       if (class_id)
-        return `/categories?id=eq.${class_id}&select=${attrs}`;
+        return `/categories?id=eq.${class_id}&select=${attrs}&order=name_long.asc`;
 
       else
-        return `/categories?select=${attrs}`;
-    },
-
-    "sort_by": 'name',
+        return `/categories?select=${attrs}&order=name_long.asc`;
+    }
   };
 
   var header = `
-<th>Name</th> <th>Unit</th>
+<th>Name</th> <th>ID</th> <th>Unit</th> <th>DS count</th>
 `;
 
   var row = m => `
 <td><a bind="edit"></a>${m.name_long}</td>
+<td>${m.name}</td>
 <td>${m.unit || ''}</td>
+<td>${m.datasets.length || 0}</td>
 `;
 
   var style = `
@@ -219,7 +250,6 @@ table td:nth-of-type(2) {
   font-family: monospace;
 }
 
-table td:nth-of-type(2),
 table td:nth-of-type(3),
 table td:nth-of-type(4) {
   text-align: center;
