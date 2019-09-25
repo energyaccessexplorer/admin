@@ -25,6 +25,7 @@ dt_modules['datasets'] = (function() {
 
       "online": {
         "type": "boolean",
+        "label": "Show Online",
         "default": false,
       },
 
@@ -187,7 +188,11 @@ dt_modules['datasets'] = (function() {
 <td><a href="/?model=files&dataset_id=${m.id}">files</a></td>
 `;
 
-  var style = null;
+  var style = `
+table td:nth-of-type(1) {
+  font-family: monospace;
+}
+`;
 
   var header = async function() {
     let str = null;

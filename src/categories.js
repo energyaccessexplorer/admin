@@ -9,7 +9,7 @@ dt_modules['categories'] = (function() {
         "type": "string",
         "label": "Name",
         "required": true,
-        "pattern": "[a-zA-Z0-9\-]+"
+        "pattern": "^[^\-][a-z0-9\-]+$"
       },
 
       "name_long": {
