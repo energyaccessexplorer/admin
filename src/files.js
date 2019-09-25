@@ -9,30 +9,29 @@ dt_modules['files'] = (function() {
       "dataset_id": {
         "type": "uuid",
         "fkey": "datasets",
+        "label": "Dataset",
         "required": true,
         "editable": false,
         "columns": ['*']
       },
 
-      "test": {
-        "type": "boolean",
-        "default": true,
-      },
-
       "label": {
         "type": "string",
         "default": null,
+        "label": "Label",
         "required": true
       },
 
       "endpoint": {
         "type": "string",
+        "label": "Endpoint",
         "resource": true,
         "required": true,
       },
 
       "comment": {
         "type": "text",
+        "label": "Comment",
         "required": true
       }
     }

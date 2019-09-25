@@ -39,12 +39,13 @@ dt_modules['geographies'] = (function() {
         "type": "string",
         "required": true,
         "hint": "The short name of the geography.",
-        "label": "Geography name"
+        "label": "Geography Name"
       },
 
       "parent_id": {
         "type": "uuid",
         "fkey": "geographies",
+        "label": "Parent Geography",
         "required": false,
         "editable": false,
         "columns": ['*']
@@ -61,7 +62,7 @@ dt_modules['geographies'] = (function() {
         "type": "number",
         "required": true,
         "editable": false,
-        "label": "Administrative Boundary level"
+        "label": "Adm. Level"
       },
 
       "online": {
@@ -72,7 +73,9 @@ dt_modules['geographies'] = (function() {
 
       "configuration": {
         "type": "json",
-        "schema": null
+        "schema": null,
+        "label": "Configuration",
+        "nullable": true
       }
     }
   };

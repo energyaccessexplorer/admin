@@ -5,21 +5,25 @@ dt_modules['categories'] = (function() {
     "schema": {
       "name": {
         "type": "string",
+        "label": "Name",
         "required": true,
         "pattern": "[a-zA-Z0-9\-]+"
       },
 
       "name_long": {
         "type": "string",
+        "label": "Long Name",
         "required": true
       },
 
       "unit": {
         "type": "string",
+        "label": "Unit"
       },
 
       "weight": {
         "type": "number",
+        "label": "Weight",
         "default": 2
       },
 

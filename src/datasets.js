@@ -10,6 +10,7 @@ dt_modules['datasets'] = (function() {
         "fkey": "categories",
         "required": true,
         "editable": false,
+        "label": "Category",
         "columns": ['*']
       },
 
@@ -18,6 +19,7 @@ dt_modules['datasets'] = (function() {
         "fkey": "geographies",
         "required": true,
         "editable": false,
+        "label": "Geography",
         "columns": ['*']
       },
 
@@ -29,24 +31,28 @@ dt_modules['datasets'] = (function() {
       "heatmap_file_id": {
         "type": "uuid",
         "fkey": "files",
+        "label": "Raster file ID",
         "columns": ['*']
       },
 
       "vectors_file_id": {
         "type": "uuid",
         "fkey": "files",
+        "label": "Vectors file ID",
         "columns": ['*']
       },
 
       "csv_file_id": {
         "type": "uuid",
         "fkey": "files",
+        "label": "CSV file ID",
         "columns": ['*']
       },
 
       "configuration": {
         "type": "json",
         "schema": null,
+        "label": "Configuration",
         "nullable": true
       },
 
