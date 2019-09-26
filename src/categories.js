@@ -8,6 +8,7 @@ dt_modules['categories'] = (function() {
       "name": {
         "type": "string",
         "label": "Name",
+        "editable": false,
         "required": true,
         "pattern": "^[^\-][a-z0-9\-]+$"
       },
