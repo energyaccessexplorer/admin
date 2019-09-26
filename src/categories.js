@@ -206,6 +206,11 @@ See also: 'precision' attribute.`
                 "default": true
               }
             }
+          },
+          "analysis_intervals": {
+            "type": "json",
+            "nullable": true,
+            "schema": null
           }
         }
       },
