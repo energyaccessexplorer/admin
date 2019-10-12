@@ -29,9 +29,9 @@ dt_modules['categories'] = (function() {
         "default": false
       },
 
-      "heatmap": {
+      "raster": {
         "type": "object",
-        "label": "Heatmap configuration",
+        "label": "Raster configuration",
         "nullable": true,
         "schema": {
           "scale": {
@@ -50,7 +50,7 @@ dt_modules['categories'] = (function() {
             "step": "any",
             "required": false,
             "hint": `
-Example: Say the heatmap represents 'small' numbers with 3 decimals. But it's more economic (filesize-wise) to store 16bui than 32bf.
+Example: Say the raster represents 'small' numbers with 3 decimals. But it's more economic (filesize-wise) to store 16bui than 32bf.
 So the factor would be 0.001 = 10*e-3.
 Windspeed is a good example of this: with factor 0.1, it stores
 numbers 10 - 170 but the tool shows numbers from 1.00 - 17.00.

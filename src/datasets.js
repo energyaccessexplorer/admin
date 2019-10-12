@@ -29,7 +29,7 @@ dt_modules['datasets'] = (function() {
         "default": false,
       },
 
-      "heatmap_file_id": {
+      "raster_file_id": {
         "type": "uuid",
         "fkey": "files",
         "label": "Raster file ID",
