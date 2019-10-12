@@ -24,10 +24,9 @@ dt_modules['categories'] = (function() {
         "label": "Unit"
       },
 
-      "weight": {
-        "type": "number",
-        "label": "Weight",
-        "default": 2
+      "timeline": {
+        "type": "boolean",
+        "default": false
       },
 
       "heatmap": {
@@ -35,27 +34,16 @@ dt_modules['categories'] = (function() {
         "label": "Heatmap configuration",
         "nullable": true,
         "schema": {
-          "number_type": {
-            "type": "select", // careful here with 'type' as it should be a reserved word!
-            "required": true,
-            "options": ["8ui", "8si", "16ui", "16si", "32ui", "32si", "32f", "64f"],
-          },
           "scale": {
             "type": "select",
             "required": true,
-            "options": ["linear", "key-delta", "multi-key-delta", "exclusion-buffer", "intervals"],
+            "options": ["linear", "intervals"],
             "default": "linear"
           },
-          "configuration": {
+          "intervals": {
             "type": "json",
             "schema": null,
             "nullable": true,
-            "default": ""
-          },
-          "clamp": {
-            "type": "boolean",
-            "default": false,
-            "hint": "Clamping is explained at: \nhttps://github.com/d3/d3-scale#continuous_clamp"
           },
           "factor": {
             "type": "number",
@@ -163,17 +151,43 @@ See also: 'precision' attribute.`
         }
       },
 
-      "configuration": {
+      "csv": {
         "type": "object",
+        "label": "CSV configuration",
         "nullable": true,
         "schema": {
-          "path": {
-            "type": "array",
-            "collapsed": false,
-            "schema": {
-              "type": "string",
-              "required": true
-            }
+          "dummy": {
+            "type": "boolean",
+            "default": true
+          }
+        }
+      },
+
+      "analysis": {
+        "type": "object",
+        "label": "Analysis configuration",
+        "nullable": true,
+        "schema": {
+          "weight": {
+            "type": "number",
+            "default": 2,
+            "nullable": false
+          },
+          "scale": {
+            "type": "select",
+            "required": true,
+            "options": ["linear", "key-delta", "multi-key-delta", "exclusion-buffer", "intervals"],
+            "default": "linear"
+          },
+          "clamp": {
+            "type": "boolean",
+            "default": false,
+            "hint": "Clamping is explained at: \nhttps://github.com/d3/d3-scale#continuous_clamp"
+          },
+          "intervals": {
+            "type": "json",
+            "nullable": true,
+            "schema": null,
           },
           "invert": {
             "type": "array",
@@ -183,34 +197,38 @@ See also: 'precision' attribute.`
               "required": true,
               "options": ["eai", "ani", "supply", "demand"]
             }
-          },
-          "controls": {
-            "type": "object",
-            "nullable": false,
+          }
+        }
+      },
+
+      "controls": {
+        "type": "object",
+        "nullable": false,
+        "schema": {
+          "path": {
+            "type": "array",
+            "collapsed": false,
             "schema": {
-              "range": {
-                "type": "select",
-                "options": ["", "single", "double"],
-                "default": "double"
-              },
-              "range_steps": {
-                "type": "number",
-                "nullable": true,
-                "default": 0
-              },
-              "range_label": {
-                "type": "string"
-              },
-              "weight": {
-                "type": "boolean",
-                "default": true
-              }
+              "type": "string",
+              "required": true
             }
           },
-          "analysis_intervals": {
-            "type": "json",
+          "range": {
+            "type": "select",
+            "options": ["", "single", "double"],
+            "default": "double"
+          },
+          "range_steps": {
+            "type": "number",
             "nullable": true,
-            "schema": null
+            "default": 0
+          },
+          "range_label": {
+            "type": "string"
+          },
+          "weight": {
+            "type": "boolean",
+            "default": true
           }
         }
       },
