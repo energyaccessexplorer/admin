@@ -272,20 +272,6 @@ See also: 'precision' attribute.`
 <td>${m.datasets.length || 0}</td>
 `;
 
-  var style = `
-table td:nth-of-type(2) {
-  font-family: monospace;
-}
-
-table td:nth-of-type(3),
-table td:nth-of-type(4) {
-  text-align: center;
-}
-
-details[name="color_stops"] .input-group {
-  display: inline-block !important;
-}`;
-
   return {
     base: "/categories",
     model: model,
@@ -293,6 +279,5 @@ details[name="color_stops"] .input-group {
     header: 'Categories',
     th: header,
     row: row,
-    style: style,
   };
 })();

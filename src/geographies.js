@@ -100,16 +100,6 @@ dt_modules['geographies'] = (function() {
 <td><a href="/?model=datasets&geography_id=${m.id}">datasets</a></td>
 `;
 
-  var style = `
-table td:nth-of-type(3),
-table td:nth-of-type(2) {
-  text-align: center;
-}
-
-table td:nth-of-type(2) {
-  font-family: monospace;
-}`;
-
   return {
     base: "/geographies",
     model: model,
@@ -117,6 +107,5 @@ table td:nth-of-type(2) {
     header: 'Geographies',
     th: header,
     row: row,
-    style: style,
   };
 })();

@@ -92,12 +92,6 @@ dt_modules['files'] = (function() {
 <td>${m.endpoint}</td>
 `;
 
-  var style = `
-table td:nth-of-type(1),
-table td:nth-of-type(2) {
-  font-family: monospace;
-}`;
-
   return {
     base: "/files",
     model: model,
@@ -105,6 +99,5 @@ table td:nth-of-type(2) {
     header: header,
     th: table_header,
     row: row,
-    style: style,
   };
 })();

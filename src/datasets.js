@@ -189,12 +189,6 @@ dt_modules['datasets'] = (function() {
 <td><a href="/?model=files&dataset_id=${m.id}">files</a></td>
 `;
 
-  var style = `
-table td:nth-of-type(1) {
-  font-family: monospace;
-}
-`;
-
   var header = async function() {
     let str = null;
     let sufix = null;
@@ -230,6 +224,5 @@ table td:nth-of-type(1) {
     header: header,
     th: table_header,
     row: row,
-    style: style,
   };
 })();
