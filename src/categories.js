@@ -4,13 +4,15 @@ dt_modules['categories'] = (function() {
   var model = {
     "columns": ["*", "datasets(id)"],
 
+    "main": "name",
+
     "schema": {
       "name": {
         "type": "string",
         "label": "Name",
         "editable": false,
         "required": true,
-        "pattern": "^[^\-][a-z0-9\-]+$"
+        "pattern": "^[a-z][a-z0-9\-]+$"
       },
 
       "name_long": {
@@ -42,7 +44,6 @@ dt_modules['categories'] = (function() {
           },
           "intervals": {
             "type": "json",
-            "schema": null,
             "nullable": true,
           },
           "factor": {
@@ -116,6 +117,7 @@ See also: 'precision' attribute.`
           "opacity": {
             "type": "number",
             "step": 0.01,
+            "default": 1,
             "nullable": true,
             "hint": "Applies to polygons and points"
           },
@@ -135,7 +137,7 @@ See also: 'precision' attribute.`
           },
           "dasharray": {
             "type": "string",
-            "nullable": true
+            "nullable": true,
           },
           "color_stops": {
             "type": "array",
@@ -187,7 +189,7 @@ See also: 'precision' attribute.`
           "intervals": {
             "type": "json",
             "nullable": true,
-            "schema": null,
+            "placeholder": "[0, 10, 1000, 5000]\n\nNeeds scale == intervals",
           },
           "invert": {
             "type": "array",
@@ -203,16 +205,8 @@ See also: 'precision' attribute.`
 
       "controls": {
         "type": "object",
-        "nullable": false,
+        "nullable": true,
         "schema": {
-          "path": {
-            "type": "array",
-            "collapsed": false,
-            "schema": {
-              "type": "string",
-              "required": true
-            }
-          },
           "range": {
             "type": "select",
             "options": ["", "single", "double"],
@@ -229,6 +223,15 @@ See also: 'precision' attribute.`
           "weight": {
             "type": "boolean",
             "default": true
+          },
+          "path": {
+            "type": "array",
+            "collapsed": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9\-]+$",
+              "required": true
+            }
           }
         }
       },

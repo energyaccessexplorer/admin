@@ -73,7 +73,6 @@ dt_modules['geographies'] = (function() {
 
       "configuration": {
         "type": "json",
-        "schema": null,
         "label": "Configuration",
         "nullable": true
       }
@@ -90,8 +89,6 @@ dt_modules['geographies'] = (function() {
       else
         return `/geographies?select=${attrs}`;
     },
-
-    "sort_by": '',
   };
 
   var header = '<th>Name</th><th>cca3</th><th>adm</th><th>Datasets</th>';

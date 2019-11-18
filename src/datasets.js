@@ -4,6 +4,8 @@ dt_modules['datasets'] = (function() {
   var category_id = location.get_query_param('category_id');
 
   var model = {
+    "main": "category_name",
+
     "schema": {
       "category_id": {
         "type": "uuid",
@@ -33,26 +35,25 @@ dt_modules['datasets'] = (function() {
         "type": "uuid",
         "fkey": "files",
         "label": "Raster file ID",
-        "columns": ['*']
+        "columns": ['*'],
       },
 
       "vectors_file_id": {
         "type": "uuid",
         "fkey": "files",
         "label": "Vectors file ID",
-        "columns": ['*']
+        "columns": ['*'],
       },
 
       "csv_file_id": {
         "type": "uuid",
         "fkey": "files",
         "label": "CSV file ID",
-        "columns": ['*']
+        "columns": ['*'],
       },
 
       "configuration": {
         "type": "json",
-        "schema": null,
         "label": "Configuration",
         "nullable": true
       },

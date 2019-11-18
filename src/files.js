@@ -5,6 +5,8 @@ dt_modules['files'] = (function() {
   window._storage_prefix = "";
 
   var model = {
+    "main": "label",
+
     "schema": {
       "dataset_id": {
         "type": "uuid",
