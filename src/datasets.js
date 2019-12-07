@@ -180,15 +180,6 @@ dt_modules['datasets'] = (function() {
     "sort_by": 'category_name',
   };
 
-  var table_header = `
-<th>category</th> <th>files</th>
-`;
-
-  var row = m => `
-<td ${!m.online ? 'class="disabled"' : ''}><a bind="edit"></a>${m.category_name}</td>
-<td><a href="/?model=files&dataset_id=${m.id}">files</a></td>
-`;
-
   var header = async function() {
     let str = null;
     let sufix = null;
@@ -222,7 +213,5 @@ dt_modules['datasets'] = (function() {
     model: model,
     collection: collection,
     header: header,
-    th: table_header,
-    row: row,
   };
 })();

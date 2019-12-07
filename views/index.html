@@ -118,12 +118,47 @@
     </style>
   </template>
 
+  <template class="tableheader" module="categories">
+    <tr>
+      <th>Name</th>
+      <th>ID</th>
+      <th>Unit</th>
+      <th>DS count</th>
+    </tr>
+  </template>
+
+  <template class="tablerow" module="categories">
+    <tr>
+      <td><a icon="edit"></a><span bind="name_long"></span></td>
+      <td bind="name"></td>
+      <td bind="unit"></td>
+      <td bind-size="datasets"></td>
+    </tr>
+  </template>
+
   <template class="style" module="datasets">
     <style>
       table td:nth-of-type(1) {
         font-family: monospace;
       }
     </style>
+  </template>
+
+  <template class="tableheader" module="datasets">
+    <tr>
+      <th>Category</th>
+      <th>Files</th>
+    </tr>
+  </template>
+
+  <template class="tablerow" module="datasets">
+    <tr>
+      <td><a icon="edit"></a><span bind="category_name"></span></td>
+
+      <td><a bind-attr="href"
+             bind-value="id"
+             bind-format="/?model=files&dataset_id={0}">files</a></td>
+    </tr>
   </template>
 
   <template class="style" module="files">
@@ -133,6 +168,20 @@
         font-family: monospace;
       }
     </style>
+  </template>
+
+  <template class="tableheader" module="files">
+    <tr>
+      <th>Label</th>
+      <th>Endpoint</th>
+    </tr>
+  </template>
+
+  <template class="tablerow" module="files">
+    <tr>
+      <td><a icon="edit"></a> <span bind="label"></span></td>
+      <td><span bind="endpoint"></span></td>
+    </tr>
   </template>
 
   <template class="style" module="geographies">
@@ -146,5 +195,30 @@
         font-family: monospace;
       }
     </style>
+  </template>
+
+  <template class="tableheader" module="geographies">
+    <tr>
+      <th>Name</th>
+      <th>CCA3</th>
+      <th>ADM</th>
+      <th>Datasets</th>
+    </tr>
+  </template>
+
+  <template class="tablerow" module="geographies">
+    <tr>
+      <td bind-attr="class"
+          bind-value="online"
+          bind-not="disabled"><a icon="edit"></a> <span bind="name"></span></td>
+
+      <td bind="cca3"></td>
+
+      <td bind="adm"></td>
+
+      <td><a bind-attr="href"
+             bind-value="id"
+             bind-format="/?model=datasets&geography_id={0}">datasets</a></td>
+    </tr>
   </template>
 </html>

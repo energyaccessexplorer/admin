@@ -91,21 +91,10 @@ dt_modules['geographies'] = (function() {
     },
   };
 
-  var header = '<th>Name</th><th>cca3</th><th>adm</th><th>Datasets</th>';
-
-  var row = m => `
-<td ${!m.online ? 'class="disabled"' : ''}><a bind="edit"></a> ${m.name}</td>
-<td>${m.cca3}</td>
-<td>${m.adm}</td>
-<td><a href="/?model=datasets&geography_id=${m.id}">datasets</a></td>
-`;
-
   return {
     base: "/geographies",
     model: model,
     collection: collection,
     header: 'Geographies',
-    th: header,
-    row: row,
   };
 })();

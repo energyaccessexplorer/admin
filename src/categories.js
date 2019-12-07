@@ -257,23 +257,10 @@ See also: 'precision' attribute.`
     }
   };
 
-  var header = `
-<th>Name</th> <th>ID</th> <th>Unit</th> <th>DS count</th>
-`;
-
-  var row = m => `
-<td><a bind="edit"></a>${m.name_long}</td>
-<td>${m.name}</td>
-<td>${m.unit || ''}</td>
-<td>${m.datasets.length || 0}</td>
-`;
-
   return {
     base: "/categories",
     model: model,
     collection: collection,
     header: 'Categories',
-    th: header,
-    row: row,
   };
 })();

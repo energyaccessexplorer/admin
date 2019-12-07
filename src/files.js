@@ -82,22 +82,10 @@ dt_modules['files'] = (function() {
     return str + " files";
   };
 
-  var table_header = `
-<th>Label</th>
-<th>Endpoint</th>
-`;
-
-  var row = m => `
-<td><a bind="edit"></a> ${m.label}</td>
-<td>${m.endpoint}</td>
-`;
-
   return {
     base: "/files",
     model: model,
     collection: collection,
     header: header,
-    th: table_header,
-    row: row,
   };
 })();
