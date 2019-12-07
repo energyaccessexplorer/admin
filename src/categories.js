@@ -139,13 +139,6 @@ See also: 'precision' attribute.`
             "type": "string",
             "nullable": true,
           },
-          "color_stops": {
-            "type": "array",
-            "collapsed": false,
-            "schema": {
-              "type": "colour"
-            }
-          },
           "specs": {
             "type": "json",
             "nullable": true
@@ -158,10 +151,13 @@ See also: 'precision' attribute.`
         "label": "CSV configuration",
         "nullable": true,
         "schema": {
-          "dummy": {
-            "type": "boolean",
-            "default": true
-          }
+          "color_stops": {
+            "type": "array",
+            "collapsed": false,
+            "schema": {
+              "type": "colour"
+            }
+          },
         }
       },
 
