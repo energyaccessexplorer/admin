@@ -45,6 +45,7 @@ dt_modules['categories'] = (function() {
           "intervals": {
             "type": "json",
             "nullable": true,
+            "needs": m => m.scale === "intervals"
           },
           "factor": {
             "type": "number",
@@ -138,6 +139,7 @@ See also: 'precision' attribute.`
           "dasharray": {
             "type": "string",
             "nullable": true,
+            "needs": m => m.shape_type === "lines",
           },
           "specs": {
             "type": "json",
@@ -186,6 +188,7 @@ See also: 'precision' attribute.`
             "type": "json",
             "nullable": true,
             "placeholder": "[0, 10, 1000, 5000]\n\nNeeds scale == intervals",
+            "needs": m => m.scale === "intervals"
           },
           "invert": {
             "type": "array",

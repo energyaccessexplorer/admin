@@ -36,6 +36,7 @@ dt_modules['datasets'] = (function() {
         "fkey": "files",
         "label": "Raster file ID",
         "columns": ['*'],
+        "needs": m => m.categories.raster
       },
 
       "vectors_file_id": {
@@ -43,6 +44,7 @@ dt_modules['datasets'] = (function() {
         "fkey": "files",
         "label": "Vectors file ID",
         "columns": ['*'],
+        "needs": m => m.categories.vectors
       },
 
       "csv_file_id": {
@@ -50,6 +52,7 @@ dt_modules['datasets'] = (function() {
         "fkey": "files",
         "label": "CSV file ID",
         "columns": ['*'],
+        "needs": m => m.categories.csv
       },
 
       "configuration": {
