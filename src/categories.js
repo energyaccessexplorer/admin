@@ -1,5 +1,7 @@
 dt_modules['categories'] = (function() {
-  var class_id  = location.get_query_param('id');
+  const u = new URL(location);
+
+  const class_id  = u.searchParams.get('id');
 
   var model = {
     "columns": ["*", "datasets(id)"],

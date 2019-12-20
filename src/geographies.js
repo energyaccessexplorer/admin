@@ -1,16 +1,18 @@
 dt_modules['geographies'] = (function() {
-  var geography_id  = location.get_query_param('id');
+  const u = new URL(location);
+
+  let geography_id  = u.searchParams.get('id');
 
   let ds_options = [];
 
   const edit_callback = model => {
-    geography_id = geography_id || location.get_query_param('edit_model');
+    geography_id = geography_id || u.searchParams.get('edit_model');
 
     sortable('[name="category"]', { forcePlaceholderSize: true });
     sortable('[name="subcategories"]', { forcePlaceholderSize: true });
     sortable('[name="datasets"]', { forcePlaceholderSize: true });
 
-    geography_id = location.get_query_param('edit_model');
+    geography_id = u.searchParams.get('edit_model');
 
     fetch(`${dt_config.origin}/datasets?select=category_name&geography_id=eq.${model.data.id}`)
       .then(r => r.json())

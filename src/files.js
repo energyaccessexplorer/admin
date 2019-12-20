@@ -1,6 +1,8 @@
 dt_modules['files'] = (function() {
-  var file_id = location.get_query_param('id');
-  var dataset_id = location.get_query_param('dataset_id');
+  const u = new URL(location);
+
+  var file_id = u.searchParams.get('id');
+  var dataset_id = u.searchParams.get('dataset_id');
 
   window._storage_prefix = "";
 

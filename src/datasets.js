@@ -1,7 +1,9 @@
 dt_modules['datasets'] = (function() {
-  var dataset_id = location.get_query_param('id');
-  var geography_id = location.get_query_param('geography_id');
-  var category_id = location.get_query_param('category_id');
+  const u = new URL(location);
+
+  const dataset_id = u.searchParams.get('id');
+  const geography_id = u.searchParams.get('geography_id');
+  const category_id = u.searchParams.get('category_id');
 
   var model = {
     "main": "category_name",
