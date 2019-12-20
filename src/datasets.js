@@ -167,7 +167,8 @@ dt_modules['datasets'] = (function() {
 
   var collection = {
     "url": function() {
-      var attrs = 'id,online,metadata,category_id,category_name,files(*),geography_id';
+      // cannos ask for files(id): postgrest does not understand this many-to-one relation with files
+      const attrs = 'id,online,category_name,circle,geography_id,raster_file_id,vectors_file_id,csv_file_id';
 
       if (dataset_id)
         return `/datasets?id=eq.${dataset_id}&select=${attrs}`;
@@ -180,6 +181,11 @@ dt_modules['datasets'] = (function() {
 
       else
         return `/datasets?select=${attrs}`;
+    },
+
+    "parse": function(m) {
+      m.file_count = ['raster_file_id','vectors_file_id','csv_file_id'].reduce((a,c) => m[c] ? a + 1 : a, 0);
+      return m;
     },
 
     "sort_by": 'category_name',

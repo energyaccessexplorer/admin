@@ -252,7 +252,7 @@ See also: 'precision' attribute.`
 
   var collection = {
     "url": function() {
-      var attrs = 'id,name,name_long,unit,datasets(*)';
+      var attrs = 'id,name,name_long,unit,datasets(id)';
 
       if (class_id)
         return `/categories?id=eq.${class_id}&select=${attrs}&order=name_long.asc`;
