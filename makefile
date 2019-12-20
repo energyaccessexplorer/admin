@@ -18,7 +18,7 @@ build:
 	@mkdir -p ${DIST}
 	@mkdir -p ${DIST}/javascripts
 
-	@cp views/* ${DIST}
+	@cp -R views/* ${DIST}
 	@cp -R src/* ${DIST}/javascripts
 	@cp -R images ${DIST}/
 
@@ -40,7 +40,7 @@ endif
 		${SRV_USER}@${SRV_SERVER}:${SRV_DEST}
 
 watch:
-	@ WATCH_CMD="make build" ${WATCH} ./src ./views
+	@ WATCH_CMD="make build" watch-code ./src ./views
 
 reconfig:
 	@echo $$DT_CONF > ${DIST}/config.js
