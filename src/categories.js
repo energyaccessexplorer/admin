@@ -28,11 +28,6 @@ dt_modules['categories'] = (function() {
         "label": "Unit"
       },
 
-      "timeline": {
-        "type": "boolean",
-        "default": false
-      },
-
       "raster": {
         "type": "object",
         "label": "Raster configuration",
@@ -155,12 +150,9 @@ See also: 'precision' attribute.`
         "label": "CSV configuration",
         "nullable": true,
         "schema": {
-          "color_stops": {
-            "type": "array",
-            "collapsed": false,
-            "schema": {
-              "type": "colour"
-            }
+          "dummy": {
+            "type": "boolean",
+            "default": true,
           },
         }
       },
@@ -201,6 +193,21 @@ See also: 'precision' attribute.`
               "options": ["eai", "ani", "supply", "demand"]
             }
           }
+        }
+      },
+
+      "timeline": {
+        "type": "object",
+        "label": "Timeline configuration",
+        "nullable": true,
+        "schema": {
+          "color_stops": {
+            "type": "array",
+            "collapsed": false,
+            "schema": {
+              "type": "colour"
+            }
+          },
         }
       },
 
