@@ -34,6 +34,8 @@ dt_modules['geographies'] = (function() {
   };
 
   var model = {
+    "main": "name",
+
     "edit_callback": model => edit_callback(model),
 
     "schema": {

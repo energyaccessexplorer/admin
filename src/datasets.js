@@ -6,7 +6,9 @@ dt_modules['datasets'] = (function() {
   const category_id = u.searchParams.get('category_id');
 
   var model = {
-    "main": "category_name",
+    "main": m => m.category_name + " - " + m.geography_name,
+
+    "columns": ["*", "category_name", "geography_name"],
 
     "schema": {
       "category_id": {
@@ -135,6 +137,11 @@ dt_modules['datasets'] = (function() {
       }
     },
 
+    "parse": function(m) {
+      m.file_count = ['raster_file_id','vectors_file_id','csv_file_id'].reduce((a,c) => m[c] ? a + 1 : a, 0);
+      return m;
+    },
+
     "edit_callback": function(model, form) {
       const metadatadetails = form.querySelector('details[name="metadata"]');
 
@@ -183,10 +190,7 @@ dt_modules['datasets'] = (function() {
         return `/datasets?select=${attrs}`;
     },
 
-    "parse": function(m) {
-      m.file_count = ['raster_file_id','vectors_file_id','csv_file_id'].reduce((a,c) => m[c] ? a + 1 : a, 0);
-      return m;
-    },
+    "parse": model.parse,
 
     "sort_by": 'category_name',
   };

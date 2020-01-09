@@ -5,6 +5,7 @@ dt_config = {
   "origin": ${DT_ORIGIN},
   "logo": ${DT_LOGO},
   "auth_server": ${AUTH_SERVER},
+  "auth_world": ${AUTH_WORLD},
   "storage_prefix": ${DT_STORAGE},
   "production": ${DT_PRODUCTION},
   "upload": ${DT_UPLOAD},

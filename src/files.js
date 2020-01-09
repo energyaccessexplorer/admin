@@ -7,7 +7,9 @@ dt_modules['files'] = (function() {
   window._storage_prefix = "";
 
   var model = {
-    "main": "label",
+    "main": m => m.geography_name + " - " + m.category_name + " - " + m.label,
+
+    "columns": ["*", "category_name", "geography_name"],
 
     "schema": {
       "dataset_id": {
@@ -65,7 +67,7 @@ dt_modules['files'] = (function() {
 
     if (!dataset_id) return "Files";
 
-    h = [`/datasets?select=name:category_name,geography_id&id=eq.${dataset_id}`, 'name'];
+    h = [`/datasets?select=category_name,geography_id&id=eq.${dataset_id}`, 'category_name'];
 
     await fetch(dt_config.origin + h[0])
       .then(r => r.json())

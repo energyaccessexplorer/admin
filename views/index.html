@@ -153,7 +153,11 @@
 
   <template class="tablerow" module="datasets">
     <tr>
-      <td><a icon="edit"></a><span bind="category_name"></span></td>
+      <td bind-attr="class"
+          bind-value="online"
+          bind-not="disabled">
+        <a icon="edit"></a><span bind="category_name"></span></td>
+
 
       <td>
         <a bind-attr="href"
