@@ -103,12 +103,15 @@
 
   <template class="style" module="categories">
     <style>
+      table td:nth-of-type(4),
+      table td:nth-of-type(3),
       table td:nth-of-type(2) {
         font-family: monospace;
       }
 
       table td:nth-of-type(3),
-      table td:nth-of-type(4) {
+      table td:nth-of-type(4),
+      table td:nth-of-type(5) {
         text-align: center;
       }
 
@@ -122,6 +125,7 @@
     <tr>
       <th>Name</th>
       <th>ID</th>
+      <th>Features</th>
       <th>Unit</th>
       <th>DS count</th>
     </tr>
@@ -131,6 +135,7 @@
     <tr>
       <td><a icon="edit"></a><span bind="name_long"></span></td>
       <td bind="name"></td>
+      <td bind="features"></td>
       <td bind="unit"></td>
       <td bind-size="datasets"></td>
     </tr>

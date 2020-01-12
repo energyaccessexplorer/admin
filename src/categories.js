@@ -254,19 +254,29 @@ See also: 'precision' attribute.`
           },
         }
       }
+    },
+
+    "parse": m => {
+      m.features = ['analysis', 'timeline', 'raster', 'vectors', 'csv']
+        .reduce((a,c) => m[c] ? a + c[0] : a, "")
+        .toUpperCase()
+
+      return m;
     }
   };
 
   var collection = {
     "url": function() {
-      var attrs = 'id,name,name_long,unit,datasets(id)';
+      var attrs = 'id,name,name_long,unit,timeline,analysis,raster,vectors,csv,datasets(id)';
 
       if (class_id)
         return `/categories?id=eq.${class_id}&select=${attrs}&order=name_long.asc`;
 
       else
         return `/categories?select=${attrs}&order=name_long.asc`;
-    }
+    },
+
+    "parse": model.parse,
   };
 
   return {
