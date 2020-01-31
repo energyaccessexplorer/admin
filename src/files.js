@@ -5,22 +5,12 @@ dt_modules['files'] = (function() {
   var dataset_id = u.searchParams.get('dataset_id');
 
   window._storage_prefix = "";
+  const model = {
+    "main": 'label',
 
-  var model = {
-    "main": m => m.geography_name + " - " + m.category_name + " - " + m.label,
-
-    "columns": ["*", "category_name", "geography_name"],
+    "columns": ["*", "datasets(*)"],
 
     "schema": {
-      "dataset_id": {
-        "type": "uuid",
-        "fkey": "datasets",
-        "label": "Dataset",
-        "required": true,
-        "editable": false,
-        "columns": ['*']
-      },
-
       "label": {
         "type": "string",
         "default": null,
@@ -39,25 +29,24 @@ dt_modules['files'] = (function() {
         "type": "text",
         "label": "Comment",
         "required": true
-      }
+      },
     }
   };
 
   var collection = {
     "url": function() {
-      var attrs = 'id,dataset_id,test,endpoint,comment,label';
+      const attrs = '*,datasets(*)';
 
       if (file_id)
         return `/files?id=eq.${file_id}&select=${attrs}`;
-
-      else if (dataset_id)
-        return `/files?dataset_id=eq.${dataset_id}&select=${attrs}`;
 
       else
         return `/files?select=${attrs}`;
     },
 
     "sort_by": 'endpoint',
+
+    "parse": model.parse
   };
 
   const header = async function() {

@@ -8,7 +8,7 @@ dt_modules['datasets'] = (function() {
   var model = {
     "main": m => m.category_name + " - " + m.geography_name,
 
-    "columns": ["*", "category_name", "geography_name"],
+    "columns": ["*", "category_name", "geography_name", "files(*)"],
 
     "schema": {
       "category_id": {
@@ -35,29 +35,6 @@ dt_modules['datasets'] = (function() {
         "default": false,
       },
 
-      "raster_file_id": {
-        "type": "uuid",
-        "fkey": "files",
-        "label": "Raster file ID",
-        "columns": ['*'],
-        "needs": m => m.categories.raster
-      },
-
-      "vectors_file_id": {
-        "type": "uuid",
-        "fkey": "files",
-        "label": "Vectors file ID",
-        "columns": ['*'],
-        "needs": m => m.categories.vectors
-      },
-
-      "csv_file_id": {
-        "type": "uuid",
-        "fkey": "files",
-        "label": "CSV file ID",
-        "columns": ['*'],
-        "needs": m => m.categories.csv
-      },
 
       "configuration": {
         "type": "json",
@@ -138,7 +115,7 @@ dt_modules['datasets'] = (function() {
     },
 
     "parse": function(m) {
-      m.file_count = ['raster_file_id','vectors_file_id','csv_file_id'].reduce((a,c) => m[c] ? a + 1 : a, 0);
+      m.file_count = m.files.length;
       return m;
     },
 
@@ -175,7 +152,7 @@ dt_modules['datasets'] = (function() {
   var collection = {
     "url": function() {
       // cannos ask for files(id): postgrest does not understand this many-to-one relation with files
-      const attrs = 'id,online,category_name,circle,geography_id,raster_file_id,vectors_file_id,csv_file_id';
+      const attrs = 'id,online,category_name,circle,geography_id,files(*)';
 
       if (dataset_id)
         return `/datasets?id=eq.${dataset_id}&select=${attrs}`;

@@ -21,6 +21,7 @@
                 padding-right: 1em;"></a>
       <a href="/?model=geographies">Geographies</a>
       <a href="/?model=categories">Categories</a>
+      <a href="/?model=files">Files</a>
     </nav>
 
     <main></main>
@@ -92,7 +93,7 @@
             table: 'files',
             query: `select=id,label,endpoint&${dataset_param}${label_param}`,
             input: x => x['id'],
-            descriptor: x => `${x.label} - ${x.endpoint}`,
+            descriptor: x => `${x.label} - <code>${x.endpoint}</code>`,
             value: v,
             threshold: 0
           };
@@ -167,7 +168,7 @@
       <td>
         <a bind-attr="href"
            bind-value="id"
-           bind-format="/?model=files&dataset_id={0}">
+           bind-format="/?model=_datasets_files&dataset_id={0}">
           <span bind="file_count"></span> files
         </a>
       </td>
@@ -180,6 +181,23 @@
       table td:nth-of-type(2) {
         font-family: monospace;
       }
+
+      table td:nth-of-type(3) {
+        text-align: right;
+      }
+
+      li {
+        overflow-x: unset !important;
+        text-overflow: unset !important;
+      }
+
+      [bind="id-fetch-results"] {
+        max-width: 100ch !important;
+      }
+
+      [bind="id-fetch-results"] code {
+        color: #cccccc;
+      }
     </style>
   </template>
 
@@ -187,6 +205,7 @@
     <tr>
       <th>Label</th>
       <th>Endpoint</th>
+      <th>DS count</th>
     </tr>
   </template>
 
@@ -194,6 +213,9 @@
     <tr>
       <td><a icon="edit"></a> <span bind="label"></span></td>
       <td><span bind="endpoint"></span></td>
+      <td>
+        <span bind="dscount"></span> relations
+      </td>
     </tr>
   </template>
 
@@ -244,6 +266,32 @@
           <span bind-size="datasets"></span> datasets
         </a>
       </td>
+    </tr>
+  </template>
+
+  <template class="style" module="_datasets_files">
+    <style>
+      table td:nth-of-type(1),
+      table td:nth-of-type(2),
+      table td:nth-of-type(3) {
+        font-family: monospace;
+      }
+    </style>
+  </template>
+
+  <template class="tableheader" module="_datasets_files">
+    <tr>
+      <th>Functionality</th>
+      <th>Endpoint</th>
+      <th>Active</th>
+    </tr>
+  </template>
+
+  <template class="tablerow" module="_datasets_files">
+    <tr>
+      <td bind="func"></td>
+      <td bind="_file_endpoint"></td>
+      <td bind="active"></td>
     </tr>
   </template>
 </html>
