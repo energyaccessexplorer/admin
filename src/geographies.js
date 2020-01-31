@@ -75,6 +75,13 @@ dt_modules['geographies'] = (function() {
         "label": "Show online?"
       },
 
+      "circle": {
+        "type": "string",
+        "label": "Collection",
+        "pattern": "^[a-z][a-z0-9\-]+$",
+        "default": "public",
+      },
+
       "configuration": {
         "type": "json",
         "label": "Configuration",

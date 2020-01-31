@@ -29,6 +29,12 @@ dt_modules['files'] = (function() {
         "label": "Comment",
         "required": true
       },
+
+      "configuration": {
+        "type": "json",
+        "label": "Configuration",
+        "nullable": true
+      },
     },
 
     "parse": function(m) {

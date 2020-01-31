@@ -145,6 +145,9 @@
 
   <template class="style" module="datasets">
     <style>
+      table td:nth-of-type(4),
+      table td:nth-of-type(3),
+      table td:nth-of-type(2),
       table td:nth-of-type(1) {
         font-family: monospace;
       }
@@ -153,7 +156,10 @@
 
   <template class="tableheader" module="datasets">
     <tr>
+      <th>Name</th>
       <th>Category</th>
+      <th>Circle</th>
+      <th>Pack</th>
       <th>Files</th>
     </tr>
   </template>
@@ -163,8 +169,18 @@
       <td bind-attr="class"
           bind-value="online"
           bind-not="disabled">
-        <a icon="edit"></a><span bind="category_name"></span></td>
+        <a icon="edit"></a><span bind="name"></span>
+      </td>
 
+      <td bind-attr="class"
+          bind-value="online"
+          bind-not="disabled">
+        <span bind="category_name"></span>
+      </td>
+
+      <td bind="circle"></td>
+
+      <td bind="pack"></td>
 
       <td>
         <a bind-attr="href"
@@ -222,12 +238,9 @@
 
   <template class="style" module="geographies">
     <style>
+      table td:nth-of-type(4),
+      table td:nth-of-type(3),
       table td:nth-of-type(2) {
-        font-family: monospace;
-        text-align: center;
-      }
-
-      table td:nth-of-type(3) {
         text-align: center;
       }
 
@@ -235,6 +248,11 @@
         text-align: right;
       }
 
+      table td:nth-of-type(4),
+      table td:nth-of-type(3),
+      table td:nth-of-type(2) {
+        font-family: monospace;
+      }
     </style>
   </template>
 

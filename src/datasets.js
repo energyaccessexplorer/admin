@@ -28,16 +28,48 @@ dt_modules['datasets'] = (function() {
         "columns": ['*']
       },
 
+      "name": {
+        "type": "string",
+        "label": "Name",
+        "pattern": "^[a-z][a-z0-9\-]+$",
+        "placeholder": "leave blank to inherit from category"
+      },
+
+      "name_long": {
+        "type": "string",
+        "label": "Name Long",
+        "placeholder": "leave blank to inherit from category"
+      },
+
       "online": {
         "type": "boolean",
         "label": "Show Online",
         "default": false,
       },
 
+      "circle": {
+        "type": "string",
+        "label": "Circle",
+        "pattern": "^[a-z][a-z0-9\-]+$",
+        "default": "public",
+      },
+
+      "pack": {
+        "type": "string",
+        "label": "Pack",
+        "pattern": "^[a-z][a-z0-9\-]+$",
+        "default": "all",
+      },
 
       "configuration": {
         "type": "json",
         "label": "Configuration",
+        "nullable": true
+      },
+
+      "category_overrides": {
+        "type": "json",
+        "label": "Category Overrides",
         "nullable": true
       },
 
@@ -151,13 +183,13 @@ dt_modules['datasets'] = (function() {
   var collection = {
     "url": function() {
       // cannos ask for files(id): postgrest does not understand this many-to-one relation with files
-      const attrs = 'id,online,category_name,circle,geography_id,files(*)';
+      const attrs = 'id,online,name,category_name,circle,pack,geography_id,files(*)';
 
       if (dataset_id)
         return `/datasets?id=eq.${dataset_id}&select=${attrs}`;
 
       else if (geography_id)
-        return `/datasets?geography_id=eq.${geography_id}&select=${attrs}`;
+        return `/datasets?geography_id=eq.${geography_id}&select=${attrs}&order=online.desc,name.asc`;
 
       else if (category_id)
         return `/datasets?category_id=eq.${category_id}&select=${attrs}`;
@@ -167,8 +199,6 @@ dt_modules['datasets'] = (function() {
     },
 
     "parse": model.parse,
-
-    "sort_by": 'category_name',
   };
 
   var header = async function() {

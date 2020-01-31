@@ -155,6 +155,10 @@ dt_modules['categories'] = (function() {
         "label": "Analysis configuration",
         "nullable": true,
         "schema": {
+          "index": {
+            "type": "string",
+            "nullable": true
+          },
           "weight": {
             "type": "number",
             "default": 2,
