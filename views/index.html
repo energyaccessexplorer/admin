@@ -78,7 +78,8 @@
         primary: 'id',
         placeholder: "label (optional)",
         options: function(v) {
-          let em = location.get_query_param('edit_model');
+          const u = new URL(location);
+          const em = u.searchParams.get('edit_model');
 
           let dataset_param = '';
           let label_param = '';
@@ -138,7 +139,7 @@
       <td bind="name"></td>
       <td bind="features"></td>
       <td bind="unit"></td>
-      <td bind-size="datasets"></td>
+      <td bind="dscount"></td>
     </tr>
   </template>
 
@@ -263,7 +264,7 @@
         <a bind-attr="href"
            bind-value="id"
            bind-format="/?model=datasets&geography_id={0}">
-          <span bind-size="datasets"></span> datasets
+          <span bind="dscount"></span> datasets
         </a>
       </td>
     </tr>

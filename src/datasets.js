@@ -15,7 +15,6 @@ dt_modules['datasets'] = (function() {
         "type": "uuid",
         "fkey": "categories",
         "required": true,
-        "editable": false,
         "label": "Category",
         "columns": ['*']
       },

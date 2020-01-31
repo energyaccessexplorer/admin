@@ -1,10 +1,9 @@
 dt_modules['files'] = (function() {
-  const u = new URL(location);
+  const url = new URL(location);
 
-  var file_id = u.searchParams.get('id');
-  var dataset_id = u.searchParams.get('dataset_id');
+  const file_id = url.searchParams.get('id');
+  const dataset_id = url.searchParams.get('dataset_id');
 
-  window._storage_prefix = "";
   const model = {
     "main": 'label',
 
@@ -30,10 +29,15 @@ dt_modules['files'] = (function() {
         "label": "Comment",
         "required": true
       },
+    },
+
+    "parse": function(m) {
+      m.dscount = m.datasets.length;
+      return m;
     }
   };
 
-  var collection = {
+  const collection = {
     "url": function() {
       const attrs = '*,datasets(*)';
 

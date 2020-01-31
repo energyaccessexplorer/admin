@@ -44,20 +44,9 @@ dt_modules['categories'] = (function() {
             "nullable": true,
             "needs": m => m.scale === "intervals"
           },
-          "factor": {
-            "type": "number",
-            "step": "any",
-            "required": false,
-            "hint": `
-Example: Say the raster represents 'small' numbers with 3 decimals. But it's more economic (filesize-wise) to store 16bui than 32bf.
-So the factor would be 0.001 = 10*e-3.
-Windspeed is a good example of this: with factor 0.1, it stores
-numbers 10 - 170 but the tool shows numbers from 1.00 - 17.00.
-See also: 'precision' attribute.`
-          },
           "precision": {
             "type": "number",
-            "hint": "Tell the tool to show numbers with this amount of decimals. This is calculated AFTER the 'factor'."
+            "hint": "Tell the tool to show numbers with this amount of decimals."
           },
           "domain": {
             "type": "object",
@@ -150,9 +139,13 @@ See also: 'precision' attribute.`
         "label": "CSV configuration",
         "nullable": true,
         "schema": {
-          "dummy": {
-            "type": "boolean",
-            "default": true,
+          "min": {
+            "type": "number",
+            "default": 0,
+          },
+          "max": {
+            "type": "number",
+            "default": 100,
           },
         }
       },
@@ -170,7 +163,7 @@ See also: 'precision' attribute.`
           "scale": {
             "type": "select",
             "required": true,
-            "options": ["linear", "key-delta", "multi-key-delta", "exclusion-buffer", "intervals"],
+            "options": ["linear", "key-delta", "exclusion-buffer", "intervals"],
             "default": "linear"
           },
           "clamp": {
@@ -257,6 +250,8 @@ See also: 'precision' attribute.`
     },
 
     "parse": m => {
+      m.dscount = m.datasets.length;
+
       m.features = ['analysis', 'timeline', 'raster', 'vectors', 'csv']
         .reduce((a,c) => m[c] ? a + c[0] : a, "")
         .toUpperCase()
@@ -277,6 +272,10 @@ See also: 'precision' attribute.`
     },
 
     "parse": model.parse,
+
+    "sort_by": 'dscount',
+
+    "reverse": true
   };
 
   return {

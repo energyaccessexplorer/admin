@@ -93,6 +93,11 @@ dt_modules['geographies'] = (function() {
       else
         return `/geographies?select=${attrs}`;
     },
+
+    "parse": function(m) {
+      m.dscount = m.datasets.length;
+      return m;
+    }
   };
 
   return {
