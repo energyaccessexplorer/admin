@@ -28,6 +28,15 @@ dt_modules['categories'] = (function() {
         "label": "Unit"
       },
 
+      "colorstops": {
+        "type": "array",
+        "collapsed": false,
+        "nullable": true,
+        "schema": {
+          "type": "colour"
+        }
+      },
+
       "raster": {
         "type": "object",
         "label": "Raster configuration",
@@ -74,13 +83,6 @@ dt_modules['categories'] = (function() {
                 "type": "number",
                 "required": true
               }
-            }
-          },
-          "color_stops": {
-            "type": "array",
-            "collapsed": false,
-            "schema": {
-              "type": "colour"
             }
           },
         }
@@ -139,13 +141,20 @@ dt_modules['categories'] = (function() {
         "label": "CSV configuration",
         "nullable": true,
         "schema": {
-          "min": {
-            "type": "number",
-            "default": 0,
-          },
-          "max": {
-            "type": "number",
-            "default": 100,
+          "domain": {
+            "type": "object",
+            "collapsed": false,
+            "nullable": true,
+            "schema": {
+              "min": {
+                "type": "number",
+                "required": true
+              },
+              "max": {
+                "type": "number",
+                "required": true
+              }
+            }
           },
         }
       },
@@ -198,12 +207,9 @@ dt_modules['categories'] = (function() {
         "label": "Timeline configuration",
         "nullable": true,
         "schema": {
-          "color_stops": {
-            "type": "array",
-            "collapsed": false,
-            "schema": {
-              "type": "colour"
-            }
+          "dummy": {
+            "type": "boolean",
+            "default": true,
           },
         }
       },
@@ -250,7 +256,7 @@ dt_modules['categories'] = (function() {
             "nullable": true
           },
         }
-      }
+      },
     },
 
     "parse": m => {
