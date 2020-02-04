@@ -5,6 +5,8 @@ dt_modules['_datasets_files'] = (function() {
   const file_id  = url.searchParams.get('file_id');
 
   const model = {
+    "id": ['dataset_id', 'file_id'],
+
     "columns": ["*"],
 
     "schema": {
@@ -14,7 +16,7 @@ dt_modules['_datasets_files'] = (function() {
         "label": "Dataset",
         "required": true,
         "editable": false,
-        "columns": ['*']
+        "columns": ['name']
       },
 
       "file_id": {
@@ -23,7 +25,7 @@ dt_modules['_datasets_files'] = (function() {
         "label": "File",
         "required": true,
         "editable": false,
-        "columns": ['*']
+        "columns": ['endpoint']
       },
 
       "active": {
@@ -31,16 +33,18 @@ dt_modules['_datasets_files'] = (function() {
       },
 
       "func": {
-        "type": "string",
+        "type": "select",
         "required": true,
-        "options": ['raster' ,'vectors', 'csv'],
+        "options": ['', 'raster' ,'vectors', 'csv'],
       }
     },
 
     "parse": function(m) {
       for (let k in m.file) m[`_file_${k}`] = m.file[k];
       return m;
-    }
+    },
+
+    "after_patch": 'reload'
   };
 
   const collection = {
@@ -49,7 +53,7 @@ dt_modules['_datasets_files'] = (function() {
       if (dataset_id) id = `dataset_id=eq.${dataset_id}`;
       else if (file_id) id = `file_id=eq.${file_id}`;
 
-      return `/_datasets_files?${id}&select=*,file(*),dataset(*)`;
+      return `/_datasets_files?${id}&select=*,file:files(*),dataset:datasets(*)`;
     },
 
     "parse": model.parse,

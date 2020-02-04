@@ -3,11 +3,12 @@ dt_modules['files'] = (function() {
 
   const file_id = url.searchParams.get('id');
   const dataset_id = url.searchParams.get('dataset_id');
+  const edit_model = url.searchParams.get('edit_model');
 
   const model = {
     "main": 'label',
 
-    "columns": ["*", "datasets(*)"],
+    "columns": ["*"],
 
     "schema": {
       "label": {
@@ -36,11 +37,6 @@ dt_modules['files'] = (function() {
         "nullable": true
       },
     },
-
-    "parse": function(m) {
-      m.dscount = m.datasets.length;
-      return m;
-    }
   };
 
   const collection = {
@@ -56,7 +52,24 @@ dt_modules['files'] = (function() {
 
     "sort_by": 'endpoint',
 
-    "parse": model.parse
+    "parse": function(m) {
+      m.dscount = m.datasets.length;
+      return m;
+    }
+  };
+
+  const init = function() {
+    if (file_id || dataset_id || edit_model) return true;
+
+    else {
+      const s = url.searchParams.get('search');
+      const f = dt_model_search('files');
+
+      document.querySelector('body > main').append(f);
+      f.querySelector('select.type').style.display = 'none';
+    }
+
+    return false;
   };
 
   const header = async function() {
@@ -90,5 +103,6 @@ dt_modules['files'] = (function() {
     model: model,
     collection: collection,
     header: header,
+    init: init,
   };
 })();

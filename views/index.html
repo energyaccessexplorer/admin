@@ -290,16 +290,25 @@
 
   <template class="style" module="_datasets_files">
     <style>
-      table td:nth-of-type(1),
       table td:nth-of-type(2),
-      table td:nth-of-type(3) {
+      table td:nth-of-type(3),
+      table td:nth-of-type(4) {
         font-family: monospace;
+      }
+
+      table td:nth-of-type(1) a {
+        margin-right: 0;
+      }
+
+      table td:nth-of-type(4) {
+        text-align: center;
       }
     </style>
   </template>
 
   <template class="tableheader" module="_datasets_files">
     <tr>
+      <th></th>
       <th>Functionality</th>
       <th>Endpoint</th>
       <th>Active</th>
@@ -308,8 +317,16 @@
 
   <template class="tablerow" module="_datasets_files">
     <tr>
-      <td bind="func"></td>
-      <td bind="_file_endpoint"></td>
+      <td>
+        <a icon="edit"></a>
+      </td>
+      <td>
+        <span bind="func"></span>
+      </td>
+      <td bind-attr="class"
+          bind-value="online"
+          bind-not="disabled"
+          bind="_file_endpoint"></td>
       <td bind="active"></td>
     </tr>
   </template>

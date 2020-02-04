@@ -8,7 +8,7 @@ dt_modules['datasets'] = (function() {
   var model = {
     "main": m => m.category_name + " - " + m.geography_name,
 
-    "columns": ["*", "category_name", "geography_name", "files(*)"],
+    "columns": ["*", "category_name", "geography_name"],
 
     "schema": {
       "category_id": {
@@ -146,7 +146,7 @@ dt_modules['datasets'] = (function() {
     },
 
     "parse": function(m) {
-      m.file_count = m.files.length;
+      m.file_count = m.files ? m.files.length : 0;
       return m;
     },
 
@@ -182,8 +182,7 @@ dt_modules['datasets'] = (function() {
 
   var collection = {
     "url": function() {
-      // cannos ask for files(id): postgrest does not understand this many-to-one relation with files
-      const attrs = 'id,online,name,category_name,circle,pack,geography_id,files(*)';
+      const attrs = 'id,online,name,category_name,circle,pack,geography_id,files(id)';
 
       if (dataset_id)
         return `/datasets?id=eq.${dataset_id}&select=${attrs}`;
