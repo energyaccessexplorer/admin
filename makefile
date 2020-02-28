@@ -1,19 +1,6 @@
 include default.mk
 
-define DT_CONF
-dt_config = {
-  "origin": ${DT_ORIGIN},
-  "logo": ${DT_LOGO},
-  "auth_server": ${AUTH_SERVER},
-  "auth_world": ${AUTH_WORLD},
-  "storage_prefix": ${DT_STORAGE},
-  "production": ${DT_PRODUCTION},
-  "upload": ${DT_UPLOAD},
-  "default_model": ${DT_DEFAULT_MODEL}
-};
-endef
-
-export DT_CONF
+TEMP != mktemp
 
 build:
 	@mkdir -p ${DIST}
@@ -24,10 +11,10 @@ build:
 	@cp -R images ${DIST}/
 
 sync:
-ifneq (${env}, production)
+.ifndef env
 	@echo "env is not defined. Hej då."
 	@exit 1
-endif
+.endif
 
 	@rsync -OPvr \
 		-e "ssh -p ${SRV_SSH_PORT}" \
@@ -44,9 +31,18 @@ watch:
 	@ WATCH_CMD="make build" watch-code ./src ./views
 
 reconfig:
-	@echo $$DT_CONF > ${DIST}/config.js
-	@touch src/config-extras.js
-	@cat   src/config-extras.js >> ${DIST}/config.js
+	@echo '{}' \
+		| jq '.origin = ${DT_ORIGIN}' \
+		| jq '.logo = ${DT_LOGO}' \
+		| jq '.auth_server = ${AUTH_SERVER}' \
+		| jq '.auth_world = ${AUTH_WORLD}' \
+		| jq '.storage_prefix = ${DT_STORAGE}' \
+		| jq '.production = ${DT_PRODUCTION}' \
+		| jq '.upload = ${DT_UPLOAD}' \
+		| jq '.default_model = ${DT_DEFAULT_MODEL}' \
+		> ${TEMP}
+
+	@echo -n "dt_config = " | cat - ${TEMP} > ${DIST}/config.js
 
 synced:
 	@rsync -OPr \
@@ -63,3 +59,6 @@ synced:
 
 deploy: build reconfig sync
 	make reconfig env=development
+
+.END:
+	-@rm -f ${TEMP}
