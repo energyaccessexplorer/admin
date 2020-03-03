@@ -164,20 +164,17 @@ dt_modules['categories'] = (function() {
         "label": "Analysis configuration",
         "nullable": true,
         "schema": {
-          "index": {
-            "type": "string",
-            "nullable": true
+          "scale": {
+            "type": "select",
+            "required": true,
+            "label": "default functionality",
+            "options": ["linear", "key-delta", "exclusion-buffer", "inclusion-buffer", "intervals"],
+            "default": "linear"
           },
           "weight": {
             "type": "number",
             "default": 2,
             "nullable": false
-          },
-          "scale": {
-            "type": "select",
-            "required": true,
-            "options": ["linear", "key-delta", "exclusion-buffer", "intervals"],
-            "default": "linear"
           },
           "clamp": {
             "type": "boolean",
@@ -190,13 +187,30 @@ dt_modules['categories'] = (function() {
             "placeholder": "[0, 10, 1000, 5000]\n\nNeeds scale == intervals",
             "needs": m => m.scale === "intervals"
           },
-          "invert": {
+          "indexes": {
             "type": "array",
             "collapsed": false,
             "schema": {
-              "type": "string",
-              "required": true,
-              "options": ["eai", "ani", "supply", "demand"]
+              "type": "object",
+              "collapsed": false,
+              "nullable": false,
+              "schema": {
+                "index": {
+                  "type": "string",
+                  "required": true,
+                  "options": ["eai", "ani", "supply", "demand"]
+                },
+                "invert": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "scale": {
+                  "type": "select",
+                  "label": "functionality override",
+                  "default": null,
+                  "options": ["", "linear", "key-delta", "exclusion-buffer", "inclusion-buffer", "intervals"]
+                }
+              }
             }
           }
         }
