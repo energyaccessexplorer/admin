@@ -164,12 +164,12 @@ dt_modules['categories'] = (function() {
         "label": "Analysis configuration",
         "nullable": true,
         "schema": {
-          "scale": {
+          "index": {
             "type": "select",
             "required": true,
-            "label": "default functionality",
-            "options": ["linear", "key-delta", "exclusion-buffer", "inclusion-buffer", "intervals"],
-            "default": "linear"
+            "label": "index",
+            "options": ['', "ani", "eai", "demand", "supply"],
+            "default": ''
           },
           "weight": {
             "type": "number",
@@ -206,7 +206,7 @@ dt_modules['categories'] = (function() {
                 },
                 "scale": {
                   "type": "select",
-                  "label": "functionality override",
+                  "label": "functionality",
                   "default": null,
                   "options": ["", "linear", "key-delta", "exclusion-buffer", "inclusion-buffer", "intervals"]
                 }
