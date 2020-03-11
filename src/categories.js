@@ -4,7 +4,7 @@ dt_modules['categories'] = (function() {
   const class_id  = u.searchParams.get('id');
 
   var model = {
-    "columns": ["*", "datasets(id)"],
+    "columns": ["*"],
 
     "main": "name",
 
@@ -272,16 +272,6 @@ dt_modules['categories'] = (function() {
         }
       },
     },
-
-    "parse": m => {
-      m.dscount = m.datasets.length;
-
-      m.features = ['analysis', 'timeline', 'raster', 'vectors', 'csv']
-        .reduce((a,c) => m[c] ? a + c[0] : a, "")
-        .toUpperCase()
-
-      return m;
-    }
   };
 
   var collection = {
@@ -295,7 +285,15 @@ dt_modules['categories'] = (function() {
         return `/categories?select=${attrs}&order=name_long.asc`;
     },
 
-    "parse": model.parse,
+    "parse": m => {
+      m.dscount = m.datasets.length;
+
+      m.features = ['analysis', 'timeline', 'raster', 'vectors', 'csv']
+        .reduce((a,c) => m[c] ? a + c[0] : a, "")
+        .toUpperCase()
+
+      return m;
+    },
 
     "sort_by": 'dscount',
 

@@ -62,3 +62,5 @@ deploy: build reconfig sync
 
 .END:
 	-@rm -f ${TEMP}
+
+-include extras.mk
