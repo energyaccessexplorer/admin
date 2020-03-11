@@ -231,7 +231,10 @@
       <td><a icon="edit"></a> <span bind="label"></span></td>
       <td><span bind="endpoint"></span></td>
       <td>
-        <span bind="dscount"></span> relations
+        <a bind-attr="href"
+           bind-value="id"
+           bind-format="/?model=_datasets_files&file_id={0}">
+          <span bind="dscount"></span> relations</a>
       </td>
     </tr>
   </template>
