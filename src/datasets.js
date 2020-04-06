@@ -198,6 +198,8 @@ dt_modules['datasets'] = (function() {
     },
 
     "parse": model.parse,
+
+    "order": -1
   };
 
   const header = async function() {

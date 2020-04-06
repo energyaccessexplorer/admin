@@ -297,7 +297,7 @@ dt_modules['categories'] = (function() {
 
     "sort_by": 'dscount',
 
-    "reverse": true
+    "order": -1
   };
 
   return {

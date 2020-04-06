@@ -60,7 +60,7 @@ dt_modules['_datasets_files'] = (function() {
 
     "sort_by": 'active',
 
-    "reverse": true
+    "order": -1
   };
 
   return {
