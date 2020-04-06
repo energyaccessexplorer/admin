@@ -33,7 +33,7 @@ dt_modules['geographies'] = (function() {
       });
   };
 
-  var model = {
+  const model = {
     "main": "name",
 
     "edit_callback": model => edit_callback(model),
@@ -90,9 +90,9 @@ dt_modules['geographies'] = (function() {
     }
   };
 
-  var collection = {
+  const collection = {
     "url": function() {
-      var attrs = 'id,name,cca3,adm,online,configuration,circle,datasets(id)';
+      const attrs = 'id,name,cca3,adm,online,configuration,circle,datasets(id)';
 
       if (geography_id)
         return `/geographies?id=eq.${geography_id}&select=${attrs}`;

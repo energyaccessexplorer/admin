@@ -3,7 +3,7 @@ dt_modules['categories'] = (function() {
 
   const class_id  = u.searchParams.get('id');
 
-  var model = {
+  const model = {
     "columns": ["*"],
 
     "main": "name",
@@ -274,9 +274,9 @@ dt_modules['categories'] = (function() {
     },
   };
 
-  var collection = {
+  const collection = {
     "url": function() {
-      var attrs = 'id,name,name_long,unit,timeline,analysis,raster,vectors,csv,datasets(id)';
+      const attrs = 'id,name,name_long,unit,timeline,analysis,raster,vectors,csv,datasets(id)';
 
       if (class_id)
         return `/categories?id=eq.${class_id}&select=${attrs}&order=name_long.asc`;

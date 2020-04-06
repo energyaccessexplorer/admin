@@ -5,7 +5,7 @@ dt_modules['datasets'] = (function() {
   const geography_id = u.searchParams.get('geography_id');
   const category_id = u.searchParams.get('category_id');
 
-  var model = {
+  const model = {
     "main": m => m.category_name + " - " + m.geography_name,
 
     "columns": ["*", "category_name", "geography_name"],
@@ -180,7 +180,7 @@ dt_modules['datasets'] = (function() {
     }
   };
 
-  var collection = {
+  const collection = {
     "url": function() {
       const attrs = 'id,online,name,category_name,circle,pack,geography_id,files(id)';
 
@@ -200,7 +200,7 @@ dt_modules['datasets'] = (function() {
     "parse": model.parse,
   };
 
-  var header = async function() {
+  const header = async function() {
     let str = null;
     let sufix = null;
     let gid = geography_id;
