@@ -8,8 +8,6 @@ dt_modules['files'] = (function() {
   const model = {
     "main": 'label',
 
-    "columns": ["*"],
-
     "schema": {
       "label": {
         "type": "string",
@@ -40,14 +38,13 @@ dt_modules['files'] = (function() {
   };
 
   const collection = {
-    "url": function() {
-      const attrs = '*,datasets(*)';
+    "endpoint": function() {
+      const attrs = ['id', 'datasets(*)'];
+      const params = { "select": attrs };
 
-      if (file_id)
-        return `/files?id=eq.${file_id}&select=${attrs}`;
+      if (file_id) params['id'] = `eq.${file_id}`;
 
-      else
-        return `/files?select=${attrs}`;
+      return params;
     },
 
     "sort_by": 'endpoint',
@@ -99,7 +96,7 @@ dt_modules['files'] = (function() {
   };
 
   return {
-    base: "/files",
+    base: "files",
     model: model,
     collection: collection,
     header: header,

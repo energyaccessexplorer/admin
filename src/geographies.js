@@ -91,14 +91,16 @@ dt_modules['geographies'] = (function() {
   };
 
   const collection = {
-    "url": function() {
-      const attrs = 'id,name,cca3,adm,online,configuration,circle,datasets(id)';
+    "endpoint": function() {
+      const attrs = ['id', 'name', 'cca3', 'adm', 'online', 'configuration', 'circle', 'datasets(id)'];
 
-      if (geography_id)
-        return `/geographies?id=eq.${geography_id}&select=${attrs}`;
+      const params = {
+        "select": attrs
+      };
 
-      else
-        return `/geographies?select=${attrs}`;
+      if (geography_id) params['id'] = `eq.${geography_id}`;
+
+      return params;
     },
 
     "parse": function(m) {
@@ -108,7 +110,7 @@ dt_modules['geographies'] = (function() {
   };
 
   return {
-    base: "/geographies",
+    base: "geographies",
     model: model,
     collection: collection,
     header: 'Geographies',

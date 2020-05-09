@@ -46,12 +46,15 @@ dt_modules['_datasets_files'] = (function() {
   };
 
   const collection = {
-    "url": function() {
-      let id;
-      if (dataset_id) id = `dataset_id=eq.${dataset_id}`;
-      else if (file_id) id = `file_id=eq.${file_id}`;
+    "endpoint": function() {
+      const params = {
+        "select": ['*', 'file:files(*)', 'dataset:datasets(*)']
+      };
 
-      return `/_datasets_files?${id}&select=*,file:files(*),dataset:datasets(*)`;
+      if (dataset_id) params['dataset_id'] = `eq.${dataset_id}`;
+      else if (file_id) params['file_id'] = `eq.${file_id}`;
+
+      return params;
     },
 
     "parse": model.parse,
@@ -62,7 +65,7 @@ dt_modules['_datasets_files'] = (function() {
   };
 
   return {
-    base: '/_datasets_files',
+    base: '_datasets_files',
     model: model,
     collection: collection,
     header: "Dataset files"

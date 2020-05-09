@@ -277,14 +277,17 @@ dt_modules['categories'] = (function() {
   };
 
   const collection = {
-    "url": function() {
-      const attrs = 'id,name,name_long,unit,timeline,analysis,raster,vectors,csv,datasets(id)';
+    "endpoint": function() {
+      const attrs = ['id', 'name', 'name_long', 'unit', 'timeline', 'analysis', 'raster', 'vectors', 'csv', 'datasets(id)'];
 
-      if (class_id)
-        return `/categories?id=eq.${class_id}&select=${attrs}&order=name_long.asc`;
+      const params = {
+        "select": attrs,
+        "order": 'name_long.asc'
+      };
 
-      else
-        return `/categories?select=${attrs}&order=name_long.asc`;
+      if (class_id) params['id'] = `eq.${class_id}`;
+
+      return params;
     },
 
     "parse": m => {
@@ -303,7 +306,7 @@ dt_modules['categories'] = (function() {
   };
 
   return {
-    base: "/categories",
+    base: "categories",
     model: model,
     collection: collection,
     header: 'Categories',

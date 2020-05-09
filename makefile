@@ -44,6 +44,8 @@ reconfig:
 
 	@echo -n "dt_config = " | cat - ${TEMP} > ${DIST}/config.js
 
+	@cat   src/config-extras.js >> ${DIST}/config.js
+
 synced:
 	@rsync -OPr \
 		-e "ssh -p ${SRV_SSH_PORT}" \

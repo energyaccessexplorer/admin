@@ -181,20 +181,22 @@ dt_modules['datasets'] = (function() {
   };
 
   const collection = {
-    "url": function() {
-      const attrs = 'id,online,name,category_name,circle,pack,geography_id,files(id)';
+    "endpoint": function() {
+      const attrs = ['id', 'online', 'name', 'category_name', 'circle', 'pack', 'geography_id', 'files(id)'];
+      const params = { "select": attrs };
 
       if (dataset_id)
-        return `/datasets?id=eq.${dataset_id}&select=${attrs}`;
+        params['id'] = `eq.${dataset_id}`;
 
-      else if (geography_id)
-        return `/datasets?geography_id=eq.${geography_id}&select=${attrs}&order=online.desc,name.asc`;
+      else if (geography_id) {
+        params['geography_id'] = `eq.${geography_id}`;
+        params['order'] = ['online.desc', 'name.asc'];
+      }
 
       else if (category_id)
-        return `/datasets?category_id=eq.${category_id}&select=${attrs}`;
+        params['category_id'] = `eq.${category_id}`;
 
-      else
-        return `/datasets?select=${attrs}`;
+      return params;
     },
 
     "parse": model.parse,
@@ -231,7 +233,7 @@ dt_modules['datasets'] = (function() {
   };
 
   return {
-    base: "/datasets",
+    base: "datasets",
     model: model,
     collection: collection,
     header: header,
