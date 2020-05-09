@@ -42,9 +42,7 @@ dt_modules['_datasets_files'] = (function() {
     "parse": function(m) {
       for (let k in m.file) m[`_file_${k}`] = m.file[k];
       return m;
-    },
-
-    "after_patch": 'reload'
+    }
   };
 
   const collection = {

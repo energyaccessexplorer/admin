@@ -45,7 +45,7 @@ dt_modules['categories'] = (function() {
           "scale": {
             "type": "select",
             "required": true,
-            "options": ["linear", "intervals"],
+            "options": ["", "linear", "intervals"],
             "default": "linear"
           },
           "intervals": {
@@ -60,6 +60,7 @@ dt_modules['categories'] = (function() {
           "domain": {
             "type": "object",
             "collapsed": false,
+            "nullable": true,
             "schema": {
               "min": {
                 "type": "number",
@@ -74,6 +75,7 @@ dt_modules['categories'] = (function() {
           "init": {
             "type": "object",
             "collapsed": false,
+            "nullable": true,
             "schema": {
               "min": {
                 "type": "number",
