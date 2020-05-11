@@ -8,7 +8,7 @@ dt_modules['datasets'] = (function() {
   const model = {
     "main": m => m.category_name + " - " + m.geography_name,
 
-    "columns": ["*", "category_name", "geography_name"],
+    "columns": ["category_name", "geography_name"],
 
     "schema": {
       "category_id": {

@@ -39,7 +39,7 @@ dt_modules['files'] = (function() {
 
   const collection = {
     "endpoint": function() {
-      const attrs = ['id', 'datasets(*)'];
+      const attrs = ['id', 'endpoint', 'datasets(*)'];
       const params = { "select": attrs };
 
       if (file_id) params['id'] = `eq.${file_id}`;

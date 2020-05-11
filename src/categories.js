@@ -4,8 +4,6 @@ dt_modules['categories'] = (function() {
   const class_id  = u.searchParams.get('id');
 
   const model = {
-    "columns": ["*"],
-
     "main": "name",
 
     "schema": {

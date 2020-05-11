@@ -2,30 +2,30 @@ dt_modules['_datasets_files'] = (function() {
   const url = new URL(location);
 
   const dataset_id = url.searchParams.get('dataset_id');
-  const file_id  = url.searchParams.get('file_id');
+  const file_id = url.searchParams.get('file_id');
 
   const model = {
     "id": ['dataset_id', 'file_id'],
-
-    "columns": ["*"],
 
     "schema": {
       "dataset_id": {
         "type": "uuid",
         "fkey": "datasets",
+        "constraint": "datasets!dataset", // AKTA! postgrest gets confused with the geogrphy_boundaries view!
         "label": "Dataset",
         "required": true,
         "editable": false,
-        "columns": ['name']
+        "columns": ['id', 'name']
       },
 
       "file_id": {
         "type": "uuid",
         "fkey": "files",
+        "constraint": "file",
         "label": "File",
         "required": true,
         "editable": false,
-        "columns": ['endpoint']
+        "columns": ['id', 'endpoint']
       },
 
       "active": {
@@ -48,7 +48,7 @@ dt_modules['_datasets_files'] = (function() {
   const collection = {
     "endpoint": function() {
       const params = {
-        "select": ['*', 'file:files(*)', 'dataset:datasets(*)']
+        "select": ['file_id', 'dataset_id', 'func', 'active', 'file(endpoint)']
       };
 
       if (dataset_id) params['dataset_id'] = `eq.${dataset_id}`;
