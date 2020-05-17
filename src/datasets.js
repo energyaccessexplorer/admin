@@ -181,6 +181,8 @@ dt_modules['datasets'] = (function() {
   };
 
   const collection = {
+    "filters": ['name', 'category_name'],
+
     "endpoint": function() {
       const attrs = ['id', 'online', 'name', 'category_name', 'circle', 'pack', 'geography_id', 'files(id)'];
       const params = { "select": attrs };

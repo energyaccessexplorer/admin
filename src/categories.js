@@ -275,6 +275,8 @@ dt_modules['categories'] = (function() {
   };
 
   const collection = {
+    "filters": ['name', 'name_long', 'unit'],
+
     "endpoint": function() {
       const attrs = ['id', 'name', 'name_long', 'unit', 'timeline', 'analysis', 'raster', 'vectors', 'csv', 'datasets(id)'];
 

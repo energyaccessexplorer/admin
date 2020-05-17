@@ -91,6 +91,8 @@ dt_modules['geographies'] = (function() {
   };
 
   const collection = {
+    "filters": ['name'],
+
     "endpoint": function() {
       const attrs = ['id', 'name', 'cca3', 'adm', 'online', 'configuration', 'circle', 'datasets(id)'];
 
