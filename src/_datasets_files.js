@@ -1,73 +1,71 @@
-dt_modules['_datasets_files'] = (function() {
-  const url = new URL(location);
+const url = new URL(location);
 
-  const dataset_id = url.searchParams.get('dataset_id');
-  const file_id = url.searchParams.get('file_id');
+const dataset_id = url.searchParams.get('dataset_id');
+const file_id = url.searchParams.get('file_id');
 
-  const model = {
-    "id": ['dataset_id', 'file_id'],
+const model = {
+  "id": ['dataset_id', 'file_id'],
 
-    "schema": {
-      "dataset_id": {
-        "type": "uuid",
-        "fkey": "datasets",
-        "constraint": "datasets!dataset", // AKTA! postgrest gets confused with the geogrphy_boundaries view!
-        "label": "Dataset",
-        "required": true,
-        "editable": false,
-        "columns": ['id', 'name']
-      },
-
-      "file_id": {
-        "type": "uuid",
-        "fkey": "files",
-        "constraint": "file",
-        "label": "File",
-        "required": true,
-        "editable": false,
-        "columns": ['id', 'endpoint']
-      },
-
-      "active": {
-        "type": "boolean"
-      },
-
-      "func": {
-        "type": "select",
-        "required": true,
-        "options": ['', 'raster' ,'vectors', 'csv'],
-      }
+  "schema": {
+    "dataset_id": {
+      "type": "uuid",
+      "fkey": "datasets",
+      "constraint": "datasets!dataset", // AKTA! postgrest gets confused with the geogrphy_boundaries view!
+      "label": "Dataset",
+      "required": true,
+      "editable": false,
+      "columns": ['id', 'name']
     },
 
-    "parse": function(m) {
-      for (let k in m.file) m[`_file_${k}`] = m.file[k];
-      return m;
+    "file_id": {
+      "type": "uuid",
+      "fkey": "files",
+      "constraint": "file",
+      "label": "File",
+      "required": true,
+      "editable": false,
+      "columns": ['id', 'endpoint']
+    },
+
+    "active": {
+      "type": "boolean"
+    },
+
+    "func": {
+      "type": "select",
+      "required": true,
+      "options": ['', 'raster' ,'vectors', 'csv'],
     }
-  };
+  },
 
-  const collection = {
-    "endpoint": function() {
-      const params = {
-        "select": ['file_id', 'dataset_id', 'func', 'active', 'file(endpoint)']
-      };
+  "parse": function(m) {
+    for (let k in m.file) m[`_file_${k}`] = m.file[k];
+    return m;
+  }
+};
 
-      if (dataset_id) params['dataset_id'] = `eq.${dataset_id}`;
-      else if (file_id) params['file_id'] = `eq.${file_id}`;
+const collection = {
+  "endpoint": function() {
+    const params = {
+      "select": ['file_id', 'dataset_id', 'func', 'active', 'file(endpoint)']
+    };
 
-      return params;
-    },
+    if (dataset_id) params['dataset_id'] = `eq.${dataset_id}`;
+    else if (file_id) params['file_id'] = `eq.${file_id}`;
 
-    "parse": model.parse,
+    return params;
+  },
 
-    "sort_by": 'active',
+  "parse": model.parse,
 
-    "order": -1
-  };
+  "sort_by": 'active',
 
-  return {
-    base: '_datasets_files',
-    model: model,
-    collection: collection,
-    header: "Dataset files"
-  };
-})();
+  "order": -1
+};
+
+dt_modules['_datasets_files'] = {
+  base: '_datasets_files',
+  header: "Dataset files",
+  model,
+  collection
+};

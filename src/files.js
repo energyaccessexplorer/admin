@@ -1,105 +1,103 @@
-dt_modules['files'] = (function() {
-  const url = new URL(location);
+const url = new URL(location);
 
-  const file_id = url.searchParams.get('id');
-  const dataset_id = url.searchParams.get('dataset_id');
-  const edit_model = url.searchParams.get('edit_model');
+const file_id = url.searchParams.get('id');
+const dataset_id = url.searchParams.get('dataset_id');
+const edit_model = url.searchParams.get('edit_model');
 
-  const model = {
-    "main": 'label',
+const model = {
+  "main": 'label',
 
-    "schema": {
-      "label": {
-        "type": "string",
-        "default": null,
-        "label": "Label",
-        "required": true
-      },
-
-      "endpoint": {
-        "type": "string",
-        "label": "Endpoint",
-        "resource": true,
-        "required": true,
-      },
-
-      "comment": {
-        "type": "text",
-        "label": "Comment",
-        "required": true
-      },
-
-      "configuration": {
-        "type": "json",
-        "label": "Configuration",
-        "nullable": true
-      },
-    },
-  };
-
-  const collection = {
-    "endpoint": function() {
-      const attrs = ['id', 'endpoint', 'datasets(*)'];
-      const params = { "select": attrs };
-
-      if (file_id) params['id'] = `eq.${file_id}`;
-
-      return params;
+  "schema": {
+    "label": {
+      "type": "string",
+      "default": null,
+      "label": "Label",
+      "required": true
     },
 
-    "sort_by": 'endpoint',
+    "endpoint": {
+      "type": "string",
+      "label": "Endpoint",
+      "resource": true,
+      "required": true,
+    },
 
-    "parse": function(m) {
-      m.dscount = m.datasets.length;
-      return m;
-    }
-  };
+    "comment": {
+      "type": "text",
+      "label": "Comment",
+      "required": true
+    },
 
-  const init = function() {
-    if (file_id || dataset_id || edit_model) return true;
+    "configuration": {
+      "type": "json",
+      "label": "Configuration",
+      "nullable": true
+    },
+  },
+};
 
-    else {
-      const s = url.searchParams.get('search');
-      const f = dt_model_search('files');
+const collection = {
+  "endpoint": function() {
+    const attrs = ['id', 'label', 'endpoint', 'datasets(*)'];
+    const params = { "select": attrs };
 
-      document.querySelector('body > main').append(f);
-      f.querySelector('select.type').style.display = 'none';
-    }
+    if (file_id) params['id'] = `eq.${file_id}`;
 
-    return false;
-  };
+    return params;
+  },
 
-  const header = async function() {
-    let h = null;
-    let str = null;
-    let geography_id;
+  "sort_by": 'endpoint',
 
-    if (!dataset_id) return "Files";
+  "parse": function(m) {
+    m.dscount = m.datasets.length;
+    return m;
+  }
+};
 
-    h = [`/datasets?select=category_name,geography_id&id=eq.${dataset_id}`, 'category_name'];
+const init = function() {
+  if (file_id || dataset_id || edit_model) return true;
 
-    await fetch(dt_config.origin + h[0])
-      .then(r => r.json())
-      .then(j => {
-        geography_id = j[0]['geography_id'];
-        str = j[0][h[1]];
-      });
+  else {
+    const s = url.searchParams.get('search');
+    const f = dt_model_search('files');
 
-    if (dataset_id)
-      h = [`/geographies?select=name&id=eq.${geography_id}`, 'name'];
+    document.querySelector('body > main').append(f);
+    f.querySelector('select.type').style.display = 'none';
+  }
 
-    await fetch(dt_config.origin + h[0])
-      .then(r => r.json())
-      .then(j => str = j[0][h[1]] + " " + str)
+  return false;
+};
 
-    return str + " files";
-  };
+const header = async function() {
+  let h = null;
+  let str = null;
+  let geography_id;
 
-  return {
-    base: "files",
-    model: model,
-    collection: collection,
-    header: header,
-    init: init,
-  };
-})();
+  if (!dataset_id) return "Files";
+
+  h = [`/datasets?select=category_name,geography_id&id=eq.${dataset_id}`, 'category_name'];
+
+  await fetch(dt_config.origin + h[0])
+    .then(r => r.json())
+    .then(j => {
+      geography_id = j[0]['geography_id'];
+      str = j[0][h[1]];
+    });
+
+  if (dataset_id)
+    h = [`/geographies?select=name&id=eq.${geography_id}`, 'name'];
+
+  await fetch(dt_config.origin + h[0])
+    .then(r => r.json())
+    .then(j => str = j[0][h[1]] + " " + str)
+
+  return str + " files";
+};
+
+dt_modules['files'] = {
+  base: "files",
+  model,
+  collection,
+  header,
+  init,
+};
