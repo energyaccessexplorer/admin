@@ -7,6 +7,8 @@ const category_id = url.searchParams.get('category_id');
 const model = {
   "main": m => m.category_name + " - " + m.geography_name,
 
+  "external_url": m => `${dt_config.production}/tool/a/?id=${m.geography_id}&inputs=${m.name}`,
+
   "columns": ["category_name", "geography_name"],
 
   "schema": {
@@ -233,9 +235,14 @@ const header = async function() {
   return str + " - " + (sufix ? sufix : "datasets");
 };
 
+const wants = {
+  "dt_external": _ => null,
+};
+
 dt_modules['datasets'] = {
   base: "datasets",
   model,
   collection,
   header,
+  wants,
 };

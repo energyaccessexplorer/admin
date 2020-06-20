@@ -34,6 +34,8 @@ const edit_callback = m => {
 const model = {
   "main": "name",
 
+  "external_url": m => `${dt_config.production}/tool/a/?id=${m.id}&inputs=boundaries`,
+
   "edit_callback": model => edit_callback(model),
 
   "schema": {
@@ -109,9 +111,14 @@ const collection = {
   }
 };
 
+const wants = {
+  "dt_external": _ => null,
+};
+
 dt_modules['geographies'] = {
   base: "geographies",
   header: 'Geographies',
   model,
   collection,
+  wants,
 };
