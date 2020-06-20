@@ -47,7 +47,7 @@ const model = {
         "intervals": {
           "type": "json",
           "nullable": true,
-          "needs": m => m.scale === "intervals"
+          "needs": m => maybe(m.raster, 'scale') === "intervals"
         },
         "precision": {
           "type": "number",
@@ -125,7 +125,7 @@ const model = {
         "dasharray": {
           "type": "string",
           "nullable": true,
-          "needs": m => m.shape_type === "lines",
+          "needs": m => maybe(m.vectors, 'shape_type') === "lines",
         },
         "specs": {
           "type": "json",
@@ -183,7 +183,7 @@ const model = {
           "type": "json",
           "nullable": true,
           "placeholder": "[0, 10, 1000, 5000]\n\nNeeds scale == intervals",
-          "needs": m => m.scale === "intervals"
+          "needs": m => maybe(m.raster, 'scale') === "intervals"
         },
         "indexes": {
           "type": "array",
