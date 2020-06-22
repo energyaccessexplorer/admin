@@ -3,40 +3,8 @@ let geography_id  = url.searchParams.get('id');
 
 let ds_options = [];
 
-const edit_callback = m => {
-  geography_id = geography_id || u.searchParams.get('edit_model');
-
-  sortable('[name="category"]', { forcePlaceholderSize: true });
-  sortable('[name="subcategories"]', { forcePlaceholderSize: true });
-  sortable('[name="datasets"]', { forcePlaceholderSize: true });
-
-  geography_id = u.searchParams.get('edit_model');
-
-  fetch(`${dt_config.origin}/datasets?select=category_name&geography_id=eq.${m.data.id}`)
-    .then(r => r.json())
-    .then(j => j.map(x => x['category_name']))
-    .then(x => {
-      let options_html = "";
-      for (n of x) options_html += `<option value="${n}">${n}</option>`;
-
-      const dls = document.querySelectorAll(`[name="datasets"] datalist[bind="id"]`);
-      for (let d of dls) d.innerHTML = options_html;
-
-      const ins = document.querySelectorAll(`[name="datasets"] input[name="id"]`);
-
-      if (x.length) {
-        const pattern = x.join('|');
-        for (let i of ins) i.pattern = `(${pattern})`;
-      }
-    });
-};
-
 const model = {
   "main": "name",
-
-  "external_url": m => `${dt_config.production}/tool/a/?id=${m.id}&inputs=boundaries`,
-
-  "edit_callback": model => edit_callback(model),
 
   "schema": {
     "name": {
@@ -86,8 +54,9 @@ const model = {
       "type": "json",
       "label": "Configuration",
       "nullable": true
-    }
-  }
+  "edit_jobs": [
+    (o,f) => dt_plugins.external.add_link(o, f, m => `${dt_config.production}/a/?id=${m.id}&inputs=boundaries`),
+  ],
 };
 
 const collection = {

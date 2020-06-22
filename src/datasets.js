@@ -7,8 +7,6 @@ const category_id = url.searchParams.get('category_id');
 const model = {
   "main": m => m.category_name + " - " + m.geography_name,
 
-  "external_url": m => `${dt_config.production}/tool/a/?id=${m.geography_id}&inputs=${m.name}`,
-
   "columns": ["category_name", "geography_name"],
 
   "schema": {
@@ -151,34 +149,37 @@ const model = {
     return m;
   },
 
-  "edit_callback": function(model, form) {
-    const metadatadetails = form.querySelector('details[name="metadata"]');
+  "edit_jobs": [
+    (o,f) => dt_plugins.external.add_link(o, f, m => `${dt_config.production}/a/?id=${m.geography_id}&inputs=${m.name}`),
+    function(_, form) {
+      const metadatadetails = form.querySelector('details[name="metadata"]');
 
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.innerText = "import metadata";
-    button.style = "float: right;";
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.innerText = "import metadata";
+      button.style = "float: right;";
 
-    const input = document.createElement('input');
-    input.type = 'hidden';
-    input.onchange = function() {
-      fetch(dt_config.origin + `/datasets?select=metadata&id=eq.${this.value}`)
-        .then(r => r.json())
-        .then(r => {
-          let metadata;
-          if (!r[0] || !(metadata = r[0]['metadata'])) return;
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.onchange = function() {
+        fetch(dt_config.origin + `/datasets?select=metadata&id=eq.${this.value}`)
+          .then(r => r.json())
+          .then(r => {
+            let metadata;
+            if (!r[0] || !(metadata = r[0]['metadata'])) return;
 
-          for (let k in metadata)
-            metadatadetails.querySelector(`[name=${k}]`).value = metadata[k];
-        })
-    };
+            for (let k in metadata)
+              metadatadetails.querySelector(`[name=${k}]`).value = metadata[k];
+          })
+      };
 
-    button.onclick = function() {
-      dt_model_search_modal('datasets', input, null);
-    };
+      button.onclick = function() {
+        dt_model_search_modal('datasets', input, null);
+      }
 
-    metadatadetails.querySelector('summary').append(button);
-  }
+      metadatadetails.querySelector('summary').append(button);
+    },
+  ]
 };
 
 const collection = {
