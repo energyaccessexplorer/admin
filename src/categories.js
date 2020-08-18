@@ -28,6 +28,7 @@ const model = {
       "type": "array",
       "collapsed": false,
       "nullable": true,
+      "sortable": true,
       "schema": {
         "type": "colour"
       }
@@ -312,12 +313,12 @@ const collection = {
     return params;
   },
 
-  "parse": m => {
+  "parse": function(m) {
     m.dscount = m.datasets.length;
 
     m.features = ['analysis', 'timeline', 'raster', 'vectors', 'csv']
       .reduce((a,c) => m[c] ? a + c[0] : a, "")
-      .toUpperCase()
+      .toUpperCase();
 
     return m;
   },
@@ -329,7 +330,7 @@ const collection = {
 
 dt_modules['categories'] = {
   base: "categories",
-  model: model,
-  collection: collection,
   header: 'Categories',
+  model,
+  collection,
 };

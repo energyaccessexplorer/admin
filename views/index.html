@@ -5,7 +5,14 @@
     <meta charset="utf-8">
 
     <script src="/config.js"></script>
-    <script src="/lib/duck-tape/duck-tape-bundle.js"></script>
+    <script>
+      (function() {
+        const script = document.createElement('script');
+        script.async = true;
+        script.src = dt_config.src;
+        document.head.appendChild(script);
+      })();
+    </script>
 
     <link rel="shortcut icon" type="image/png" href="/images/favicon.png"/>
 
@@ -28,7 +35,7 @@
          style="flex: 0;
                 padding: 0.5em;
                 padding-left: 1em;
-                padding-right: 1em;"></a>
+                padding-right: 1em;"><strong>ADMIN</strong></a>
       <a href="/?model=geographies">Geographies</a>
       <a href="/?model=categories">Categories</a>
       <a href="/?model=files">Files</a>
