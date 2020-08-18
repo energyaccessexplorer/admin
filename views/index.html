@@ -9,6 +9,16 @@
 
     <link rel="shortcut icon" type="image/png" href="/images/favicon.png"/>
 
+    <style>
+      [bind-value="created"],
+      [bind-value="updated"],
+      [bind-value="created_by"],
+      [bind-value="updated_by"] {
+        font-size: 0.9em;
+        font-family: monospace;
+      }
+    </style>
+
     <title>Energy Access :: Admin</title>
   </head>
 
@@ -54,6 +64,8 @@
       <th table-sort="features">Features</th>
       <th table-sort="unit">Unit</th>
       <th table-sort="dscount">DS count</th>
+      <th table-sort="created_by">Created</th>
+      <th table-sort="updated_by">Updated</th>
     </tr>
   </template>
 
@@ -64,6 +76,15 @@
       <td bind="features"></td>
       <td bind="unit"></td>
       <td bind="dscount"></td>
+      <td>
+        <span bind-value="created" bind-lambda="human_time"></span>
+        <span bind-value="created_by" bind-lambda="email_user" bind-format="({0})"></span>
+      </td>
+
+      <td>
+        <span bind-value="updated" bind-lambda="human_time"></span>
+        <span bind-value="updated_by" bind-lambda="email_user" bind-format="({0})"></span>
+      </td>
     </tr>
   </template>
 
@@ -85,6 +106,8 @@
       <th table-sort="circle">Circle</th>
       <th table-sort="pack">Pack</th>
       <th table-sort="file_count">Files</th>
+      <th table-sort="created_by">Created</th>
+      <th table-sort="updated_by">Updated</th>
     </tr>
   </template>
 
@@ -112,6 +135,16 @@
            bind-format="/?model=_datasets_files&dataset_id={0}">
           <span bind="file_count"></span> files
         </a>
+      </td>
+
+      <td>
+        <span bind-value="created" bind-lambda="human_time"></span>
+        <span bind-value="created_by" bind-lambda="email_user" bind-format="({0})"></span>
+      </td>
+
+      <td>
+        <span bind-value="updated" bind-lambda="human_time"></span>
+        <span bind-value="updated_by" bind-lambda="email_user" bind-format="({0})"></span>
       </td>
     </tr>
   </template>
@@ -147,6 +180,8 @@
       <th>Label</th>
       <th>Endpoint</th>
       <th>DS count</th>
+      <th table-sort="created_by">Created</th>
+      <th table-sort="updated_by">Updated</th>
     </tr>
   </template>
 
@@ -159,6 +194,16 @@
            bind-value="id"
            bind-format="/?model=_datasets_files&file_id={0}">
           <span bind="dscount"></span> relations</a>
+      </td>
+
+      <td>
+        <span bind-value="created" bind-lambda="human_time"></span>
+        <span bind-value="created_by" bind-lambda="email_user" bind-format="({0})"></span>
+      </td>
+
+      <td>
+        <span bind-value="updated" bind-lambda="human_time"></span>
+        <span bind-value="updated_by" bind-lambda="email_user" bind-format="({0})"></span>
       </td>
     </tr>
   </template>
@@ -190,6 +235,8 @@
       <th table-sort="adm">ADM</th>
       <th table-sort="circle">Circle</th>
       <th table-sort="dscount">Datasets</th>
+      <th table-sort="created_by">Created</th>
+      <th table-sort="updated_by">Updated</th>
     </tr>
   </template>
 
@@ -211,6 +258,16 @@
            bind-format="/?model=datasets&geography_id={0}">
           <span bind="dscount"></span> datasets
         </a>
+      </td>
+
+      <td>
+        <span bind-value="created" bind-lambda="human_time"></span>
+        <span bind-value="created_by" bind-lambda="email_user" bind-format="({0})"></span>
+      </td>
+
+      <td>
+        <span bind-value="updated" bind-lambda="human_time"></span>
+        <span bind-value="updated_by" bind-lambda="email_user" bind-format="({0})"></span>
       </td>
     </tr>
   </template>

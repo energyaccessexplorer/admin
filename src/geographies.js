@@ -54,6 +54,33 @@ const model = {
       "type": "json",
       "label": "Configuration",
       "nullable": true
+    },
+
+    "updated": {
+      "type": "string",
+      "label": "Last update",
+      "editable": false
+    },
+
+    "updated_by": {
+      "type": "string",
+      "label": "Last update by",
+      "editable": false
+    },
+
+    "created": {
+      "type": "string",
+      "label": "Created",
+      "editable": false
+    },
+
+    "created_by": {
+      "type": "string",
+      "label": "Created by",
+      "editable": false
+    },
+  },
+
   "edit_jobs": [
     (o,f) => dt_plugins.external.add_link(o, f, m => `${dt_config.production}/a/?id=${m.id}&inputs=boundaries`),
   ],
@@ -63,7 +90,7 @@ const collection = {
   "filters": ['name'],
 
   "endpoint": function() {
-    const attrs = ['id', 'name', 'cca3', 'adm', 'online', 'configuration', 'circle', 'datasets(id)'];
+    const attrs = ['id', 'name', 'cca3', 'adm', 'online', 'configuration', 'circle', 'datasets(id)', 'created', 'created_by', 'updated', 'updated_by'];
 
     const params = {
       "select": attrs

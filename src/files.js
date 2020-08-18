@@ -33,12 +33,36 @@ const model = {
       "label": "Configuration",
       "nullable": true
     },
+
+    "created": {
+      "type": "string",
+      "label": "Created",
+      "editable": false
+    },
+
+    "created_by": {
+      "type": "string",
+      "label": "Created by",
+      "editable": false
+    },
+
+    "updated": {
+      "type": "string",
+      "label": "Last update",
+      "editable": false
+    },
+
+    "updated_by": {
+      "type": "string",
+      "label": "Last update by",
+      "editable": false
+    },
   },
 };
 
 const collection = {
   "endpoint": function() {
-    const attrs = ['id', 'label', 'endpoint', 'datasets(*)'];
+    const attrs = ['id', 'label', 'endpoint', 'datasets(*)', 'created', 'created_by', 'updated', 'updated_by'];
     const params = { "select": attrs };
 
     if (file_id) params['id'] = `eq.${file_id}`;

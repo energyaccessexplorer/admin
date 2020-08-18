@@ -141,7 +141,31 @@ const model = {
           "nullable": true
         }
       }
-    }
+    },
+
+    "created": {
+      "type": "string",
+      "label": "Created",
+      "editable": false
+    },
+
+    "created_by": {
+      "type": "string",
+      "label": "Created by",
+      "editable": false
+    },
+
+    "updated": {
+      "type": "string",
+      "label": "Last update",
+      "editable": false
+    },
+
+    "updated_by": {
+      "type": "string",
+      "label": "Last update by",
+      "editable": false
+    },
   },
 
   "parse": function(m) {
@@ -186,7 +210,7 @@ const collection = {
   "filters": ['name', 'category_name'],
 
   "endpoint": function() {
-    const attrs = ['id', 'online', 'name', 'category_name', 'circle', 'pack', 'geography_id', 'files(id)'];
+    const attrs = ['id', 'online', 'name', 'category_name', 'circle', 'pack', 'geography_id', 'files(id)', 'created', 'created_by', 'updated', 'updated_by'];
     const params = { "select": attrs };
 
     if (dataset_id)
