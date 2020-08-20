@@ -328,9 +328,13 @@ const collection = {
   "order": -1
 };
 
-dt_modules['categories'] = {
-  base: "categories",
-  header: 'Categories',
+const base = "categories";
+
+const header = 'Categories';
+
+export {
+  base,
+  header,
   model,
   collection,
 };

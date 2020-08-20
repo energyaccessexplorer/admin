@@ -118,8 +118,10 @@ const header = async function() {
   return str + " files";
 };
 
-dt_modules['files'] = {
-  base: "files",
+const base = "files";
+
+export {
+  base,
   model,
   collection,
   header,

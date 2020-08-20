@@ -40,9 +40,13 @@ const collection = {
   },
 };
 
-dt_modules['circles'] = {
-  header: "Circles",
-  base: "circles",
+const base = "circles";
+
+const header = "Circles";
+
+export {
+  base,
+  header,
   model,
   collection,
 };

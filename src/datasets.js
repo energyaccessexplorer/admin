@@ -174,7 +174,7 @@ const model = {
   },
 
   "edit_jobs": [
-    (o,f) => dt_plugins.external.add_link(o, f, m => `${dt_config.production}/a/?id=${m.geography_id}&inputs=${m.name}`),
+    (o,f) => dt_external_link(o, f, m => `${dt_config.production}/a/?id=${m.geography_id}&inputs=${m.name}`),
     function(_, form) {
       const metadatadetails = form.querySelector('details[name="metadata"]');
 
@@ -260,14 +260,11 @@ const header = async function() {
   return str + " - " + (sufix ? sufix : "datasets");
 };
 
-const wants = {
-  "dt_external": _ => null,
-};
+const base = "datasets";
 
-dt_modules['datasets'] = {
-  base: "datasets",
+export {
+  base,
   model,
   collection,
   header,
-  wants,
 };

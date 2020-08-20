@@ -82,7 +82,7 @@ const model = {
   },
 
   "edit_jobs": [
-    (o,f) => dt_plugins.external.add_link(o, f, m => `${dt_config.production}/a/?id=${m.id}&inputs=boundaries`),
+    (o,f) => dt_external_link(o, f, m => `${dt_config.production}/a/?id=${m.id}&inputs=boundaries`),
   ],
 };
 
@@ -107,14 +107,13 @@ const collection = {
   }
 };
 
-const wants = {
-  "dt_external": _ => null,
-};
+const base = "geographies";
 
-dt_modules['geographies'] = {
-  base: "geographies",
-  header: 'Geographies',
+const header = "Geographies";
+
+export {
+  base,
+  header,
   model,
   collection,
-  wants,
 };

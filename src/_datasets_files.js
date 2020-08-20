@@ -63,9 +63,13 @@ const collection = {
   "order": -1
 };
 
-dt_modules['_datasets_files'] = {
-  base: '_datasets_files',
-  header: "Dataset files",
+const base = '_datasets_files';
+
+const header =  "Dataset files";
+
+export {
+  base,
+  header,
   model,
   collection
 };
