@@ -39,6 +39,7 @@
       <a href="/?model=geographies">Geographies</a>
       <a href="/?model=categories">Categories</a>
       <a href="/?model=files">Files</a>
+      <a href="/?model=circles">Circles</a>
     </nav>
 
     <main></main>
@@ -319,6 +320,41 @@
           bind-not="disabled"
           bind="_file_endpoint"></td>
       <td bind="active"></td>
+    </tr>
+  </template>
+
+  <template class="style" module="circles">
+    <style>
+      table td:nth-of-type(2),
+      table td:nth-of-type(3) {
+        font-family: monospace;
+      }
+
+      table td:nth-of-type(1) a {
+        margin-right: 0;
+      }
+
+      table td:nth-of-type(3) {
+        text-align: right;
+      }
+    </style>
+  </template>
+
+  <template class="tableheader" module="circles">
+    <tr>
+      <th></th>
+      <th>Rolname</th>
+      <th>Parents</th>
+    </tr>
+  </template>
+
+  <template class="tablerow" module="circles">
+    <tr>
+      <td>
+        <a icon="edit"></a>
+      </td>
+      <td bind="rolname"></td>
+      <td bind="parents"></td>
     </tr>
   </template>
 </html>
