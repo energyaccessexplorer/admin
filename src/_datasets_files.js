@@ -1,8 +1,3 @@
-const url = new URL(location);
-
-const dataset_id = url.searchParams.get('dataset_id');
-const file_id = url.searchParams.get('file_id');
-
 const model = {
   "id": ['dataset_id', 'file_id'],
 
@@ -49,6 +44,10 @@ const collection = {
     const params = {
       "select": ['file_id', 'dataset_id', 'func', 'active', 'file(endpoint)']
     };
+
+    const url = new URL(location);
+    const dataset_id = url.searchParams.get('dataset_id');
+    const file_id = url.searchParams.get('file_id');
 
     if (dataset_id) params['dataset_id'] = `eq.${dataset_id}`;
     else if (file_id) params['file_id'] = `eq.${file_id}`;

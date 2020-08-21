@@ -6,13 +6,12 @@
 
     <script src="/config.js"></script>
 
-    <script>
-	(function() {
-		const script = document.createElement('script');
-		script.async = true;
-		script.src = dt_config.src;
-		document.head.appendChild(script);
-	})();
+    <script type="module">
+	const s = document.createElement('script');
+	s.async = true;
+	s.src = dt_config.src;
+	s.onload = _ => dt_main();
+	document.head.appendChild(s);
     </script>
 
     <link rel="shortcut icon" type="image/png" href="/images/favicon.png"/>

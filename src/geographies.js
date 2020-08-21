@@ -1,8 +1,3 @@
-const url = new URL(location);
-let geography_id  = url.searchParams.get('id');
-
-let ds_options = [];
-
 const model = {
   "main": "name",
 
@@ -96,6 +91,8 @@ const collection = {
       "select": attrs
     };
 
+    const url = new URL(location);
+    let geography_id  = url.searchParams.get('id');
     if (geography_id) params['id'] = `eq.${geography_id}`;
 
     return params;

@@ -1,6 +1,3 @@
-const url = new URL(location);
-const class_id  = url.searchParams.get('id');
-
 const model = {
   "main": "name",
 
@@ -308,6 +305,8 @@ const collection = {
       "order": 'name_long.asc'
     };
 
+    const url = new URL(location);
+    const class_id  = url.searchParams.get('id');
     if (class_id) params['id'] = `eq.${class_id}`;
 
     return params;

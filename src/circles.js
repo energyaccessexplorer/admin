@@ -1,6 +1,3 @@
-const url = new URL(location);
-const edit_model = url.searchParams.get('edit_model');
-
 const model = {
   "main": 'rolname',
 
