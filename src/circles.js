@@ -1,4 +1,8 @@
-const model = {
+export const base = 'circles';
+
+export const header = "Circles";
+
+export const model = {
   "main": 'rolname',
 
   "pkey": "rolname",
@@ -28,22 +32,11 @@ const model = {
   },
 };
 
-const collection = {
+export const collection = {
   "endpoint": function() {
     const attrs = ['*'];
     const params = { "select": attrs };
 
     return params;
   },
-};
-
-const base = "circles";
-
-const header = "Circles";
-
-export {
-  base,
-  header,
-  model,
-  collection,
 };

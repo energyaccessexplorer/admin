@@ -1,10 +1,11 @@
 const url = new URL(location);
+export const base = 'datasets';
 
 const dataset_id = url.searchParams.get('id');
 const geography_id = url.searchParams.get('geography_id');
 const category_id = url.searchParams.get('category_id');
 
-const model = {
+export const model = {
   "main": m => m.category_name + " - " + m.geography_name,
 
   "columns": ["category_name", "geography_name"],
@@ -206,7 +207,7 @@ const model = {
   ]
 };
 
-const collection = {
+export const collection = {
   "filters": ['name', 'category_name'],
 
   "endpoint": function() {
@@ -232,7 +233,7 @@ const collection = {
   "order": -1
 };
 
-const header = async function() {
+export async function header() {
   let str = null;
   let sufix = null;
   let gid = geography_id;
@@ -260,11 +261,4 @@ const header = async function() {
   return str + " - " + (sufix ? sufix : "datasets");
 };
 
-const base = "datasets";
-
-export {
-  base,
-  model,
-  collection,
-  header,
-};
+export const single = dt_single_edit;

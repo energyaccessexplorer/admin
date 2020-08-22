@@ -1,4 +1,8 @@
-const model = {
+export const base = 'categories';
+
+export const header = "Categories";
+
+export const model = {
   "main": "name",
 
   "schema": {
@@ -294,7 +298,7 @@ const model = {
   },
 };
 
-const collection = {
+export const collection = {
   "filters": ['name', 'name_long', 'unit'],
 
   "endpoint": function() {
@@ -325,15 +329,4 @@ const collection = {
   "sort_by": 'dscount',
 
   "order": -1
-};
-
-const base = "categories";
-
-const header = 'Categories';
-
-export {
-  base,
-  header,
-  model,
-  collection,
 };

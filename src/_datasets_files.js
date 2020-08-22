@@ -1,4 +1,8 @@
-const model = {
+export const base = '_datasets_files';
+
+export const header =  "Dataset files";
+
+export const model = {
   "id": ['dataset_id', 'file_id'],
 
   "schema": {
@@ -39,7 +43,7 @@ const model = {
   }
 };
 
-const collection = {
+export const collection = {
   "endpoint": function() {
     const params = {
       "select": ['file_id', 'dataset_id', 'func', 'active', 'file(endpoint)']
@@ -60,15 +64,4 @@ const collection = {
   "sort_by": 'active',
 
   "order": -1
-};
-
-const base = '_datasets_files';
-
-const header =  "Dataset files";
-
-export {
-  base,
-  header,
-  model,
-  collection
 };

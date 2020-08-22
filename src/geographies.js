@@ -1,4 +1,8 @@
-const model = {
+export const base = 'geographies';
+
+export const header = "Geographies";
+
+export const model = {
   "main": "name",
 
   "schema": {
@@ -81,7 +85,7 @@ const model = {
   ],
 };
 
-const collection = {
+export const collection = {
   "filters": ['name'],
 
   "endpoint": function() {
@@ -101,16 +105,5 @@ const collection = {
   "parse": function(m) {
     m.dscount = m.datasets.length;
     return m;
-  }
-};
-
-const base = "geographies";
-
-const header = "Geographies";
-
-export {
-  base,
-  header,
-  model,
-  collection,
+  },
 };
