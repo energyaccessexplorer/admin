@@ -5,7 +5,7 @@ export const header = "Circles";
 export const model = {
   "main": 'rolname',
 
-  "pkey": "rolname",
+  "pkey": 'rolname',
 
   "schema": {
     "oid": {

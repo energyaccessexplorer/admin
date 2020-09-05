@@ -3,7 +3,7 @@ export const base = '_datasets_files';
 export const header =  "Dataset files";
 
 export const model = {
-  "id": ['dataset_id', 'file_id'],
+  "pkey": ['dataset_id', 'file_id'],
 
   "schema": {
     "dataset_id": {
