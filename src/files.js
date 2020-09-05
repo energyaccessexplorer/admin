@@ -1,8 +1,5 @@
 const url = new URL(location);
 
-const file_id = url.searchParams.get('id');
-const dataset_id = url.searchParams.get('dataset_id');
-const edit_model = url.searchParams.get('edit_model');
 export const base = 'files';
 
 export const model = {
@@ -66,6 +63,7 @@ export const collection = {
     const attrs = ['id', 'label', 'endpoint', 'datasets(*)', 'created', 'created_by', 'updated', 'updated_by'];
     const params = { "select": attrs };
 
+    const file_id = url.searchParams.get('id');
     if (file_id) params['id'] = `eq.${file_id}`;
 
     return params;
@@ -80,6 +78,10 @@ export const collection = {
 };
 
 export function init() {
+  const file_id = url.searchParams.get('id');
+  const dataset_id = url.searchParams.get('dataset_id');
+  const edit_model = url.searchParams.get('edit_model');
+
   if (file_id || dataset_id || edit_model) return true;
 
   else {
@@ -97,6 +99,8 @@ export async function header() {
   let h = null;
   let str = null;
   let geography_id;
+
+  const dataset_id = url.searchParams.get('dataset_id');
 
   if (!dataset_id) return "Files";
 

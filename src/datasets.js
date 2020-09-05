@@ -1,9 +1,4 @@
-const url = new URL(location);
 export const base = 'datasets';
-
-const dataset_id = url.searchParams.get('id');
-const geography_id = url.searchParams.get('geography_id');
-const category_id = url.searchParams.get('category_id');
 
 export const model = {
   "main": m => m.category_name + " - " + m.geography_name,
@@ -211,6 +206,11 @@ export const collection = {
   "filters": ['name', 'category_name'],
 
   "endpoint": function() {
+    const url = new URL(location);
+    const dataset_id = url.searchParams.get('id');
+    const geography_id = url.searchParams.get('geography_id');
+    const category_id = url.searchParams.get('category_id');
+
     const attrs = ['id', 'online', 'name', 'category_name', 'circle', 'pack', 'geography_id', 'files(id)', 'created', 'created_by', 'updated', 'updated_by'];
     const params = { "select": attrs };
 
@@ -236,7 +236,9 @@ export const collection = {
 export async function header() {
   let str = null;
   let sufix = null;
-  let gid = geography_id;
+
+  const url = new URL(location);
+  let gid = url.searchParams.get('geography_id');
 
   const geoobj = _ => dt_collections["datasets"][0].array[0];
 
