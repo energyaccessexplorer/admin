@@ -164,6 +164,19 @@ export const model = {
     },
   },
 
+  "show": function(o) {
+    const m = o.data;
+
+    const u = new URL(dt_config.production + "/d");
+    u.searchParams.set('id', m.geography_id);
+    u.searchParams.set('dataset_id', m.id);
+
+    const iframe = ce('iframe', null, { width: "600", height: "600" });
+    iframe.src = u;
+
+    return { content: iframe, header: null };
+  },
+
   "parse": function(m) {
     m.file_count = m.files ? m.files.length : 0;
     return m;
