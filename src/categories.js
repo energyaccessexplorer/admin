@@ -135,8 +135,34 @@ export const model = {
           "needs": m => maybe(m.vectors, 'shape_type') === "lines",
         },
         "specs": {
-          "type": "json",
-          "nullable": true
+          "type": "array",
+          "nullable": false,
+          "schema": {
+            "type": "object",
+            "nullable": false,
+            "appendable": true,
+            "schema": {
+              "key": {
+                "type": "string",
+                "required": true
+              },
+              "match": {
+                // TODO: validate regular expresion
+                "type": "string",
+                "required": true
+              },
+              "stroke": {
+                "type": "color",
+                "droppable": true,
+                "required": true
+              },
+              "stroke-width": {
+                "type": "number",
+                "droppable": true,
+                "required": true
+              }
+            }
+          }
         }
       }
     },
