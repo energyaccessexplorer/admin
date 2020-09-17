@@ -27,9 +27,16 @@ export const model = {
     },
 
     "configuration": {
-      "type": "json",
+      "type": "object",
       "label": "Configuration",
-      "nullable": true
+      "nullable": true,
+      "schema": {
+        "key": {
+          "type": "string",
+          "hint": "This must be an identifier in the GEOJSON that references to a unique value in a column of the CSV",
+          "required": true,
+        }
+      }
     },
 
     "created": {

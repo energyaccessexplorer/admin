@@ -50,9 +50,72 @@ export const model = {
     },
 
     "configuration": {
-      "type": "json",
+      "type": "object",
       "label": "Configuration",
-      "nullable": true
+      "nullable": true,
+      "schema": {
+        "timeline": {
+          "type": "boolean",
+          "default": false,
+        },
+        "timeline_dates": {
+          "type": "array",
+          "nullable": true,
+          "needs": m => maybe(m.configuration, 'timeline'),
+          "schema": {
+            "type": "date",
+            "required": true
+          }
+        },
+        "flag": {
+          "type": "object",
+          "nullable": true,
+          "needs": m => m.adm === 0,
+          "schema": {
+            "x": {
+              "type": "number",
+            },
+            "y": {
+              "type": "number",
+            },
+            "width": {
+              "type": "number",
+            },
+            "height": {
+              "type": "number",
+            },
+            "aspect-ratio": {
+              "type": "string",
+              "default": "none",
+              "options": ["none", "xMaxYMax", "xMaxYMid", "xMaxYMin", "xMidYMax", "xMidYMid", "xMidYMin", "xMinYMax", "xMinYMid", "xMinYMin", ]
+            },
+          }
+        },
+        "sort_branches": {
+          "type": "array",
+          "nullable": true,
+          "schema": {
+            "type": "string",
+            "required": true,
+          }
+        },
+        "sort_subbranches": {
+          "type": "array",
+          "nullable": true,
+          "schema": {
+            "type": "string",
+            "required": true,
+          }
+        },
+        "sort_datasets": { // TODO: should come from dataset's name (or category_name)
+          "type": "array",
+          "nullable": true,
+          "schema": {
+            "type": "string",
+            "required": true,
+          }
+        },
+      }
     },
 
     "updated": {

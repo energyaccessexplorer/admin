@@ -57,9 +57,47 @@ export const model = {
     },
 
     "configuration": {
-      "type": "json",
+      "type": "object",
       "label": "Configuration",
-      "nullable": true
+      "nullable": true,
+      "schema": {
+        "column": {
+          "type": "string",
+          "nullable": true,
+          // TODO: "needs" to be some kind of indicator.
+          "hint": "One of the headers of a CSV to be used as an identifier for the dataset's polygons.",
+        },
+        "column_name": {
+          "type": "string",
+          "nullable": true,
+          // TODO: "needs" to be 'boundaries' ds
+          "hint": "",
+        },
+        "boundaries_name": {
+          "type": "string",
+          "nullable": true,
+          // TODO: "needs" to be 'boundaries' ds
+          "hint": "",
+        },
+        "features_attr_map": {
+          "type": "array",
+          "nullable": true,
+          "schema": {
+            "type": "object",
+            "nullable": false,
+            "schema": {
+              "target": {
+                "type": "string",
+                "required": true
+              },
+              "dataset": {
+                "type": "string",
+                "required": true
+              }
+            }
+          }
+        }
+      }
     },
 
     "category_overrides": {

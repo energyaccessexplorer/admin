@@ -47,9 +47,14 @@ export const model = {
           "default": "linear"
         },
         "intervals": {
-          "type": "json",
+          "type": "array",
           "nullable": true,
-          "needs": m => maybe(m.raster, 'scale') === "intervals"
+          "needs": m => maybe(m.raster, 'scale') === "intervals",
+          "sortable": true,
+          "schema": {
+            "type": "number",
+            "required": true
+          }
         },
         "precision": {
           "type": "number",
@@ -182,10 +187,14 @@ export const model = {
           "hint": "Clamping is explained at: \nhttps://github.com/d3/d3-scale#continuous_clamp"
         },
         "intervals": {
-          "type": "json",
+          "type": "array",
           "nullable": true,
-          "placeholder": "[0, 10, 1000, 5000]\n\nNeeds scale == intervals",
-          "needs": m => maybe(m.raster, 'scale') === "intervals"
+          "sortable": true,
+          "needs": m => maybe(m.raster, 'scale') === "intervals",
+          "schema": {
+            "type": "number",
+            "required": true
+          }
         },
         "indexes": {
           "type": "array",
