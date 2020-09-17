@@ -3,6 +3,8 @@ export const base = '_datasets_files';
 export const header =  "Dataset files";
 
 export const model = {
+  "main": m => `${m.dataset.geography_name} - ${m.dataset.category.name_long} (${m.dataset.category.name})`,
+
   "pkey": ['dataset_id', 'file_id'],
 
   "schema": {
@@ -46,7 +48,14 @@ export const model = {
 export const collection = {
   "endpoint": function() {
     const params = {
-      "select": ['file_id', 'dataset_id', 'func', 'active', 'file(endpoint)']
+      "select": [
+        'file_id',
+        'dataset_id',
+        'func',
+        'active',
+        'file(endpoint)',
+        'dataset:datasets(geography_name, category(name, name_long))'
+      ]
     };
 
     const url = new URL(location);
