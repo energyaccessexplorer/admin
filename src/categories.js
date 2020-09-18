@@ -147,8 +147,7 @@ export const model = {
                 "required": true
               },
               "match": {
-                // TODO: validate regular expresion
-                "type": "string",
+                "type": "regexp",
                 "required": true
               },
               "stroke": {
