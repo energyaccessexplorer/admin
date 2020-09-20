@@ -1,4 +1,6 @@
 const url = new URL(location);
+const dataset_id = url.searchParams.get('dataset_id');
+const file_id = url.searchParams.get('id');
 
 export const base = 'files';
 
@@ -70,7 +72,6 @@ export const collection = {
     const attrs = ['id', 'label', 'endpoint', 'datasets(*)', 'created', 'created_by', 'updated', 'updated_by'];
     const params = { "select": attrs };
 
-    const file_id = url.searchParams.get('id');
     if (file_id) params['id'] = `eq.${file_id}`;
 
     return params;
@@ -85,8 +86,6 @@ export const collection = {
 };
 
 export function init() {
-  const file_id = url.searchParams.get('id');
-  const dataset_id = url.searchParams.get('dataset_id');
   const edit_model = url.searchParams.get('edit_model');
 
   if (file_id || dataset_id || edit_model) return true;
@@ -103,29 +102,10 @@ export function init() {
 };
 
 export async function header() {
-  let h = null;
-  let str = null;
-  let geography_id;
-
-  const dataset_id = url.searchParams.get('dataset_id');
-
   if (!dataset_id) return "Files";
 
-  h = [`/datasets?select=category_name,geography_id&id=eq.${dataset_id}`, 'category_name'];
+  let geography_id;
+  const g = await (dt_client.get('datasets', { select: ['category_name', 'geography_name'], id: `eq.${dataset_id}`}, { one: true }));
 
-  await fetch(dt_config.origin + h[0])
-    .then(r => r.json())
-    .then(j => {
-      geography_id = j[0]['geography_id'];
-      str = j[0][h[1]];
-    });
-
-  if (dataset_id)
-    h = [`/geographies?select=name&id=eq.${geography_id}`, 'name'];
-
-  await fetch(dt_config.origin + h[0])
-    .then(r => r.json())
-    .then(j => str = j[0][h[1]] + " " + str)
-
-  return str + " files";
+  return `${g.geography_name} - ${g.category_name} - files`;
 };

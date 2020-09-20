@@ -285,33 +285,14 @@ export const collection = {
 };
 
 export async function header() {
-  let str = null;
-  let sufix = null;
-
   const url = new URL(location);
   let gid = url.searchParams.get('geography_id');
 
-  const geoobj = _ => dt_collections["datasets"][0].array[0];
+  if (!gid) return "Datasets";
 
-  if (!gid) {
-    await until(geoobj)
-      .then(_ => {
-        const g = geoobj();
+  const name = (await dt_client.get('geographies', { select: ['name'], id: `eq.${gid}` }, { one: true }))['name'];
 
-        sufix = g['category_name'];
-        gid = g['geography_id'];
-      });
-  }
-
-  const h = [`/geographies?select=name&id=eq.${gid}`, 'name'];
-
-  if (!gid) return "";
-
-  await fetch(dt_config.origin + h[0])
-    .then(r => r.json())
-    .then(j => str = j[0][h[1]]);
-
-  return str + " - " + (sufix ? sufix : "datasets");
+  return `${name} - datasets`;
 };
 
 export const single = dt_single_edit;

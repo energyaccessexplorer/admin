@@ -1,6 +1,8 @@
-export const base = '_datasets_files';
+const url = new URL(location);
+const dataset_id = url.searchParams.get('dataset_id');
+const file_id = url.searchParams.get('file_id');
 
-export const header =  "Dataset files";
+export const base = '_datasets_files';
 
 export const model = {
   "main": m => `${m.dataset.geography_name} - ${m.dataset.category.name_long} (${m.dataset.category.name})`,
@@ -58,10 +60,6 @@ export const collection = {
       ]
     };
 
-    const url = new URL(location);
-    const dataset_id = url.searchParams.get('dataset_id');
-    const file_id = url.searchParams.get('file_id');
-
     if (dataset_id) params['dataset_id'] = `eq.${dataset_id}`;
     else if (file_id) params['file_id'] = `eq.${file_id}`;
 
@@ -73,4 +71,16 @@ export const collection = {
   "sort_by": 'active',
 
   "order": -1
+};
+
+export async function header() {
+  if (file_id) return "File relations";
+
+  const dataset_id = url.searchParams.get('dataset_id');
+  if (!dataset_id) return "Files";
+
+  let geography_id;
+  const g = await (dt_client.get('datasets', { select: ['category_name', 'geography_name'], id: `eq.${dataset_id}`}, { one: true }));
+
+  return `${g.geography_name} - ${g.category_name} - files`;
 };
