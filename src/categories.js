@@ -134,35 +134,6 @@ export const model = {
           "nullable": true,
           "needs": m => maybe(m.vectors, 'shape_type') === "lines",
         },
-        "specs": {
-          "type": "array",
-          "nullable": true,
-          "schema": {
-            "type": "object",
-            "nullable": false,
-            "appendable": true,
-            "schema": {
-              "key": {
-                "type": "string",
-                "required": true
-              },
-              "match": {
-                "type": "regexp",
-                "required": true
-              },
-              "stroke": {
-                "type": "color",
-                "droppable": true,
-                "required": true
-              },
-              "stroke-width": {
-                "type": "number",
-                "droppable": true,
-                "required": true
-              }
-            }
-          }
-        }
       }
     },
 
