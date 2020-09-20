@@ -136,7 +136,7 @@ export const model = {
         },
         "specs": {
           "type": "array",
-          "nullable": false,
+          "nullable": true,
           "schema": {
             "type": "object",
             "nullable": false,
