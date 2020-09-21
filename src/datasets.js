@@ -97,9 +97,29 @@ export const model = {
             }
           }
         },
+
         "features_specs": {
           "type": "array",
           "nullable": true,
+          "callback": function(details) {
+            const button = ce('button', "See GEOJSON summary", { style: "float: right;", type: "button" });
+
+            const m = this;
+
+            button.onclick = function() {
+              const u = new URL(dt_config.production + "/d");
+              u.searchParams.set('id', m.geography_id);
+              u.searchParams.set('dataset_id', m.id);
+              u.searchParams.set('fn', 'geojson_summary');
+
+              const iframe = ce('iframe', null, { width: "600", height: "600" });
+              iframe.src = u;
+
+              dt_modal.set({ content: iframe, header: null }).show();
+            };
+
+            details.querySelector(':scope > summary').append(button);
+          },
           "schema": {
             "type": "object",
             "nullable": false,
