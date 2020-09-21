@@ -79,7 +79,7 @@ export const model = {
           // TODO: "needs" to be 'boundaries' ds
           "hint": "",
         },
-        "features_attr_map": {
+        "attributes_map": {
           "type": "array",
           "nullable": true,
           "schema": {
