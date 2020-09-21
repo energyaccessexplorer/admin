@@ -6,18 +6,18 @@ export const model = {
   "main": "name",
 
   "schema": {
+    "name_long": {
+      "type": "string",
+      "label": "Long Name",
+      "required": true
+    },
+
     "name": {
       "type": "string",
       "label": "Name",
       "editable": false,
       "required": true,
       "pattern": "^[a-z][a-z0-9\-]+$"
-    },
-
-    "name_long": {
-      "type": "string",
-      "label": "Long Name",
-      "required": true
     },
 
     "unit": {
@@ -301,6 +301,18 @@ export const model = {
       "editable": false
     },
   },
+
+  "new_jobs": [
+    function(form) {
+      const l = qs('[name="name"]', form);
+      qs('[name="name_long"]', form).addEventListener('input', function(e) {
+        l.value = this.value
+          .toLowerCase()
+          .replace(/[\ ]/g, '-')
+          .replace(/[\.\,]/g, '');
+      });
+    }
+  ]
 };
 
 export const collection = {
