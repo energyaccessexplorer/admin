@@ -73,12 +73,6 @@ export const model = {
           // TODO: "needs" to be 'boundaries' ds
           "hint": "",
         },
-        "boundaries_name": {
-          "type": "string",
-          "nullable": true,
-          // TODO: "needs" to be 'boundaries' ds
-          "hint": "",
-        },
         "attributes_map": {
           "type": "array",
           "nullable": true,

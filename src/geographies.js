@@ -91,6 +91,13 @@ export const model = {
             },
           }
         },
+
+        "boundaries_name": {
+          "type": "string",
+          "required": true,
+          "hint": "Provinces/Territories/States? County/Municipality?",
+        },
+
         "sort_branches": {
           "type": "array",
           "nullable": true,
