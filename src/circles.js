@@ -30,6 +30,15 @@ export const model = {
       }
     },
   },
+
+  "patch": function(d,n) {
+    return dt_client.post('rpc/circles_update', null, {
+      'payload': {
+        'oldname': d.rolname,
+        'newname': n.rolname
+      },
+      'one': true });
+  }
 };
 
 export const collection = {
