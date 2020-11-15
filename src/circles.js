@@ -43,8 +43,7 @@ export const model = {
 
 export const collection = {
   "endpoint": function() {
-    const attrs = ['*'];
-    const params = { "select": attrs };
+    const params = { "select": ['*'] };
 
     return params;
   },

@@ -58,6 +58,13 @@ export const model = {
           "type": "boolean",
           "default": false,
         },
+
+        "boundaries_name": {
+          "type": "string",
+          "required": true,
+          "hint": "Provinces/Territories/States? County/Municipality?",
+        },
+
         "timeline_dates": {
           "type": "array",
           "nullable": true,
@@ -67,6 +74,7 @@ export const model = {
             "required": true
           }
         },
+
         "flag": {
           "type": "object",
           "nullable": true,
@@ -92,12 +100,6 @@ export const model = {
           }
         },
 
-        "boundaries_name": {
-          "type": "string",
-          "required": true,
-          "hint": "Provinces/Territories/States? County/Municipality?",
-        },
-
         "sort_branches": {
           "type": "array",
           "nullable": true,
@@ -106,6 +108,7 @@ export const model = {
             "required": true,
           }
         },
+
         "sort_subbranches": {
           "type": "array",
           "nullable": true,
@@ -114,6 +117,7 @@ export const model = {
             "required": true,
           }
         },
+
         "sort_datasets": { // TODO: should come from dataset's name (or category_name)
           "type": "array",
           "nullable": true,
