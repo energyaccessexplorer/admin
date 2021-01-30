@@ -17,6 +17,7 @@ export const model = {
       "type": "uuid",
       "fkey": "geographies",
       "label": "Parent Geography",
+      "constraint": "parent",
       "required": false,
       "editable": false,
       "columns": ['*']

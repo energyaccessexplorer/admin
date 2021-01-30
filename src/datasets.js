@@ -9,6 +9,7 @@ export const model = {
     "category_id": {
       "type": "uuid",
       "fkey": "categories",
+      "constraint": "category",
       "required": true,
       "label": "Category",
       "columns": ['*']
@@ -17,6 +18,7 @@ export const model = {
     "geography_id": {
       "type": "uuid",
       "fkey": "geographies",
+      "constraint": "geography",
       "required": true,
       "editable": false,
       "label": "Geography",
