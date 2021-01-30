@@ -144,6 +144,9 @@ export const model = {
       "label": "CSV configuration",
       "nullable": true,
       "schema": {
+        "enabled": {
+          "type": "boolean"
+        }
       }
     },
 
