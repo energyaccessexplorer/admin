@@ -25,6 +25,38 @@ export const model = {
       "label": "Unit"
     },
 
+    "domain": {
+      "type": "object",
+      "collapsed": false,
+      "nullable": true,
+      "schema": {
+        "min": {
+          "type": "number",
+          "required": true
+        },
+        "max": {
+          "type": "number",
+          "required": true
+        }
+      }
+    },
+
+    "domain_init": {
+      "type": "object",
+      "collapsed": false,
+      "nullable": true,
+      "schema": {
+        "min": {
+          "type": "number",
+          "required": true
+        },
+        "max": {
+          "type": "number",
+          "required": true
+        }
+      }
+    },
+
     "colorstops": {
       "type": "array",
       "collapsed": false,
@@ -46,6 +78,10 @@ export const model = {
           "options": ["", "linear", "intervals"],
           "default": "linear"
         },
+        "precision": {
+          "type": "number",
+          "hint": "Tell the tool to show numbers with this amount of decimals."
+        },
         "intervals": {
           "type": "array",
           "nullable": true,
@@ -55,41 +91,7 @@ export const model = {
             "type": "number",
             "required": true
           }
-        },
-        "precision": {
-          "type": "number",
-          "hint": "Tell the tool to show numbers with this amount of decimals."
-        },
-        "domain": {
-          "type": "object",
-          "collapsed": false,
-          "nullable": true,
-          "schema": {
-            "min": {
-              "type": "number",
-              "required": true
-            },
-            "max": {
-              "type": "number",
-              "required": true
-            }
-          }
-        },
-        "init": {
-          "type": "object",
-          "collapsed": false,
-          "nullable": true,
-          "schema": {
-            "min": {
-              "type": "number",
-              "required": true
-            },
-            "max": {
-              "type": "number",
-              "required": true
-            }
-          }
-        },
+        }
       }
     },
 
@@ -142,21 +144,6 @@ export const model = {
       "label": "CSV configuration",
       "nullable": true,
       "schema": {
-        "domain": {
-          "type": "object",
-          "collapsed": false,
-          "nullable": true,
-          "schema": {
-            "min": {
-              "type": "number",
-              "required": true
-            },
-            "max": {
-              "type": "number",
-              "required": true
-            }
-          }
-        },
       }
     },
 
