@@ -1,7 +1,7 @@
 export const base = 'datasets';
 
 export const model = {
-  "main": m => m.category_name + " - " + m.geography_name,
+  "main": m => "&nbsp;",
 
   "columns": ["category_name", "geography_name"],
 
@@ -12,6 +12,7 @@ export const model = {
       "constraint": "category",
       "required": true,
       "label": "Category",
+      "show": m => "<strong>" + m.category_name + "</strong>",
       "columns": ['*']
     },
 
@@ -22,6 +23,7 @@ export const model = {
       "required": true,
       "editable": false,
       "label": "Geography",
+      "show": m => "<strong>" + m.geography_name + "</strong>",
       "columns": ['*']
     },
 
@@ -299,7 +301,7 @@ export const model = {
 };
 
 export const collection = {
-  "filters": ['name', 'category_name'],
+  "filters": ['name', 'name_long', 'category_name'],
 
   "endpoint": function() {
     const url = new URL(location);
