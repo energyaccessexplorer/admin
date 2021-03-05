@@ -131,6 +131,12 @@ export const model = {
                 "type": "regexp",
                 "required": true
               },
+              "radius": {
+                "type": "number",
+                "hint": "points only",
+                "droppable": true,
+                "required": true
+              },
               "stroke": {
                 "type": "colour",
                 "droppable": true,
@@ -138,6 +144,7 @@ export const model = {
               },
               "stroke-width": {
                 "type": "number",
+                "hint": "does not apply to polygons",
                 "droppable": true,
                 "required": true
               }
