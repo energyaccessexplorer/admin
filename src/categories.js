@@ -99,16 +99,12 @@ export const model = {
       "type": "object",
       "label": "Vectors configuration",
       "nullable": true,
+      "appendable": true,
       "schema": {
         "shape_type": {
           "type": "select",
           "required": true,
           "options": ["points", "polygons", "lines"]
-        },
-        "fill": {
-          "type": "colour",
-          "nullable": true,
-          "hint": "Applies to polygons and points"
         },
         "opacity": {
           "type": "number",
@@ -124,17 +120,28 @@ export const model = {
         "stroke-width": {
           "type": "number",
           "nullable": false,
-          "default": 1
+          "droppable": true,
+          "default": 1,
+          "hint": "Does not apply to polygons"
+        },
+        "fill": {
+          "type": "colour",
+          "nullable": true,
+          "droppable": true,
+          "hint": "Applies to polygons and points"
         },
         "radius": {
           "label": "radius",
           "type": "number",
           "hint": "Points only",
+          "droppable": true,
           "nullable": false
         },
         "dasharray": {
           "type": "string",
           "nullable": true,
+          "droppable": true,
+          "hint": "Lines only",
           "needs": m => maybe(m.vectors, 'shape_type') === "lines",
         },
       }
