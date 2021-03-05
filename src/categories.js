@@ -126,9 +126,10 @@ export const model = {
           "nullable": false,
           "default": 1
         },
-        "width": {
-          "label": "width/size",
+        "radius": {
+          "label": "radius",
           "type": "number",
+          "hint": "Points only",
           "nullable": false
         },
         "dasharray": {
