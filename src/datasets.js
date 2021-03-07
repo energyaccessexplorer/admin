@@ -273,6 +273,8 @@ export const model = {
   },
 
   "parse": function(m) {
+    m.inproduction = m.envs.indexOf("production") > -1;
+    m.instaging = m.envs.indexOf("staging") > -1;
     m.file_count = m.files ? m.files.length : 0;
     return m;
   },

@@ -181,6 +181,8 @@ export const collection = {
   },
 
   "parse": function(m) {
+    m.inproduction = m.envs.indexOf("production") > -1;
+    m.instaging = m.envs.indexOf("staging") > -1;
     m.dscount = m.datasets.length;
     return m;
   },

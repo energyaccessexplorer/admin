@@ -110,6 +110,10 @@
       table td:nth-of-type(1) {
         font-family: monospace;
       }
+
+      table td:nth-of-type(3) {
+        text-align: center;
+      }
     </style>
   </template>
 
@@ -135,7 +139,14 @@
         <span bind="category_name"></span>
       </td>
 
-      <td bind="envs"></td>
+      <td>
+		<a icon="production"
+		   title="deployed in production"
+		   bind-cond="inproduction"></a>
+		<a icon="staging"
+		   title="deployed in staging"
+		   bind-cond="instaging"></a>
+	  </td>
 
       <td bind="pack"></td>
 
@@ -258,7 +269,14 @@
 
       <td bind="adm"></td>
 
-      <td bind="envs"></td>
+      <td>
+		<a icon="production"
+		   title="deployed in production"
+		   bind-cond="inproduction"></a>
+		<a icon="staging"
+		   title="deployed in staging"
+		   bind-cond="instaging"></a>
+	  </td>
 
       <td>
         <a bind-attr="href"
