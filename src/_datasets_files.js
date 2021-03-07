@@ -5,7 +5,14 @@ const file_id = url.searchParams.get('file_id');
 export const base = '_datasets_files';
 
 export const model = {
-  "main": m => `${m.dataset.geography_name} - ${m.dataset.category.name_long} (${m.dataset.category.name})`,
+  "main": m => {
+		// TODO: fix this with a proper relation
+		//
+    if (m.dataset)
+      return `${m.dataset.geography_name} - ${m.dataset.category.name_long} (${m.dataset.category.name})`;
+    else
+      return `${m.dataset_id}--${m.file_id}`;
+  },
 
   "pkey": ['dataset_id', 'file_id'],
 
