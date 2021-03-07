@@ -37,10 +37,13 @@ export const model = {
       "label": "Adm. Level"
     },
 
-    "online": {
-      "type": "boolean",
-      "default": false,
-      "label": "Show online?"
+    "envs": {
+      "type": "array",
+      "schema": {
+        "type": "string",
+        "options": ["staging", "production"],
+        "required": true
+      }
     },
 
     "circle": {
@@ -164,7 +167,7 @@ export const collection = {
   "filters": ['name'],
 
   "endpoint": function() {
-    const attrs = ['id', 'name', 'cca3', 'adm', 'online', 'configuration', 'circle', 'datasets(id)', 'created', 'created_by', 'updated', 'updated_by'];
+    const attrs = ['id', 'name', 'cca3', 'adm', 'envs', 'configuration', 'circle', 'datasets(id)', 'created', 'created_by', 'updated', 'updated_by'];
 
     const params = {
       "select": attrs

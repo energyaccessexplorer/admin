@@ -40,10 +40,13 @@ export const model = {
       "placeholder": "leave blank to inherit from category"
     },
 
-    "online": {
-      "type": "boolean",
-      "label": "Show Online",
-      "default": false,
+    "envs": {
+      "type": "array",
+      "schema": {
+        "type": "string",
+        "options": ["staging", "production"],
+        "required": true
+      }
     },
 
     "circle": {
@@ -316,7 +319,7 @@ export const collection = {
     const geography_id = url.searchParams.get('geography_id');
     const category_id = url.searchParams.get('category_id');
 
-    const attrs = ['id', 'online', 'name', 'category_name', 'circle', 'pack', 'geography_id', 'files(id)', 'created', 'created_by', 'updated', 'updated_by'];
+    const attrs = ['id', 'envs', 'name', 'category_name', 'circle', 'pack', 'geography_id', 'files(id)', 'created', 'created_by', 'updated', 'updated_by'];
     const params = { "select": attrs };
 
     if (dataset_id)
@@ -324,7 +327,7 @@ export const collection = {
 
     else if (geography_id) {
       params['geography_id'] = `eq.${geography_id}`;
-      params['order'] = ['online.desc', 'name.asc'];
+      params['order'] = ['name.asc'];
     }
 
     else if (category_id)

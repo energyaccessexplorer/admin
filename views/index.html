@@ -111,7 +111,7 @@
     <tr>
       <th table-sort="name_long">Name</th>
       <th table-sort="category_name">Category</th>
-      <th table-sort="circle">Circle</th>
+      <th table-sort="envs">Deployed</th>
       <th table-sort="pack">Pack</th>
       <th table-sort="file_count">Files</th>
       <th table-sort="created_by">Created</th>
@@ -121,19 +121,15 @@
 
   <template class="tablerow" module="datasets">
     <tr>
-      <td bind-attr="class"
-          bind-value="online"
-          bind-not="disabled">
+      <td>
         <a icon="edit"></a><a icon="show"></a><span bind="name"></span>
       </td>
 
-      <td bind-attr="class"
-          bind-value="online"
-          bind-not="disabled">
+      <td>
         <span bind="category_name"></span>
       </td>
 
-      <td bind="circle"></td>
+      <td bind="envs"></td>
 
       <td bind="pack"></td>
 
@@ -241,7 +237,7 @@
       <th table-sort="name">Name</th>
       <th table-sort="cca3">CCA3</th>
       <th table-sort="adm">ADM</th>
-      <th table-sort="circle">Circle</th>
+      <th table-sort="envs">Deloyed</th>
       <th table-sort="dscount">Datasets</th>
       <th table-sort="created_by">Created</th>
       <th table-sort="updated_by">Updated</th>
@@ -250,15 +246,13 @@
 
   <template class="tablerow" module="geographies">
     <tr>
-      <td bind-attr="class"
-          bind-value="online"
-          bind-not="disabled"><a icon="edit"></a> <span bind="name"></span></td>
+      <td><a icon="edit"></a> <span bind="name"></span></td>
 
       <td bind="cca3"></td>
 
       <td bind="adm"></td>
 
-      <td bind="circle"></td>
+      <td bind="envs"></td>
 
       <td>
         <a bind-attr="href"
@@ -315,10 +309,7 @@
       <td>
         <span bind="func"></span>
       </td>
-      <td bind-attr="class"
-          bind-value="online"
-          bind-not="disabled"
-          bind="_file_endpoint"></td>
+      <td bind="_file_endpoint"></td>
       <td bind="active"></td>
     </tr>
   </template>
