@@ -1,3 +1,5 @@
+import {circles_user} from './circles.js';
+
 export const base = 'geographies';
 
 export const header = "Geographies";
@@ -48,9 +50,10 @@ export const model = {
 
     "circle": {
       "type": "string",
-      "label": "Collection",
+      "label": "Circle",
       "pattern": "^[a-z][a-z0-9\-]+$",
       "default": "public",
+      "required": true,
     },
 
     "configuration": {
@@ -167,7 +170,7 @@ export const collection = {
   "filters": ['name'],
 
   "endpoint": function() {
-    const attrs = ['id', 'name', 'cca3', 'adm', 'envs', 'configuration', 'circle', 'datasets(id)', 'created', 'created_by', 'updated', 'updated_by'];
+    const attrs = ['id', 'name', 'cca3', 'adm', 'envs', 'configuration', 'datasets(id)', 'created', 'created_by', 'updated', 'updated_by'];
 
     const params = {
       "select": attrs
@@ -175,7 +178,11 @@ export const collection = {
 
     const url = new URL(location);
     let geography_id  = url.searchParams.get('id');
-    if (geography_id) params['id'] = `eq.${geography_id}`;
+    if (geography_id)
+      params['id'] = `eq.${geography_id}`;
+
+    const circles = circles_user();
+    if (circles) params['circle'] = `in.(${circles})`;
 
     return params;
   },

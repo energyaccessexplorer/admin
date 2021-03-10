@@ -1,3 +1,5 @@
+import { circles_user } from './circles.js';
+
 export const base = 'datasets';
 
 export const model = {
@@ -47,13 +49,6 @@ export const model = {
         "options": ["staging", "production"],
         "required": true
       }
-    },
-
-    "circle": {
-      "type": "string",
-      "label": "Circle",
-      "pattern": "^[a-z][a-z0-9\-]+$",
-      "default": "public",
     },
 
     "pack": {
@@ -321,7 +316,7 @@ export const collection = {
     const geography_id = url.searchParams.get('geography_id');
     const category_id = url.searchParams.get('category_id');
 
-    const attrs = ['id', 'envs', 'name', 'category_name', 'circle', 'pack', 'geography_id', 'files(id)', 'created', 'created_by', 'updated', 'updated_by'];
+    const attrs = ['id', 'envs', 'name', 'category_name', 'geography_circle', 'pack', 'geography_id', 'files(id)', 'created', 'created_by', 'updated', 'updated_by'];
     const params = { "select": attrs };
 
     if (dataset_id)
@@ -334,6 +329,9 @@ export const collection = {
 
     else if (category_id)
       params['category_id'] = `eq.${category_id}`;
+
+    const circles = circles_user();
+    if (circles) params['geography_circle'] = `in.(${circles})`;
 
     return params;
   },
