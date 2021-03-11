@@ -42,6 +42,7 @@ export const model = {
     "envs": {
       "type": "array",
       "schema": {
+        "label": "deployment",
         "type": "string",
         "options": ["staging", "production"],
         "required": true
@@ -59,6 +60,7 @@ export const model = {
     "configuration": {
       "type": "object",
       "label": "Configuration",
+      "collapsed": false,
       "nullable": true,
       "schema": {
         "timeline": {
@@ -109,7 +111,7 @@ export const model = {
 
         "sort_branches": {
           "type": "array",
-          "nullable": true,
+          "nullable": false,
           "schema": {
             "type": "string",
             "required": true,
@@ -118,7 +120,7 @@ export const model = {
 
         "sort_subbranches": {
           "type": "array",
-          "nullable": true,
+          "nullable": false,
           "schema": {
             "type": "string",
             "required": true,
@@ -127,7 +129,7 @@ export const model = {
 
         "sort_datasets": { // TODO: should come from dataset's name (or category_name)
           "type": "array",
-          "nullable": true,
+          "nullable": false,
           "schema": {
             "type": "string",
             "required": true,
