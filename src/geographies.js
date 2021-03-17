@@ -174,7 +174,7 @@ export const model = {
   "parse": function(m) {
     m.inproduction = m.envs.indexOf("production") > -1;
     m.instaging = m.envs.indexOf("staging") > -1;
-    m.dscount = m.datasets ? m.datasets.length : 0;
+    m.dscount = m.datasets ? m.datasets.length : "?";
     m.ok = !m.flagged;
     return m;
   }
