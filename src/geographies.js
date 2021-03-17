@@ -201,5 +201,14 @@ export const collection = {
     return params;
   },
 
+  "rowevents": {
+    "dblclick": function(e, obj) {
+      const data = Object.assign({}, obj.data);
+      data.flagged = !data.flagged;
+
+      obj.patch(data);
+    }
+  },
+
   "parse": model.parse,
 };

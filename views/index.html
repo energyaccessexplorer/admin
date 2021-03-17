@@ -137,9 +137,11 @@
 		<a icon="edit"></a><a icon="show"></a><span bind="name"></span>
 	  </td>
 
-      <td>
-        <span bind="category_name"></span>
-      </td>
+      <td bind-attr="class"
+		  bind-value="ok"
+		  bind-not="disabled">
+		<span bind="category_name"></span>
+	  </td>
 
       <td>
 		<a icon="production"
