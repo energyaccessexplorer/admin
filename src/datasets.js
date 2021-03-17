@@ -51,6 +51,10 @@ export const model = {
       }
     },
 
+    "flagged": {
+      "type": "boolean"
+    },
+
     "pack": {
       "type": "string",
       "label": "Pack",
@@ -271,6 +275,7 @@ export const model = {
     m.inproduction = m.envs.indexOf("production") > -1;
     m.instaging = m.envs.indexOf("staging") > -1;
     m.file_count = m.files ? m.files.length : 0;
+    m.ok = !m.flagged;
     return m;
   },
 
@@ -316,7 +321,7 @@ export const collection = {
     const geography_id = url.searchParams.get('geography_id');
     const category_id = url.searchParams.get('category_id');
 
-    const attrs = ['id', 'envs', 'name', 'category_name', 'geography_circle', 'pack', 'geography_id', 'files(id)', 'created', 'created_by', 'updated', 'updated_by'];
+    const attrs = ['id', 'envs', 'flagged', 'name', 'category_name', 'geography_circle', 'pack', 'geography_id', 'files(id)', 'created', 'created_by', 'updated', 'updated_by'];
     const params = { "select": attrs };
 
     if (dataset_id)

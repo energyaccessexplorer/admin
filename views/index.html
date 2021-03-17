@@ -131,9 +131,11 @@
 
   <template class="tablerow" module="datasets">
     <tr>
-      <td>
-        <a icon="edit"></a><a icon="show"></a><span bind="name"></span>
-      </td>
+      <td bind-attr="class"
+		  bind-value="ok"
+		  bind-not="disabled">
+		<a icon="edit"></a><a icon="show"></a><span bind="name"></span>
+	  </td>
 
       <td>
         <span bind="category_name"></span>
@@ -263,7 +265,11 @@
 
   <template class="tablerow" module="geographies">
     <tr>
-      <td><a icon="edit"></a> <span bind="name"></span></td>
+      <td bind-attr="class"
+		  bind-value="ok"
+		  bind-not="disabled">
+		<a icon="edit"></a> <span bind="name"></span>
+	  </td>
 
       <td bind="cca3"></td>
 

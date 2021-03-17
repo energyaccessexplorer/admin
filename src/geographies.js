@@ -49,6 +49,10 @@ export const model = {
       }
     },
 
+    "flagged": {
+      "type": "boolean"
+    },
+
     "circle": {
       "type": "string",
       "label": "Circle",
@@ -166,13 +170,21 @@ export const model = {
   "edit_jobs": [
     (o,f) => dt_external_link(o, f, m => `${dt_config.production}/a/?id=${m.id}&inputs=boundaries`),
   ],
+
+  "parse": function(m) {
+    m.inproduction = m.envs.indexOf("production") > -1;
+    m.instaging = m.envs.indexOf("staging") > -1;
+    m.dscount = m.datasets ? m.datasets.length : 0;
+    m.ok = !m.flagged;
+    return m;
+  }
 };
 
 export const collection = {
   "filters": ['name'],
 
   "endpoint": function() {
-    const attrs = ['id', 'name', 'cca3', 'adm', 'envs', 'configuration', 'datasets(id)', 'created', 'created_by', 'updated', 'updated_by'];
+    const attrs = ['id', 'name', 'cca3', 'adm', 'envs', 'flagged', 'configuration', 'datasets(id)', 'created', 'created_by', 'updated', 'updated_by'];
 
     const params = {
       "select": attrs
@@ -189,10 +201,5 @@ export const collection = {
     return params;
   },
 
-  "parse": function(m) {
-    m.inproduction = m.envs.indexOf("production") > -1;
-    m.instaging = m.envs.indexOf("staging") > -1;
-    m.dscount = m.datasets.length;
-    return m;
-  },
+  "parse": model.parse,
 };
