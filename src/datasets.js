@@ -309,6 +309,50 @@ export const model = {
 
       metadatadetails.querySelector('summary').append(button);
     },
+    function(object, form) {
+      const ta = form.querySelector('textarea[name="category_overrides"]');
+      const ig = ta.parentElement;
+
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.innerText = "import JSON segment";
+      button.style = "float: right;";
+
+      function selectkey() {
+        const select = ce('select');
+
+        select.append(ce('option', "", { disabled: '', selected: '' }));
+
+        select.onchange = async function() {
+          const k = this.value;
+
+          const p = await fetch(dt_config.origin + `/categories?id=eq.${object.data.category_id}`)
+            .then(r => r.json())
+            .then(r => r[0][k]);
+
+          const co = JSON.parse(ta.value) || {};
+          co[k] = p;
+
+          ta.value = JSON.stringify(co, null, 2);
+
+          dt_modal.hide();
+        };
+
+        for (let k of ['controls', 'vectors', 'raster', 'analysis', 'domain', 'metadata'])
+          select.append(ce('option', k));
+
+        dt_modal.set({
+          header: "Select a segment from the category configuration",
+          content: select
+        }).show();
+      };
+
+      button.onclick = function() {
+        selectkey();
+      };
+
+      ig.prepend(button);
+    },
   ],
 };
 
