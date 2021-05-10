@@ -1,4 +1,6 @@
-import {circles_user} from './circles.js';
+import {
+	circles_user,
+} from './circles.js';
 
 export const base = 'geographies';
 
@@ -195,8 +197,8 @@ export const collection = {
     if (geography_id)
       params['id'] = `eq.${geography_id}`;
 
-    const circles = circles_user();
-    if (circles) params['circle'] = `in.(${circles})`;
+    const circles = circles_user() || '';
+    params['circle'] = `in.(${circles})`;
 
     return params;
   },

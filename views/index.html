@@ -4,16 +4,16 @@
   <head>
     <meta charset="utf-8">
 
-    <script src="/helpers.js"></script>
+    <script src="/src/helpers.js"></script>
 
     <script src="/config.js"></script>
 
     <script type="module">
-	const s = document.createElement('script');
-	s.async = true;
-	s.src = dt_config.src;
-	s.onload = _ => dt_main();
-	document.head.appendChild(s);
+    const s = document.createElement('script');
+    s.async = true;
+    s.src = dt_config.src;
+    s.onload = _ => dt_main();
+    document.head.appendChild(s);
     </script>
 
     <link rel="shortcut icon" type="image/png" href="/images/favicon.png"/>
@@ -80,7 +80,7 @@
 
   <template class="tablerow" module="categories">
     <tr>
-      <td><a icon="edit"></a><span bind="name_long"></span></td>
+      <td><a bind-icon="edit"></a><span bind="name_long"></span></td>
       <td bind="name"></td>
       <td bind="features"></td>
       <td bind="unit"></td>
@@ -133,25 +133,25 @@
   <template class="tablerow" module="datasets">
     <tr>
       <td bind-attr="class"
-		  bind-value="ok"
-		  bind-not="disabled">
-		<a icon="edit"></a><a icon="show"></a><span bind="name"></span>
-	  </td>
+          bind-value="ok"
+          bind-not="disabled">
+        <a bind-icon="edit"></a><a bind-icon="show"></a><span bind="name"></span>
+      </td>
 
       <td bind-attr="class"
-		  bind-value="ok"
-		  bind-not="disabled">
-		<span bind="category_name"></span>
-	  </td>
+          bind-value="ok"
+          bind-not="disabled">
+        <span bind="category_name"></span>
+      </td>
 
       <td>
-		<a icon="production"
-		   title="deployed in production"
-		   bind-cond="inproduction"></a>
-		<a icon="staging"
-		   title="deployed in staging"
-		   bind-cond="instaging"></a>
-	  </td>
+        <a bind-icon="production"
+           title="deployed in production"
+           bind-cond="inproduction"></a>
+        <a bind-icon="staging"
+           title="deployed in staging"
+           bind-cond="instaging"></a>
+      </td>
 
       <td bind="pack"></td>
 
@@ -213,7 +213,7 @@
 
   <template class="tablerow" module="files">
     <tr>
-      <td><a icon="edit"></a> <span bind="label"></span></td>
+      <td><a bind-icon="edit"></a> <span bind-bind="label"></span></td>
       <td><span bind="endpoint"></span></td>
       <td>
         <a bind-attr="href"
@@ -269,23 +269,23 @@
   <template class="tablerow" module="geographies">
     <tr>
       <td bind-attr="class"
-		  bind-value="ok"
-		  bind-not="disabled">
-		<a icon="edit"></a> <span bind="name"></span>
-	  </td>
+          bind-value="ok"
+          bind-not="disabled">
+        <a bind-icon="edit"></a> <span bind="name"></span>
+      </td>
 
       <td bind="cca3"></td>
 
       <td bind="adm"></td>
 
       <td>
-		<a icon="production"
-		   title="deployed in production"
-		   bind-cond="inproduction"></a>
-		<a icon="staging"
-		   title="deployed in staging"
-		   bind-cond="instaging"></a>
-	  </td>
+        <a bind-icon="production"
+           title="deployed in production"
+           bind-cond="inproduction"></a>
+        <a bind-icon="staging"
+           title="deployed in staging"
+           bind-cond="instaging"></a>
+      </td>
 
       <td>
         <a bind-attr="href"
@@ -337,7 +337,7 @@
   <template class="tablerow" module="_datasets_files">
     <tr>
       <td>
-        <a icon="edit"></a>
+        <a bind-icon="edit"></a>
       </td>
       <td>
         <span bind="func"></span>
@@ -375,7 +375,7 @@
   <template class="tablerow" module="circles">
     <tr>
       <td>
-        <a icon="edit"></a>
+        <a bind-icon="edit"></a>
       </td>
       <td bind="rolname"></td>
       <td bind="parents"></td>

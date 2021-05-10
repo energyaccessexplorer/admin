@@ -1,4 +1,6 @@
-import { circles_user } from './circles.js';
+import {
+  circles_user,
+} from './circles.js';
 
 export const base = 'datasets';
 
@@ -73,12 +75,14 @@ export const model = {
           // TODO: "needs" to be some kind of indicator.
           "hint": "One of the headers of a CSV to be used as an identifier for the dataset's polygons.",
         },
+
         "column_name": {
           "type": "string",
           "nullable": true,
           // TODO: "needs" to be 'boundaries' ds
           "hint": "",
         },
+
         "attributes_map": {
           "type": "array",
           "nullable": true,
@@ -173,15 +177,18 @@ export const model = {
             "required": true,
             "options": ["market", "planning", "investment"]
           },
+
           "weight": {
             "type": "number",
             "required": true,
             "default": 2
           },
+
           "min": {
             "type": "number",
             "default": 0
           },
+
           "max": {
             "type": "number",
             "default": 100
@@ -197,34 +204,42 @@ export const model = {
           "type": "text",
           "nullable": true
         },
+
         "suggested_citation": {
           "type": "text",
           "nullable": true
         },
+
         "cautions": {
           "type": "text",
           "nullable": true
         },
+
         "spatial_resolution": {
           "type": "string",
           "nullable": true
         },
+
         "download_original_url": {
           "type": "string",
           "nullable": true
         },
+
         "learn_more_url": {
           "type": "string",
           "nullable": true
         },
+
         "license": {
           "type": "text",
           "nullable": true
         },
+
         "sources": {
           "type": "text",
           "nullable": true
         },
+
         "content_date": {
           "type": "string",
           "pattern": "^[0-9]{4}(-[0-9]{4})?$",
@@ -380,7 +395,8 @@ export const collection = {
       params['category_id'] = `eq.${category_id}`;
 
     const circles = circles_user();
-    if (circles) params['geography_circle'] = `in.(${circles})`;
+    if (circles)
+      params['geography_circle'] = `in.(${circles})`;
 
     return params;
   },
