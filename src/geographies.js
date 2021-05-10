@@ -55,6 +55,14 @@ export const model = {
       "type": "boolean"
     },
 
+    "boundary_file": {
+      "type": "uuid",
+      "fkey": "files",
+      "constraint": "boundary",
+      "label": "Boundary file",
+      "columns": ['id', 'endpoint']
+    },
+
     "circle": {
       "type": "string",
       "label": "Circle",
