@@ -81,3 +81,9 @@ dt_fetchables = {
     }
   }
 };
+
+dt_navlist = [
+	["geographies", "Geographies", "globe"],
+	["categories", "Categories", "list-nested"],
+	["files", "Files", "file-earmark"],
+];
