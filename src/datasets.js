@@ -156,6 +156,14 @@ export const model = {
               }
             }
           }
+        },
+
+        "mutant_targets": {
+          "type": "array",
+          "nullable": true,
+          "schema": {
+            "type": "string",
+          }
         }
       }
     },
