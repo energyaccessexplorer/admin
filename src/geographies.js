@@ -178,7 +178,9 @@ export const model = {
   },
 
   "edit_jobs": [
-    (o,f) => dt_external_link(o, f, m => `${dt_config.production}/a/?id=${m.id}&inputs=boundaries`),
+    function(object, form) {
+      dt_external_link(object, form, m => `${dt_config.production}/a/?id=${m.id}&inputs=boundaries`);
+    },
   ],
 
   "parse": function(m) {

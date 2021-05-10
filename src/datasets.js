@@ -16,7 +16,7 @@ export const model = {
       "constraint": "category",
       "required": true,
       "label": "Category",
-      "show": m => "<strong>" + m.category_name + "</strong>",
+      "show": m => `<strong>${m.category_name}</strong>`,
       "columns": ['*']
     },
 
@@ -27,7 +27,7 @@ export const model = {
       "required": true,
       "editable": false,
       "label": "Geography",
-      "show": m => "<strong>" + m.geography_name + "</strong>",
+      "show": m => `<strong>${m.geography_name}</strong>`,
       "columns": ['*']
     },
 
@@ -303,7 +303,9 @@ export const model = {
   },
 
   "edit_jobs": [
-    (o,f) => dt_external_link(o, f, m => `${dt_config.production}/a/?id=${m.geography_id}&inputs=${m.name}`),
+    function(object, form) {
+      dt_external_link(object, form, m => `${dt_config.production}/a/?id=${m.geography_id}&inputs=${m.name}`);
+    },
     function(_, form) {
       const metadatadetails = form.querySelector('details[name="metadata"]');
 

@@ -314,7 +314,7 @@ export const model = {
 };
 
 export const collection = {
-  "filters": ['name', 'name_long', 'unit'],
+  "filters": ['name', 'name_long', 'unit', 'features'],
 
   "endpoint": function() {
     const attrs = ['id', 'name', 'name_long', 'unit', 'timeline', 'analysis', 'raster', 'vectors', 'csv', 'datasets(id)', 'created', 'created_by', 'updated', 'updated_by'];
@@ -334,9 +334,11 @@ export const collection = {
   "parse": function(m) {
     m.dscount = m.datasets.length;
 
-    m.features = ['analysis', 'timeline', 'raster', 'vectors', 'csv']
+    const sym = ['analysis', 'timeline', 'raster', 'vectors', 'csv']
       .reduce((a,c) => m[c] ? a + c[0] : a, "")
       .toUpperCase();
+
+    m.features = sym + "-" + (m.vectors ? m.vectors.shape_type : "raster") + "-" + (m.analysis ? m.analysis.index : "") + "-" + ((m.analysis && m.analysis.indexes) ? m.analysis.indexes.map(i => i.index).sort() : 0);
 
     return m;
   },
