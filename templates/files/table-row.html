@@ -1,0 +1,20 @@
+<tr>
+  <td><a bind-icon="edit"></a> <span bind-bind="label"></span></td>
+  <td><span bind="endpoint"></span></td>
+  <td>
+    <a bind-attr="href"
+       bind-value="id"
+       bind-format="/?model=_datasets_files&file_id={0}">
+      <span bind="dscount"></span> relations</a>
+  </td>
+
+  <td>
+    <span bind-value="created" bind-lambda="human_time"></span>
+    <span bind-value="created_by" bind-lambda="email_user" bind-format="({0})"></span>
+  </td>
+
+  <td>
+    <span bind-value="updated" bind-lambda="human_time"></span>
+    <span bind-value="updated_by" bind-lambda="email_user" bind-format="({0})"></span>
+  </td>
+</tr>

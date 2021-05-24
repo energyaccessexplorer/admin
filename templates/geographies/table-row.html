@@ -1,0 +1,38 @@
+<tr>
+  <td bind-attr="class"
+      bind-value="ok"
+      bind-not="disabled">
+    <a bind-icon="edit"></a> <span bind="name"></span>
+  </td>
+
+  <td bind="cca3"></td>
+
+  <td bind="adm"></td>
+
+  <td>
+    <a bind-icon="production"
+       title="deployed in production"
+       bind-cond="inproduction"></a>
+    <a bind-icon="staging"
+       title="deployed in staging"
+       bind-cond="instaging"></a>
+  </td>
+
+  <td>
+    <a bind-attr="href"
+       bind-value="id"
+       bind-format="/?model=datasets&geography_id={0}">
+      <span bind="dscount"></span> datasets
+    </a>
+  </td>
+
+  <td>
+    <span bind-value="created" bind-lambda="human_time"></span>
+    <span bind-value="created_by" bind-lambda="email_user" bind-format="({0})"></span>
+  </td>
+
+  <td>
+    <span bind-value="updated" bind-lambda="human_time"></span>
+    <span bind-value="updated_by" bind-lambda="email_user" bind-format="({0})"></span>
+  </td>
+</tr>

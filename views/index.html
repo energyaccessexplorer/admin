@@ -9,11 +9,10 @@
     <script src="/config.js"></script>
 
     <script type="module">
-    const s = document.createElement('script');
-    s.async = true;
-    s.src = dt_config.src;
-    s.onload = _ => dt_main();
-    document.head.appendChild(s);
+      const s = document.createElement('script');
+      s.src = dt_config.src;
+      s.onload = _ => dt_main();
+      document.head.appendChild(s);
     </script>
 
     <link rel="shortcut icon" type="image/png" href="/images/favicon.png"/>
@@ -53,43 +52,6 @@
     </style>
   </template>
 
-  <template class="tableheader" module="categories">
-    <tr>
-      <th table-sort="name_long">Long Name</th>
-      <th table-sort="name">Name</th>
-      <th table-sort="features">Features</th>
-      <th table-sort="unit">Unit</th>
-      <th table-sort="dscount">DS count</th>
-      <th table-sort="created_by">Created</th>
-      <th table-sort="updated_by">Updated</th>
-    </tr>
-  </template>
-
-  <template class="tablerow" module="categories">
-    <tr>
-      <td><a bind-icon="edit"></a><span bind="name_long"></span></td>
-      <td bind="name"></td>
-      <td bind="features"></td>
-      <td bind="unit"></td>
-      <td>
-        <a bind-attr="href"
-           bind-value="id"
-           bind-format="/?model=datasets&category_id={0}">
-          <span bind="dscount"></span>
-        </a>
-      </td>
-      <td>
-        <span bind-value="created" bind-lambda="human_time"></span>
-        <span bind-value="created_by" bind-lambda="email_user" bind-format="({0})"></span>
-      </td>
-
-      <td>
-        <span bind-value="updated" bind-lambda="human_time"></span>
-        <span bind-value="updated_by" bind-lambda="email_user" bind-format="({0})"></span>
-      </td>
-    </tr>
-  </template>
-
   <template class="style" module="datasets">
     <style>
       table td:nth-of-type(4),
@@ -103,63 +65,6 @@
         text-align: center;
       }
     </style>
-  </template>
-
-  <template class="tableheader" module="datasets">
-    <tr>
-      <th table-sort="name_long">Name</th>
-      <th table-sort="category_name">Category</th>
-      <th table-sort="envs">Deployed</th>
-      <th table-sort="pack">Pack</th>
-      <th table-sort="file_count">Files</th>
-      <th table-sort="created_by">Created</th>
-      <th table-sort="updated_by">Updated</th>
-    </tr>
-  </template>
-
-  <template class="tablerow" module="datasets">
-    <tr>
-      <td bind-attr="class"
-          bind-value="ok"
-          bind-not="disabled">
-        <a bind-icon="edit"></a><a bind-icon="show"></a><span bind="name"></span>
-      </td>
-
-      <td bind-attr="class"
-          bind-value="ok"
-          bind-not="disabled">
-        <span bind="category_name"></span>
-      </td>
-
-      <td>
-        <a bind-icon="production"
-           title="deployed in production"
-           bind-cond="inproduction"></a>
-        <a bind-icon="staging"
-           title="deployed in staging"
-           bind-cond="instaging"></a>
-      </td>
-
-      <td bind="pack"></td>
-
-      <td>
-        <a bind-attr="href"
-           bind-value="id"
-           bind-format="/?model=_datasets_files&dataset_id={0}">
-          <span bind="file_count"></span> files
-        </a>
-      </td>
-
-      <td>
-        <span bind-value="created" bind-lambda="human_time"></span>
-        <span bind-value="created_by" bind-lambda="email_user" bind-format="({0})"></span>
-      </td>
-
-      <td>
-        <span bind-value="updated" bind-lambda="human_time"></span>
-        <span bind-value="updated_by" bind-lambda="email_user" bind-format="({0})"></span>
-      </td>
-    </tr>
   </template>
 
   <template class="style" module="files">
@@ -188,39 +93,6 @@
     </style>
   </template>
 
-  <template class="tableheader" module="files">
-    <tr>
-      <th>Label</th>
-      <th>Endpoint</th>
-      <th>DS count</th>
-      <th table-sort="created_by">Created</th>
-      <th table-sort="updated_by">Updated</th>
-    </tr>
-  </template>
-
-  <template class="tablerow" module="files">
-    <tr>
-      <td><a bind-icon="edit"></a> <span bind-bind="label"></span></td>
-      <td><span bind="endpoint"></span></td>
-      <td>
-        <a bind-attr="href"
-           bind-value="id"
-           bind-format="/?model=_datasets_files&file_id={0}">
-          <span bind="dscount"></span> relations</a>
-      </td>
-
-      <td>
-        <span bind-value="created" bind-lambda="human_time"></span>
-        <span bind-value="created_by" bind-lambda="email_user" bind-format="({0})"></span>
-      </td>
-
-      <td>
-        <span bind-value="updated" bind-lambda="human_time"></span>
-        <span bind-value="updated_by" bind-lambda="email_user" bind-format="({0})"></span>
-      </td>
-    </tr>
-  </template>
-
   <template class="style" module="geographies">
     <style>
       table td:nth-of-type(4),
@@ -241,59 +113,6 @@
     </style>
   </template>
 
-  <template class="tableheader" module="geographies">
-    <tr>
-      <th table-sort="name">Name</th>
-      <th table-sort="cca3">CCA3</th>
-      <th table-sort="adm">ADM</th>
-      <th table-sort="envs">Deployed</th>
-      <th table-sort="dscount">Datasets</th>
-      <th table-sort="created_by">Created</th>
-      <th table-sort="updated_by">Updated</th>
-    </tr>
-  </template>
-
-  <template class="tablerow" module="geographies">
-    <tr>
-      <td bind-attr="class"
-          bind-value="ok"
-          bind-not="disabled">
-        <a bind-icon="edit"></a> <span bind="name"></span>
-      </td>
-
-      <td bind="cca3"></td>
-
-      <td bind="adm"></td>
-
-      <td>
-        <a bind-icon="production"
-           title="deployed in production"
-           bind-cond="inproduction"></a>
-        <a bind-icon="staging"
-           title="deployed in staging"
-           bind-cond="instaging"></a>
-      </td>
-
-      <td>
-        <a bind-attr="href"
-           bind-value="id"
-           bind-format="/?model=datasets&geography_id={0}">
-          <span bind="dscount"></span> datasets
-        </a>
-      </td>
-
-      <td>
-        <span bind-value="created" bind-lambda="human_time"></span>
-        <span bind-value="created_by" bind-lambda="email_user" bind-format="({0})"></span>
-      </td>
-
-      <td>
-        <span bind-value="updated" bind-lambda="human_time"></span>
-        <span bind-value="updated_by" bind-lambda="email_user" bind-format="({0})"></span>
-      </td>
-    </tr>
-  </template>
-
   <template class="style" module="_datasets_files">
     <style>
       table td:nth-of-type(2),
@@ -310,62 +129,5 @@
         text-align: center;
       }
     </style>
-  </template>
-
-  <template class="tableheader" module="_datasets_files">
-    <tr>
-      <th></th>
-      <th>Functionality</th>
-      <th>Endpoint</th>
-      <th>Active</th>
-    </tr>
-  </template>
-
-  <template class="tablerow" module="_datasets_files">
-    <tr>
-      <td>
-        <a bind-icon="edit"></a>
-      </td>
-      <td>
-        <span bind="func"></span>
-      </td>
-      <td bind="_file_endpoint"></td>
-      <td bind="active"></td>
-    </tr>
-  </template>
-
-  <template class="style" module="circles">
-    <style>
-      table td:nth-of-type(2),
-      table td:nth-of-type(3) {
-        font-family: monospace;
-      }
-
-      table td:nth-of-type(1) a {
-        margin-right: 0;
-      }
-
-      table td:nth-of-type(3) {
-        text-align: right;
-      }
-    </style>
-  </template>
-
-  <template class="tableheader" module="circles">
-    <tr>
-      <th></th>
-      <th>Rolname</th>
-      <th>Parents</th>
-    </tr>
-  </template>
-
-  <template class="tablerow" module="circles">
-    <tr>
-      <td>
-        <a bind-icon="edit"></a>
-      </td>
-      <td bind="rolname"></td>
-      <td bind="parents"></td>
-    </tr>
   </template>
 </html>
