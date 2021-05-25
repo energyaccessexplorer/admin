@@ -317,7 +317,7 @@ export const model = {
       const input = document.createElement('input');
       input.type = 'hidden';
       input.onchange = function() {
-        fetch(dt_config.origin + `/datasets?select=metadata&id=eq.${this.value}`)
+        fetch(dt_config.api + `/datasets?select=metadata&id=eq.${this.value}`)
           .then(r => r.json())
           .then(r => {
             let metadata;
@@ -351,7 +351,7 @@ export const model = {
         select.onchange = async function() {
           const k = this.value;
 
-          const p = await fetch(dt_config.origin + `/categories?id=eq.${object.data.category_id}`)
+          const p = await fetch(dt_config.api + `/categories?id=eq.${object.data.category_id}`)
             .then(r => r.json())
             .then(r => r[0][k]);
 

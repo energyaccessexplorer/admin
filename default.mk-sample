@@ -12,7 +12,8 @@ SRV_DEST =
 
 DB_NAME = ea_dev
 
-DT_ORIGIN = "http://localhost:${PGREST_PORT}"
+DT_API = "http://localhost:${API_PORT}"
+DT_BASE = "http://example.localhost"
 DT_STORAGE = null
 DT_PRODUCTION = "http://localhost:${WEB_PORT}"
 DT_UPLOAD = null
