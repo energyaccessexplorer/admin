@@ -6,9 +6,9 @@ dt_fetchables = {
       return {
         table: 'geographies',
         query: {
-		  "select": ['id', 'name'],
-		  "name": `ilike.*${v}*`
-		},
+          "select": ['id', 'name'],
+          "name": `ilike.*${v}*`
+        },
         input: x => x['id'],
         descriptor: x => x['name'],
         value: v,
@@ -24,9 +24,9 @@ dt_fetchables = {
       return {
         table: 'categories',
         query: {
-		  "select": ['id', 'name', 'name_long', 'unit'],
-		  "name": `ilike.*${v}*`
-		},
+          "select": ['id', 'name', 'name_long', 'unit'],
+          "name": `ilike.*${v}*`
+        },
         input: x => x['id'],
         descriptor: x => `${x.name} - ${x.name_long}`,
         value: v,
@@ -42,9 +42,9 @@ dt_fetchables = {
       return {
         table: 'datasets',
         query: {
-		  "select": ['id', 'geography_name', 'category_name', 'category_id'],
-		  "category_name": `ilike.*${v}*`
-		},
+          "select": ['id', 'geography_name', 'category_name', 'category_id'],
+          "category_name": `ilike.*${v}*`
+        },
         input: x => x['id'],
         descriptor: x => `${x.geography_name} - ${x.category_name}`,
         value: v,
@@ -60,12 +60,12 @@ dt_fetchables = {
       const u = new URL(location);
       const em = u.searchParams.get('edit_model');
 
-	  const q = {
-		"select": ['id', 'label', 'endpoint'],
-	  };
+      const q = {
+        "select": ['id', 'label', 'endpoint'],
+      };
 
-      if (dt_model === 'datasets' && em.match(UUID_REGEXP))
-		q['dataset_id'] = `eq.${em}`;
+      if (dt_model === 'datasets' && em && em.match(UUID_REGEXP))
+        q['dataset_id'] = `eq.${em}`;
 
       if (v === '' || v === null) ;
       else q['label'] = `ilike.*${v}*`;
@@ -83,7 +83,7 @@ dt_fetchables = {
 };
 
 dt_navlist = [
-	["geographies", "Geographies", "globe"],
-	["categories", "Categories", "list-nested"],
-	["files", "Files", "file-earmark"],
+  ["geographies", "Geographies", "globe"],
+  ["categories", "Categories", "list-nested"],
+  ["files", "Files", "file-earmark"],
 ];

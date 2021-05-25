@@ -106,21 +106,9 @@ export const model = {
           "type": "array",
           "nullable": true,
           "callback": function(details) {
-            const button = ce('button', "See GEOJSON summary", { style: "float: right;", type: "button" });
+            const button = ce('button', "see GEOJSON summary", { style: "float: right;", type: "button" });
 
-            const m = this;
-
-            button.onclick = function() {
-              const u = new URL(dt_config.production + "/d");
-              u.searchParams.set('id', m.geography_id);
-              u.searchParams.set('dataset_id', m.id);
-              u.searchParams.set('fn', 'geojson_summary');
-
-              const iframe = ce('iframe', null, { width: "600", height: "600" });
-              iframe.src = u;
-
-              dt_modal.set({ content: iframe, header: null }).show();
-            };
+            button.onclick = _ => geojson_summary_iframe(this);
 
             details.querySelector(':scope > summary').append(button);
           },
@@ -400,7 +388,7 @@ export const collection = {
     const geography_id = url.searchParams.get('geography_id');
     const category_id = url.searchParams.get('category_id');
 
-    const attrs = ['id', 'envs', 'flagged', 'name', 'category_name', 'geography_circle', 'pack', 'geography_id', 'files(id)', 'created', 'created_by', 'updated', 'updated_by'];
+    const attrs = ['id', 'envs', 'flagged', 'name', 'category_id', 'category_name', 'geography_circle', 'pack', 'geography_id', 'files(id)', 'created', 'created_by', 'updated', 'updated_by'];
     const params = { "select": attrs };
 
     if (dataset_id)
@@ -442,6 +430,27 @@ export async function header() {
 };
 
 export const single = dt_single_edit;
+
+export function geojson_summary_url(m) {
+  const u = new URL(dt_config.production + "/d");
+
+  u.searchParams.set('id', m.geography_id);
+  u.searchParams.set('dataset_id', m.id);
+  u.searchParams.set('fn', 'geojson_summary');
+
+  return u;
+};
+
+export function geojson_summary_iframe(o) {
+  const iframe = ce('iframe', null, { width: "600", height: "600" });
+  iframe.src = geojson_summary_url(o);
+
+  const m = new modal('geojson-modal', {
+    header: null,
+    content: iframe,
+    destroy: true,
+  }).show();
+};
 
 function flag(obj) {
   const data = Object.assign({}, obj.data);

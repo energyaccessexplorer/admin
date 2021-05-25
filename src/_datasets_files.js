@@ -6,8 +6,8 @@ export const base = '_datasets_files';
 
 export const model = {
   "main": m => {
-		// TODO: fix this with a proper relation
-		//
+    // TODO: fix this with a proper relation
+    //
     if (m.dataset)
       return `${m.dataset.geography_name} - ${m.dataset.category.name_long} (${m.dataset.category.name})`;
     else
