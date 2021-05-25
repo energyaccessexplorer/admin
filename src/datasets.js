@@ -355,7 +355,17 @@ export const model = {
             .then(r => r.json())
             .then(r => r[0][k]);
 
-          const co = JSON.parse(ta.value) || {};
+          let co;
+
+          try {
+            co = JSON.parse(ta.value);
+          } catch (e) {
+            dt_flash.push({
+              type: "warn",
+              message: "Failed to parse JSON from configuration overrides. Using an empty object.",
+            });
+            co = {};
+          }
           co[k] = p;
 
           ta.value = JSON.stringify(co, null, 2);
