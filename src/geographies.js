@@ -215,13 +215,15 @@ export const collection = {
   },
 
   "rowevents": {
-    "dblclick": function(e, obj) {
-      const data = Object.assign({}, obj.data);
-      data.flagged = !data.flagged;
-
-      obj.patch(data);
-    }
+    "td": ["dblclick", flag],
   },
 
   "parse": model.parse,
+};
+
+function flag(obj) {
+  const data = Object.assign({}, obj.data);
+  data.flagged = !data.flagged;
+
+  obj.patch(data);
 };
