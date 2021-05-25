@@ -1,7 +1,7 @@
 function email_user(str) {
-  if (!str || str === "") return "?";
+	if (!str || str === "") return "?";
 
-  if (!str.match('@')) return str;
+	if (!str.match('@')) return str;
 
-  return str.split('@')[0];
+	return str.split('@')[0];
 };
