@@ -1,22 +1,36 @@
-<tr>
-  <td><a bind-icon="edit"></a><span bind="name_long"></span></td>
+<tr bind-attr="title"
+    bind-value="features">
+  <td><a bind-icon="edit"></a></td>
+
+  <td bind="name_long"></td>
+
   <td bind="name"></td>
-  <td bind="features"></td>
+
   <td bind="unit"></td>
+
   <td>
     <a bind-attr="href"
        bind-value="id"
        bind-format="/?model=datasets&category_id={0}">
-      <span bind="dscount"></span>
+      <span bind="dscount"></span> datasets
     </a>
-  </td>
-  <td>
-    <span bind-value="created" bind-lambda="human_time"></span>
-    <span bind-value="created_by" bind-lambda="email_user" bind-format="({0})"></span>
   </td>
 
   <td>
-    <span bind-value="updated" bind-lambda="human_time"></span>
-    <span bind-value="updated_by" bind-lambda="email_user" bind-format="({0})"></span>
+    <span bind-value="created"
+          bind-lambda="human_time"></span>
+
+    <span bind-value="created_by"
+          bind-lambda="email_user"
+          bind-format="({0})"></span>
+  </td>
+
+  <td>
+    <span bind-value="updated"
+          bind-lambda="human_time"></span>
+
+    <span bind-value="updated_by"
+          bind-lambda="email_user"
+          bind-format="({0})"></span>
   </td>
 </tr>
