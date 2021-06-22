@@ -69,6 +69,12 @@ export const model = {
 			"label": "Configuration",
 			"nullable": true,
 			"schema": {
+				"divisions_tier": {
+					"type": "number",
+					"nullable": true,
+					"needs": m => m.category_name.match(/indicator/),
+				},
+
 				"csv_columns": {
 					"type": "object",
 					"nullable": true,

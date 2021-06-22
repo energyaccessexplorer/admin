@@ -55,14 +55,6 @@ export const model = {
 			"type": "boolean"
 		},
 
-		"boundary_file": {
-			"type": "uuid",
-			"fkey": "files",
-			"constraint": "boundary",
-			"label": "Boundary file",
-			"columns": ['id', 'endpoint']
-		},
-
 		"circle": {
 			"type": "string",
 			"label": "Circle",
@@ -82,10 +74,26 @@ export const model = {
 					"default": false,
 				},
 
-				"boundaries_name": {
-					"type": "string",
-					"required": true,
-					"hint": "Provinces/Territories/States? County/Municipality?",
+				"divisions": {
+					"type": "array",
+					"nullable": false,
+					"sortable": true,
+					"collapsed": false,
+					"schema": {
+						"type": "object",
+						"schema": {
+							"name": {
+								"type": "string",
+								"required": true,
+								"hint": "Provinces/Territories/States? County/Municipality?",
+							},
+							"dataset_id": {
+								"type": "uuid",
+								"nullable": true,
+								"fkey": "datasets",
+							}
+						}
+					}
 				},
 
 				"timeline_dates": {
