@@ -69,18 +69,22 @@ export const model = {
 			"label": "Configuration",
 			"nullable": true,
 			"schema": {
-				"column": {
-					"type": "string",
+				"csv_columns": {
+					"type": "object",
 					"nullable": true,
-					// TODO: "needs" to be some kind of indicator.
-					"hint": "One of the headers of a CSV to be used as an identifier for the dataset's polygons.",
-				},
+					"schema": {
+						"id": {
+							"type": "string",
+							"required": true,
+						},
 
-				"column_name": {
-					"type": "string",
-					"nullable": true,
-					// TODO: "needs" to be 'boundaries' ds
-					"hint": "",
+						"value": {
+							"type": "string",
+							"nullable": true,
+							// TODO: "needs" to be 'boundaries' ds
+							"hint": "",
+						}
+					}
 				},
 
 				"attributes_map": {
