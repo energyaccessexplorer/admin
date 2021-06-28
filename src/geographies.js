@@ -223,7 +223,7 @@ export const collection = {
 	},
 
 	"rowevents": {
-		"td": ["dblclick", flag],
+		"td[bind=name]": ["dblclick", flag],
 	},
 
 	"parse": model.parse,

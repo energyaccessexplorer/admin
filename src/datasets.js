@@ -487,7 +487,7 @@ export const collection = {
 	"rowevents": {
 		"[action=paver]": ["click", paver.routine],
 		"[action=clone]": ["click", clone],
-		"td": ["dblclick", flag],
+		"td[bind=name]": ["dblclick", flag],
 	},
 
 	"parse": model.parse,
