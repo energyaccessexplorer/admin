@@ -1,0 +1,29 @@
+<style>
+  form {
+    text-align: right
+  }
+</style>
+
+<form>
+  <div class="input-group">
+    <button bind="geojson" type="button">GeoJSON</button>
+    <label>fields</label>
+    <input name="fields" type="text">
+  </div>
+
+  <div class="input-group">
+    <label>
+      <span>file&nbsp;URL</span>
+    </label>
+
+    <input name="dataseturl"
+           type="text"
+           autocomplete="off" />
+  </div>
+
+  <div class="input-group">
+    <button id="submit">Pave it!</button>
+  </div>
+</form>
+
+<pre id="infopre"></pre>

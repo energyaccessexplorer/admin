@@ -2,6 +2,26 @@ import {
 	circles_user,
 } from './circles.js';
 
+import * as paver from './paver.js';
+
+function datatype(m) {
+	let t;
+	const c = m.category;
+
+	if (c.vectors) t = c.vectors.shape_type;
+	else if (c.raster) t = "raster";
+	else if (c.csv) t = "table";
+
+	if (c.csv_columns) t += "-fixed";
+	else if (c.timeline) t += "-timeline";
+
+	if (c.name === 'boundaries') t = "polygons-boundaries";
+
+	if (c.mutant) t = "raster-mutant";
+
+	return t;
+};
+
 const clonable_attrs = [
 	'geography_id',
 	'category_id',
@@ -334,6 +354,10 @@ export const model = {
 	},
 
 	"parse": function(m) {
+		m.datatype = datatype(m);
+
+		m.haspaver = ['points'].includes(m.datatype);
+
 		m.inproduction = m.envs.indexOf("production") > -1;
 		m.instaging = m.envs.indexOf("staging") > -1;
 		m.file_count = m.files ? m.files.length : "?";
@@ -412,7 +436,7 @@ export const model = {
 					dt_modal.hide();
 				};
 
-				for (let k of ['controls', 'vectors', 'raster', 'analysis', 'domain', 'metadata'])
+				for (let k of ['analysis', 'controls', 'domain', 'domain_init', 'metadata', 'raster', 'vectors'])
 					select.append(ce('option', k));
 
 				dt_modal.set({
@@ -439,7 +463,7 @@ export const collection = {
 		const geography_id = url.searchParams.get('geography_id');
 		const category_id = url.searchParams.get('category_id');
 
-		const attrs = ['id', 'envs', 'flagged', 'name', 'category_id', 'category_name', 'geography_circle', 'pack', 'geography_id', 'files(id)', 'created', 'created_by', 'updated', 'updated_by'];
+		const attrs = ['id', 'envs', 'flagged', 'name', 'category(*)', 'category_id', 'category_name', 'geography_circle', 'pack', 'geography_id', 'files(id)', '_datasets_files(*,file:files(endpoint))', 'created', 'created_by', 'updated', 'updated_by'];
 		const params = { "select": attrs };
 
 		if (dataset_id)
@@ -461,6 +485,7 @@ export const collection = {
 	},
 
 	"rowevents": {
+		"[action=paver]": ["click", paver.routine],
 		"[action=clone]": ["click", clone],
 		"td": ["dblclick", flag],
 	},

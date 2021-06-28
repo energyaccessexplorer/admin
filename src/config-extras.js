@@ -87,3 +87,7 @@ dt_navlist = [
 	["categories", "Categories", "list-nested"],
 	["files", "Files", "file-earmark"],
 ];
+
+dt_paver = {
+	base: "/paver",
+};
