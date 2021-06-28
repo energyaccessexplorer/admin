@@ -144,6 +144,15 @@ export const model = {
 					}
 				},
 
+				"properties_search": {
+					"type": "array",
+					"nullable": true,
+					"schema": {
+						"type": "string",
+						"required": true,
+					}
+				},
+
 				"features_specs": {
 					"type": "array",
 					"nullable": true,
