@@ -4,6 +4,11 @@ import {
 
 import * as paver from './paver.js';
 
+const url = new URL(location);
+const dataset_id = url.searchParams.get('id');
+const geography_id = url.searchParams.get('geography_id');
+const category_id = url.searchParams.get('category_id');
+
 function datatype(m) {
 	let t;
 	const c = m.category;
@@ -458,11 +463,6 @@ export const collection = {
 	"filters": ['name', 'name_long', 'category_name'],
 
 	"endpoint": function() {
-		const url = new URL(location);
-		const dataset_id = url.searchParams.get('id');
-		const geography_id = url.searchParams.get('geography_id');
-		const category_id = url.searchParams.get('category_id');
-
 		const attrs = ['id', 'envs', 'flagged', 'name', 'category(*)', 'category_id', 'category_name', 'geography_circle', 'pack', 'geography_id', 'files(id)', '_datasets_files(*,file:files(endpoint))', 'created', 'created_by', 'updated', 'updated_by'];
 		const params = { "select": attrs };
 
@@ -496,17 +496,14 @@ export const collection = {
 };
 
 export async function header() {
-	const url = new URL(location);
-	let gid = url.searchParams.get('geography_id');
-
-	if (!gid) return "Datasets";
-
-	const name = (await dt_client.get('geographies', { select: ['name'], id: `eq.${gid}` }, { one: true }))['name'];
-
-	return `${name} - datasets`;
+	if (geography_id) {
+		const name = (await dt_client.get('geographies', { select: ['name'], id: `eq.${geography_id}` }, { one: true }))['name'];
+		return `${name} - datasets`;
+	} else if (category_id) {
+		const name = (await dt_client.get('categories', { select: ['name'], id: `eq.${category_id}` }, { one: true }))['name'];
+		return `${name} - datasets`;
+	}
 };
-
-export const single = dt_single_edit;
 
 export function geojson_summary_url(m) {
 	const u = new URL(dt_config.production + "/d");

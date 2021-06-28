@@ -50,6 +50,10 @@ export const model = {
 
 	"parse": function(m) {
 		for (let k in m.file) m[`_file_${k}`] = m.file[k];
+
+		m['_category_name'] = maybe(m, 'dataset', 'category', 'name');
+		m['_geography_name'] = maybe(m, 'dataset', 'geography_name');
+
 		return m;
 	}
 };
@@ -62,7 +66,7 @@ export const collection = {
 				'dataset_id',
 				'func',
 				'active',
-				'file(endpoint)',
+				'file(label,endpoint)',
 				'dataset:datasets(geography_name, category(name, name_long))'
 			]
 		};
@@ -80,14 +84,4 @@ export const collection = {
 	"order": -1
 };
 
-export async function header() {
-	if (file_id) return "File relations";
-
-	const dataset_id = url.searchParams.get('dataset_id');
-	if (!dataset_id) return "Files";
-
-	let geography_id;
-	const g = await (dt_client.get('datasets', { select: ['category_name', 'geography_name'], id: `eq.${dataset_id}`}, { one: true }));
-
-	return `${g.geography_name} - ${g.category_name} - files`;
-};
+export const header = "Dataset/File relations";
