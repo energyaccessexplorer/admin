@@ -2,6 +2,38 @@ import {
 	circles_user,
 } from './circles.js';
 
+const clonable_attrs = [
+	'geography_id',
+	'category_id',
+	'name_long',
+	'configuration',
+	'category_overrides',
+	'pack',
+	'presets',
+	'metadata'
+];
+
+function clone() {
+	const t = arguments[0];
+
+	const data = {};
+
+	for (const k of clonable_attrs)
+		data[k] = t.data[k];
+
+	const n = (t.data.name || t.data.category_name);
+
+	data['name'] = n + "-clone-" + (new Date).getTime();
+
+	const o = new dt_object({
+		"model": model,
+		"data": data,
+		"collection": t.collection,
+	});
+
+	if (confirm(`Clone '${n}' dataset?`)) o.create();
+};
+
 export const base = 'datasets';
 
 export const model = {
@@ -420,6 +452,7 @@ export const collection = {
 	},
 
 	"rowevents": {
+		"[action=clone]": ["click", clone],
 		"td": ["dblclick", flag],
 	},
 
