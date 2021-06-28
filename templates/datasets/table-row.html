@@ -1,21 +1,21 @@
 <tr bind-attr="class"
     bind-value="ok"
     bind-not="disabled">
-  <td>
+  <td title="edit">
     <a bind-icon="edit"></a>
   </td>
 
-  <td>
+  <td title="show">
     <a bind-icon="show"></a>
   </td>
 
-  <td>
+  <td title="paver">
     <a bind-icon="gem"
        bind-cond="haspaver"
        action="paver"></a>
   </td>
 
-  <td>
+  <td title="clone">
     <a bind-icon="files"
        action="clone"></a>
   </td>
@@ -29,14 +29,14 @@
   </td>
 
   <td>
-    <span bind-icon="production"
-          title="deployed in production"
+    <span title="deployed in production"
+          bind-icon="production"
           bind-cond="inproduction"></span>
   </td>
 
   <td>
-    <span bind-icon="staging"
-          title="deployed in staging"
+    <span title="deployed in staging"
+          bind-icon="staging"
           bind-cond="instaging"></span>
   </td>
 
