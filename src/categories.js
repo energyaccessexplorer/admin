@@ -300,8 +300,8 @@ export const model = {
 		},
 	},
 
-	"new_jobs": [
-		function(form) {
+	"new_modal_jobs": [
+		function(_, form) {
 			const l = qs('[name="name"]', form);
 			qs('[name="name_long"]', form).addEventListener('input', function(e) {
 				l.value = this.value

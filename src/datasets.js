@@ -370,7 +370,7 @@ export const model = {
 		return m;
 	},
 
-	"edit_jobs": [
+	"edit_modal_jobs": [
 		function(object, form) {
 			dt_external_link(object, form, m => `${dt_config.production}/a/?id=${m.geography_id}&inputs=${m.name}`);
 		},
