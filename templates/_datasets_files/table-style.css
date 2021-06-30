@@ -1,0 +1,5 @@
+table td:nth-of-type(2),
+table td:nth-of-type(3),
+table td:nth-of-type(7) {
+  font-family: monospace;
+}
