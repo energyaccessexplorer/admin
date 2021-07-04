@@ -41,10 +41,9 @@ export const model = {
 			"label": "Adm. Level"
 		},
 
-		"envs": {
+		"deployment": {
 			"type": "array",
 			"schema": {
-				"label": "deployment",
 				"type": "string",
 				"options": ["staging", "production"],
 				"required": true
@@ -192,8 +191,8 @@ export const model = {
 	],
 
 	"parse": function(m) {
-		m.inproduction = m.envs.indexOf("production") > -1;
-		m.instaging = m.envs.indexOf("staging") > -1;
+		m.inproduction = m.deployment.indexOf("production") > -1;
+		m.instaging = m.deployment.indexOf("staging") > -1;
 		m.dscount = m.datasets ? m.datasets.length : "?";
 		m.ok = !m.flagged;
 		return m;
@@ -204,7 +203,7 @@ export const collection = {
 	"filters": ['name'],
 
 	"endpoint": function() {
-		const attrs = ['id', 'name', 'cca3', 'adm', 'envs', 'flagged', 'configuration', 'datasets(id)', 'created', 'created_by', 'updated', 'updated_by'];
+		const attrs = ['id', 'name', 'cca3', 'adm', 'deployment', 'flagged', 'configuration', 'datasets(id)', 'created', 'created_by', 'updated', 'updated_by'];
 
 		const params = {
 			"select": attrs
