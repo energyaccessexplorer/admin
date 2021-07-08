@@ -9,24 +9,6 @@ const dataset_id = url.searchParams.get('id');
 const geography_id = url.searchParams.get('geography_id');
 const category_id = url.searchParams.get('category_id');
 
-function datatype(m) {
-	let t;
-	const c = m.category;
-
-	if (c.vectors) t = c.vectors.shape_type;
-	else if (c.raster) t = "raster";
-	else if (c.csv) t = "table";
-
-	if (c.csv_columns) t += "-fixed";
-	else if (c.timeline) t += "-timeline";
-
-	if (c.name === 'boundaries') t = "polygons-boundaries";
-
-	if (c.mutant) t = "raster-mutant";
-
-	return t;
-};
-
 const clonable_attrs = [
 	'geography_id',
 	'category_id',
@@ -359,8 +341,6 @@ export const model = {
 	},
 
 	"parse": function(m) {
-		m.datatype = datatype(m);
-
 		m.haspaver = ['points'].includes(m.datatype);
 
 		m.inproduction = m.deployment.indexOf("production") > -1;
@@ -463,7 +443,7 @@ export const collection = {
 	"filters": ['name', 'name_long', 'category_name'],
 
 	"endpoint": function() {
-		const attrs = ['id', 'deployment', 'flagged', 'name', 'category(*)', 'category_id', 'category_name', 'geography_circle', 'pack', 'geography_id', 'files(id)', '_datasets_files(*,file:files(endpoint))', 'created', 'created_by', 'updated', 'updated_by'];
+		const attrs = ['id', 'datatype', 'deployment', 'flagged', 'name', 'category(*)', 'category_id', 'category_name', 'geography_circle', 'pack', 'geography_id', 'files(id)', '_datasets_files(*,file:files(endpoint))', 'created', 'created_by', 'updated', 'updated_by'];
 		const params = { "select": attrs };
 
 		if (dataset_id)
