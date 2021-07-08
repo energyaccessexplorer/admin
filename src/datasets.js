@@ -431,11 +431,13 @@ export const model = {
 		},
 		function(_, form) {
 			const metadatadetails = form.querySelector('details[name="metadata"]');
+			const summary = metadatadetails.querySelector('summary');
+			summary.style = "position: relative;";
 
 			const button = document.createElement('button');
 			button.type = 'button';
 			button.innerText = "import metadata";
-			button.style = "float: right;";
+			button.style = "position: absolute; right: 0.5em; top: -1em;";
 
 			const input = document.createElement('input');
 			input.type = 'hidden';
@@ -455,7 +457,7 @@ export const model = {
 				dt_model_search_modal('datasets', input, null);
 			}
 
-			metadatadetails.querySelector('summary').append(button);
+			summary.append(button);
 		},
 		function(object, form) {
 			const ta = form.querySelector('textarea[name="category_overrides"]');
