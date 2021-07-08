@@ -9,6 +9,59 @@ const dataset_id = url.searchParams.get('id');
 const geography_id = url.searchParams.get('geography_id');
 const category_id = url.searchParams.get('category_id');
 
+function source_files_requirements(m) {
+	let n;
+
+	switch (datatype(m)) {
+	case 'points':
+	case 'polygons':
+	case 'lines':
+		n = ['vectors'];
+		break;
+
+	case 'table':
+	case 'polygons-boundaries':
+		n = ['vectors', 'csv'];
+		break;
+
+	case 'raster':
+		n = ['raster'];
+		break;
+
+	case 'raster-mutant':
+		n = [];
+		break;
+
+	default:
+		n = [];
+		break;
+	}
+
+	return n;
+};
+
+function source_files_validate(data, newdata) {
+	const reqs = source_files_requirements(data);
+
+	const existing = newdata['source_files'].map(s => s.func);
+
+	let ok = true;
+
+	for (const r of reqs) {
+		if (existing.indexOf(r) < 0) {
+			ok = false;
+
+			dt_flash.push({
+				type: 'error',
+				title: `Source Files are incomplete`,
+				message: `'${r}' element is missing.`
+			});
+		}
+	}
+
+	return ok;
+};
+
 const clonable_attrs = [
 	'geography_id',
 	'category_id',
@@ -101,6 +154,28 @@ export const model = {
 			"label": "Pack",
 			"pattern": "^[a-z][a-z0-9\-]+$",
 			"default": "all",
+		},
+
+		"source_files": {
+			"type": "array",
+			"nullable": false,
+			"validate": source_files_validate,
+			"schema": {
+				"type": "object",
+				"schema": {
+					"func": {
+						"type": "select",
+						"required": true,
+						"options": ["vectors", "raster", "csv"]
+					},
+
+					"endpoint": {
+						"type": "string",
+						"required": true,
+						"pattern": "^https://(.+)"
+					},
+				}
+			}
 		},
 
 		"configuration": {
