@@ -1,8 +1,0 @@
-table td:nth-of-type(7),
-table td:nth-of-type(8) {
-  text-align: center;
-}
-
-table td:nth-of-type(9) {
-  text-align: right;
-}

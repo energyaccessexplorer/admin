@@ -7,23 +7,25 @@
 
   <td bind="name"></td>
 
-  <td bind="cca3"></td>
+  <td bind="cca3"
+      style="text-align: center; font-family: monospace;"></td>
 
-  <td bind="adm"></td>
+  <td bind="adm"
+      style="text-align: center; font-family: monospace;"></td>
 
-  <td>
+  <td style="text-align: center;">
     <span bind-icon="production"
           title="deployed in production"
           bind-cond="inproduction"></span>
   </td>
 
-  <td>
+  <td style="text-align: center;">
     <span bind-icon="staging"
           title="deployed in staging"
           bind-cond="instaging"></span>
   </td>
 
-  <td>
+  <td style="text-align: right;">
     <a bind-attr="href"
        bind-value="id"
        bind-format="/?model=datasets&geography_id={0}">

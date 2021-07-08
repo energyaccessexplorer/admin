@@ -4,11 +4,13 @@
 
   <td bind="name_long"></td>
 
-  <td bind="name"></td>
+  <td bind="name"
+      style="font-family: monospace;"></td>
 
-  <td bind="unit"></td>
+  <td bind="unit"
+      style="font-family: monospace; text-align: center;"></td>
 
-  <td>
+  <td style="text-align: right;">
     <a bind-attr="href"
        bind-value="id"
        bind-format="/?model=datasets&category_id={0}">

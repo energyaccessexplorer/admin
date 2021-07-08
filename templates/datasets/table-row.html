@@ -28,19 +28,19 @@
     <span bind="category_name"></span>
   </td>
 
-  <td>
+  <td style="text-align: center;">
     <span title="deployed in production"
           bind-icon="production"
           bind-cond="inproduction"></span>
   </td>
 
-  <td>
+  <td style="text-align: center;">
     <span title="deployed in staging"
           bind-icon="staging"
           bind-cond="instaging"></span>
   </td>
 
-  <td>
+  <td style="text-align: right;">
     <a bind-attr="href"
        bind-value="id"
        bind-format="/?model=_datasets_files&dataset_id={0}">
