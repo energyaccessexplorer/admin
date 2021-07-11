@@ -98,6 +98,10 @@ export function init() {
 		f.querySelector('select.type').style.display = 'none';
 	}
 
+	const btn = ce('a', font_icon('plus'));
+	btn.onclick = _ => dt_new(this, null);
+	dt_action(btn);
+
 	return false;
 };
 
