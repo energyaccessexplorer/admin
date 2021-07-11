@@ -42,11 +42,11 @@ dt_fetchables = {
 			return {
 				table: 'datasets',
 				query: {
-					"select": ['id', 'geography_name', 'category_name', 'category_id'],
+					"select": ['id', 'name', 'name_long', 'geography_name', 'category_name', 'category_id'],
 					"category_name": `ilike.*${v}*`
 				},
 				input: x => x['id'],
-				descriptor: x => `${x.geography_name} - ${x.category_name}`,
+				descriptor: x => `${x.geography_name} - ${x.category_name} -- ${x.name} -- ${x.name_long}`,
 				value: v,
 				threshold: 2
 			}
