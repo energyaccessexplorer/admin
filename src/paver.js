@@ -10,10 +10,16 @@ export async function routine(obj) {
 		"select": ["*"],
 	}, { one: true });
 
-	if (c.vectors && c.analysis)
+	switch (obj.data.datatype) {
+	case 'lines':
+	case 'points':
+	case 'polygons':
 		clip_proximity(obj);
-	else if (c.raster)
-		console.warn("nothing implemented for", obj, c);
+		break;
+
+	default:
+		break;
+	}
 };
 
 export async function submit(routine, payload) {
@@ -28,7 +34,7 @@ export async function submit(routine, payload) {
 
 	socket.listen(m => infopre.innerText += "\n" + m);
 
-	const response = await fetch(`${dt_paver.base}/routines?routine=${routine}`, {
+	return fetch(`${dt_paver.base}/routines?routine=${routine}`, {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/x-www-form-urlencoded',
@@ -44,6 +50,8 @@ ${r.status} - ${r.statusText}
 
 ${msg}`;
 		}
+
+		return r;
 	});
 };
 
@@ -70,7 +78,12 @@ async function clip_proximity(obj) {
 
 	payload.fields = Array.from(new Set(payload.fields)).sort();
 
-	payload.dataseturl = obj.data._datasets_files.find(x => x.active && x.func === 'vectors')['file']['endpoint'];
+	payload.dataseturl = maybe(obj.data.source_files.find(x => x.func === 'vectors'), 'endpoint');
+
+	if (!payload.dataseturl) {
+		alert("Could not get endpoint for the vectors source file. Check that...");
+		return;
+	}
 
 	const r = await dt_client.get('geographies', {
 		"id": `eq.${payload.geographyid}`,
@@ -114,8 +127,6 @@ async function clip_proximity(obj) {
 
 	form.querySelector('input[name=fields]').value = payload.fields;
 	form.querySelector('input[name=dataseturl]').value = payload.dataseturl;
-
-	console.log(payload);
 
 	m.show();
 };

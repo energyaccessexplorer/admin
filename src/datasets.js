@@ -416,7 +416,11 @@ export const model = {
 	},
 
 	"parse": function(m) {
-		m.haspaver = ['points'].includes(m.datatype);
+		m.haspaver = [
+			'points',
+			'lines',
+			'polygons',
+		].includes(m.datatype);
 
 		m.inproduction = m.deployment.indexOf("production") > -1;
 		m.instaging = m.deployment.indexOf("staging") > -1;
