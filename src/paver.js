@@ -118,7 +118,52 @@ async function clip_proximity(obj) {
 
 	c.querySelector('button#submit').onclick = function(e) {
 		e.preventDefault();
-		submit('clip-proximity', payload);
+
+		submit('clip-proximity', payload)
+			.then(async r => {
+				const j = await r.json();
+
+				await Promise.all([
+					dt_client.post('files', null, {
+						'one': true,
+						'payload': {
+							'label': "paver-clip-proximity",
+							'endpoint': `https://wri-public-data.s3.amazonaws.com/EnergyAccess/paver-outputs/${j.vectors}`,
+							'comment': "created by paver"
+						}
+					}),
+					dt_client.post('files', null, {
+						'one': true,
+						'payload': {
+							'label': "paver-clip-proximity",
+							'endpoint': `https://wri-public-data.s3.amazonaws.com/EnergyAccess/paver-outputs/${j.raster}`,
+							'comment': "created by paver"
+						}
+					}),
+				]).then(function(responses) {
+					const [v,r] = responses;
+
+					dt_client.post('_datasets_files', null, {
+						'one': true,
+						'payload': {
+							'active': true,
+							'func': "vectors",
+							'file_id': v.id,
+							'dataset_id': payload.datasetid
+						}
+					});
+
+					dt_client.post('_datasets_files', null, {
+						'one': true,
+						'payload': {
+							'active': true,
+							'func': "raster",
+							'file_id': r.id,
+							'dataset_id': payload.datasetid
+						}
+					});
+				});
+			});
 
 		this.disabled = true;
 	};
