@@ -5,12 +5,14 @@ import {
 import * as socket from './socket.js';
 
 export async function routine(obj) {
+	const d = obj.data;
+
 	const c = await dt_client.get('categories', {
-		"id": `eq.${obj.data.category_id}`,
+		"id": `eq.${d.category_id}`,
 		"select": ["*"],
 	}, { one: true });
 
-	switch (obj.data.datatype) {
+	switch (d.datatype) {
 	case 'lines':
 	case 'points':
 	case 'polygons':
@@ -56,9 +58,11 @@ ${msg}`;
 };
 
 async function clip_proximity(obj) {
+	const d = obj.data;
+
 	const payload = {
-		datasetid: obj.data.id,
-		geographyid: obj.data.geography_id,
+		datasetid: d.id,
+		geographyid: d.geography_id,
 		dataseturl: null,
 		referenceurl: null,
 		fields: [],
@@ -67,18 +71,18 @@ async function clip_proximity(obj) {
 	await obj.fetch();
 
 	let f;
-	if (f = maybe(obj.data, 'configuration', 'attributes_map'))
+	if (f = maybe(d, 'configuration', 'attributes_map'))
 		payload.fields = payload.fields.concat(f.map(x => x['dataset']));
 
-	if (f = maybe(obj.data, 'configuration', 'features_specs'))
+	if (f = maybe(d, 'configuration', 'features_specs'))
 		payload.fields = payload.fields.concat(f.map(x => x['key']));
 
-	if (f = maybe(obj.data, 'configuration', 'properties_search'))
+	if (f = maybe(d, 'configuration', 'properties_search'))
 		payload.fields = payload.fields.concat(f);
 
 	payload.fields = Array.from(new Set(payload.fields)).sort();
 
-	payload.dataseturl = maybe(obj.data.source_files.find(x => x.func === 'vectors'), 'endpoint');
+	payload.dataseturl = maybe(d.source_files.find(x => x.func === 'vectors'), 'endpoint');
 
 	if (!payload.dataseturl) {
 		alert("Could not get endpoint for the vectors source file. Check that...");
