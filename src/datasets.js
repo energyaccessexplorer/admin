@@ -443,6 +443,7 @@ export const model = {
 			'points',
 			'lines',
 			'polygons',
+			'polygons-boundaries',
 		].includes(m.datatype);
 
 		m.inproduction = m.deployment.indexOf("production") > -1;
