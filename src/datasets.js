@@ -178,6 +178,29 @@ export const model = {
 			}
 		},
 
+		"processed_files": {
+			"type": "array",
+			"nullable": false,
+			"schema": {
+				"type": "object",
+				"schema": {
+					"func": {
+						"type": "string",
+						"required": true,
+						"editable": false,
+						"options": ["vectors", "raster", "csv"]
+					},
+
+					"endpoint": {
+						"type": "string",
+						"required": true,
+						"editable": false,
+						"pattern": "^https://(.+)"
+					},
+				}
+			}
+		},
+
 		"configuration": {
 			"type": "object",
 			"label": "Configuration",

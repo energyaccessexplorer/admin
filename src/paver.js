@@ -96,17 +96,17 @@ async function clip_proximity(obj) {
 
 	const referencedsid = maybe(r, 'configuration', 'divisions', 0, 'dataset_id');
 
-	if (referencedsid) {
-		const refs = await dt_client.get('_datasets_files', {
-			"dataset_id": `eq.${referencedsid}`,
-			"select": ["*", "file:files(*)"],
-		});
-
-		payload.referenceurl = maybe(refs.find(x => x.active && x.func === 'vectors'), 'file', 'endpoint');
-	} else {
-		alert("No referenceurl");
+	if (!referencedsid) {
+		alert("The outline for this geography is not setup properly.");
 		return;
 	}
+
+	const refs = await dt_client.get('datasets', {
+		"id": `eq.${referencedsid}`,
+		"select": ["processed_files"],
+	}, { one: true });
+
+	payload.referenceurl = maybe(refs.processed_files.find(x => x.func === 'vectors'), 'endpoint');
 
 	const t = await remote_tmpl('datasets/paver-clip-proximity.html');
 
@@ -127,45 +127,16 @@ async function clip_proximity(obj) {
 			.then(async r => {
 				const j = await r.json();
 
-				await Promise.all([
-					dt_client.post('files', null, {
-						'one': true,
-						'payload': {
-							'label': "paver-clip-proximity",
-							'endpoint': `https://wri-public-data.s3.amazonaws.com/EnergyAccess/paver-outputs/${j.vectors}`,
-							'comment': "created by paver"
-						}
-					}),
-					dt_client.post('files', null, {
-						'one': true,
-						'payload': {
-							'label': "paver-clip-proximity",
-							'endpoint': `https://wri-public-data.s3.amazonaws.com/EnergyAccess/paver-outputs/${j.raster}`,
-							'comment': "created by paver"
-						}
-					}),
-				]).then(function(responses) {
-					const [v,r] = responses;
-
-					dt_client.post('_datasets_files', null, {
-						'one': true,
-						'payload': {
-							'active': true,
-							'func': "vectors",
-							'file_id': v.id,
-							'dataset_id': payload.datasetid
-						}
-					});
-
-					dt_client.post('_datasets_files', null, {
-						'one': true,
-						'payload': {
-							'active': true,
-							'func': "raster",
-							'file_id': r.id,
-							'dataset_id': payload.datasetid
-						}
-					});
+				dt_client.patch('datasets', { "id": `eq.${d.id}` }, {
+					payload: {
+						"processed_files": [{
+							"func": 'vectors',
+							"endpoint": `https://wri-public-data.s3.amazonaws.com/EnergyAccess/paver-outputs/${j.vectors}`,
+						}, {
+							"func": 'raster',
+							"endpoint": `https://wri-public-data.s3.amazonaws.com/EnergyAccess/paver-outputs/${j.raster}`,
+						}]
+					}
 				});
 			});
 
@@ -175,7 +146,6 @@ async function clip_proximity(obj) {
 	const form = c.querySelector('form');
 
 	form.querySelector('input[name=fields]').value = payload.fields;
-	form.querySelector('input[name=dataseturl]').value = payload.dataseturl;
 
 	m.show();
 };
