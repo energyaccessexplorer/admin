@@ -6,6 +6,19 @@ export const base = 'geographies';
 
 export const header = "Geographies";
 
+function envelope_validate(data, newdata) {
+	if (!maybe(newdata, 'envelope', 'length')) return true;
+
+	const e = newdata['envelope'];
+
+	return and(e[0] >= -180,
+						 e[1] <=  180,
+						 e[0] <  e[1],
+						 e[2] >=  -90,
+						 e[3] <=   90,
+						 e[2] <  e[3]);
+};
+
 export const model = {
 	"main": "name",
 
@@ -46,6 +59,16 @@ export const model = {
 			"schema": {
 				"type": "string",
 				"options": ["staging", "production"],
+				"required": true
+			}
+		},
+
+		"envelope": {
+			"type": "array",
+			"validate": envelope_validate,
+			"schema": {
+				"type": "number",
+				"step": "any",
 				"required": true
 			}
 		},
