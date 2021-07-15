@@ -69,6 +69,7 @@ export const model = {
 			"schema": {
 				"type": "number",
 				"step": "any",
+				"editable": false,
 				"required": true
 			}
 		},

@@ -29,6 +29,8 @@ function source_files_requirements(m) {
 		break;
 
 	case 'raster-mutant':
+	case 'polygons-fixed':
+	case 'polygons-timeline':
 		n = [];
 		break;
 

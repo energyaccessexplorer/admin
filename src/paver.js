@@ -104,11 +104,10 @@ async function outline(obj) {
 		geojson_summary_iframe(obj);
 	};
 
-	const f = c.querySelector('form');
-	f.onsubmit = function(e) {
+	c.querySelector('form').onsubmit = function(e) {
 		e.preventDefault();
 
-		payload.field = f.querySelector('form input[name=field]').value;
+		payload.field = this.querySelector('input[name=field]').value;
 
 		submit('admin-boundaries', payload)
 			.then(async r => {
@@ -127,7 +126,6 @@ async function outline(obj) {
 				});
 
 				const {Left, Bottom, Right, Top} = j.info.bounds;
-				console.log(j.info.bounds);
 
 				dt_client.patch('geographies', { "id": `eq.${d.geography_id}` }, {
 					payload: {
@@ -178,11 +176,10 @@ async function admin_boundaries(obj) {
 		geojson_summary_iframe(obj);
 	};
 
-	const f = c.querySelector('form');
-	f.onsubmit = function(e) {
+	c.querySelector('form').onsubmit = function(e) {
 		e.preventDefault();
 
-		payload.field = f.querySelector('form input[name=field]').value;
+		payload.field = this.querySelector('input[name=field]').value;
 
 		submit('admin-boundaries', payload)
 			.then(async r => {
@@ -266,11 +263,14 @@ async function clip_proximity(obj) {
 	});
 
 	const c = m.content;
+
+	c.querySelector('form input[name=fields]').value = payload.fields;
+
 	c.querySelector('button[bind=geojson]').onclick = function() {
 		geojson_summary_iframe(obj);
 	};
 
-	c.querySelector('button#submit').onclick = function(e) {
+	c.querySelector('form').onsubmit = function(e) {
 		e.preventDefault();
 
 		submit('clip-proximity', payload)
@@ -292,10 +292,6 @@ async function clip_proximity(obj) {
 
 		this.disabled = true;
 	};
-
-	const form = c.querySelector('form');
-
-	form.querySelector('input[name=fields]').value = payload.fields;
 
 	m.show();
 };
