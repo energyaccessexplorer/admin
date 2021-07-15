@@ -7,35 +7,113 @@ import * as socket from './socket.js';
 export async function routine(obj) {
 	const d = obj.data;
 
-	const c = await dt_client.get('categories', {
-		"id": `eq.${d.category_id}`,
-		"select": ["*"],
-	}, { one: true });
+	const payload = {
+		geographyid: d.geography_id,
+		datasetid: d.id,
+		dataseturl: null,
+		field: null,
+		fields: [],
+	};
+
+	let fn;
+	let datasets_func;
+	let template;
+	let header;
 
 	switch (d.datatype) {
 	case 'lines':
 	case 'points':
 	case 'polygons':
-		clip_proximity(obj);
+		fn = clip_proximity;
+		datasets_func = 'vectors';
+		template = 'datasets/paver-clip-proximity.html';
+		header = "Clip Proximity";
 		break;
 
 	case 'polygons-boundaries':
-		if (d.category_name === 'boundaries')
-			admin_boundaries(obj);
-		else if (d.category_name === 'outline')
-			outline(obj);
+		datasets_func = 'vectors';
+		template = 'datasets/paver-outline.html';
+
+		if (d.category_name === 'boundaries') {
+			header = "Admin Boundaries";
+			fn = admin_boundaries;
+		}
+		else if (d.category_name === 'outline') {
+			header = "Outline";
+			fn = outline;
+		}
 		break;
 
 	case 'raster':
-		crop_raster(obj);
+		datasets_func = 'raster';
+		template = 'datasets/paver-crop-raster.html';
+		fn = crop_raster;
+		header = "Crop Raster";
 		break;
 
 	default:
 		break;
 	}
+
+	await obj.fetch();
+
+	set_dataset_url(d, payload, datasets_func);
+	set_reference_url(payload);
+
+	const t = await remote_tmpl(template);
+
+	const m = new modal('paver-modal', {
+		header,
+		content: t.innerHTML,
+	});
+
+	const c = m.content;
+	const f = c.querySelector('form');
+	const g = f.querySelector('button[bind=geojson]');
+
+	if (g) g.onclick = _ => geojson_summary_iframe(obj);
+
+	const s = await fn(obj, payload, c);
+
+	f.onsubmit = function(e) {
+		e.preventDefault();
+		s();
+	};
+
+	m.show();
 };
 
-export async function submit(routine, payload) {
+async function set_reference_url(payload) {
+	const r = await dt_client.get('geographies', {
+		"id": `eq.${payload.geographyid}`,
+		"select": ["configuration"],
+	}, { one: true });
+
+	const rid = maybe(r, 'configuration', 'divisions', 0, 'dataset_id');
+
+	if (!rid) {
+		alert("The outline for this geography is not setup properly.");
+		return;
+	}
+
+	const refs = await dt_client.get('datasets', {
+		"id": `eq.${rid}`,
+		"select": ["processed_files"],
+	}, { one: true });
+
+	payload.referenceurl = maybe(refs.processed_files.find(x => x.func === 'vectors'), 'endpoint');
+};
+
+function set_dataset_url(d, payload, func) {
+	payload.dataseturl = maybe(d.source_files.find(x => x.func === func), 'endpoint');
+
+	if (!payload.dataseturl) {
+		alert(`Could not get endpoint for the ${func} source file. Check that...`);
+		return;
+	}
+}
+
+async function submit(routine, payload, modal) {
 	const body = [];
 	for (const p in payload)
 		body.push(
@@ -43,7 +121,7 @@ export async function submit(routine, payload) {
 				"=" +
 				encodeURIComponent(payload[p]));
 
-	const infopre = document.getElementById('infopre');
+	const infopre = modal.querySelector('#infopre');
 
 	socket.listen(m => infopre.innerText += "\n" + m);
 
@@ -68,52 +146,15 @@ ${msg}`;
 	});
 };
 
-async function outline(obj) {
-	const d = obj.data;
+async function outline(obj, payload, modal) {
+	return function() {
+		payload.field = modal.querySelector('form input[name=field]').value;
 
-	const payload = {
-		geographyid: d.geography_id,
-		datasetid: d.id,
-		dataseturl: null,
-		field: null,
-	};
-
-	await obj.fetch();
-
-	payload.dataseturl = maybe(d.source_files.find(x => x.func === 'vectors'), 'endpoint');
-
-	if (!payload.dataseturl) {
-		alert("Could not get endpoint for the vectors source file. Check that...");
-		return;
-	}
-
-	const r = await dt_client.get('geographies', {
-		"id": `eq.${d.geography_id}`,
-		"select": ["configuration"],
-	}, { one: true });
-
-	const t = await remote_tmpl('datasets/paver-outline.html');
-
-	const m = new modal('paver-modal', {
-		header: "Outline",
-		content: t.innerHTML,
-	});
-
-	const c = m.content;
-	c.querySelector('button[bind=geojson]').onclick = function() {
-		geojson_summary_iframe(obj);
-	};
-
-	c.querySelector('form').onsubmit = function(e) {
-		e.preventDefault();
-
-		payload.field = this.querySelector('input[name=field]').value;
-
-		submit('admin-boundaries', payload)
+		submit('admin-boundaries', payload, modal)
 			.then(async r => {
 				const j = await r.json();
 
-				dt_client.patch('datasets', { "id": `eq.${d.id}` }, {
+				dt_client.patch('datasets', { "id": `eq.${obj.data.id}` }, {
 					payload: {
 						"processed_files": [{
 							"func": 'vectors',
@@ -127,65 +168,24 @@ async function outline(obj) {
 
 				const {Left, Bottom, Right, Top} = j.info.bounds;
 
-				dt_client.patch('geographies', { "id": `eq.${d.geography_id}` }, {
+				dt_client.patch('geographies', { "id": `eq.${obj.data.geography_id}` }, {
 					payload: {
 						"envelope": [Left, Bottom, Right, Top]
 					}
 				});
 			});
-
-		this.disabled = true;
 	};
-
-	m.show();
 };
 
-async function admin_boundaries(obj) {
-	const d = obj.data;
+async function admin_boundaries(obj, payload, modal) {
+	return function() {
+		payload.field = modal.querySelector('form input[name=field]').value;
 
-	const payload = {
-		geographyid: d.geography_id,
-		datasetid: d.id,
-		dataseturl: null,
-		field: null,
-	};
-
-	await obj.fetch();
-
-	payload.dataseturl = maybe(d.source_files.find(x => x.func === 'vectors'), 'endpoint');
-
-	if (!payload.dataseturl) {
-		alert("Could not get endpoint for the vectors source file. Check that...");
-		return;
-	}
-
-	const r = await dt_client.get('geographies', {
-		"id": `eq.${payload.geographyid}`,
-		"select": ["configuration"],
-	}, { one: true });
-
-	const t = await remote_tmpl('datasets/paver-admin-boundaries.html');
-
-	const m = new modal('paver-modal', {
-		header: "Admin Boundaries",
-		content: t.innerHTML,
-	});
-
-	const c = m.content;
-	c.querySelector('button[bind=geojson]').onclick = function() {
-		geojson_summary_iframe(obj);
-	};
-
-	c.querySelector('form').onsubmit = function(e) {
-		e.preventDefault();
-
-		payload.field = this.querySelector('input[name=field]').value;
-
-		submit('admin-boundaries', payload)
+		submit('admin-boundaries', payload, modal)
 			.then(async r => {
 				const j = await r.json();
 
-				dt_client.patch('datasets', { "id": `eq.${d.id}` }, {
+				dt_client.patch('datasets', { "id": `eq.${obj.data.id}` }, {
 					payload: {
 						"processed_files": [{
 							"func": 'vectors',
@@ -197,87 +197,30 @@ async function admin_boundaries(obj) {
 					}
 				});
 			});
-
-		this.disabled = true;
 	};
-
-	m.show();
 };
 
-async function clip_proximity(obj) {
-	const d = obj.data;
-
-	const payload = {
-		datasetid: d.id,
-		geographyid: d.geography_id,
-		dataseturl: null,
-		referenceurl: null,
-		fields: [],
-	};
-
-	await obj.fetch();
-
+async function clip_proximity(obj, payload, modal) {
 	let f;
-	if (f = maybe(d, 'configuration', 'attributes_map'))
+	if (f = maybe(obj.data, 'configuration', 'attributes_map'))
 		payload.fields = payload.fields.concat(f.map(x => x['dataset']));
 
-	if (f = maybe(d, 'configuration', 'features_specs'))
+	if (f = maybe(obj.data, 'configuration', 'features_specs'))
 		payload.fields = payload.fields.concat(f.map(x => x['key']));
 
-	if (f = maybe(d, 'configuration', 'properties_search'))
+	if (f = maybe(obj.data, 'configuration', 'properties_search'))
 		payload.fields = payload.fields.concat(f);
 
 	payload.fields = Array.from(new Set(payload.fields)).sort();
 
-	payload.dataseturl = maybe(d.source_files.find(x => x.func === 'vectors'), 'endpoint');
+	modal.querySelector('form input[name=fields]').value = payload.fields;
 
-	if (!payload.dataseturl) {
-		alert("Could not get endpoint for the vectors source file. Check that...");
-		return;
-	}
-
-	const r = await dt_client.get('geographies', {
-		"id": `eq.${payload.geographyid}`,
-		"select": ["configuration"],
-	}, { one: true });
-
-	const referencedsid = maybe(r, 'configuration', 'divisions', 0, 'dataset_id');
-
-	if (!referencedsid) {
-		alert("The outline for this geography is not setup properly.");
-		return;
-	}
-
-	const refs = await dt_client.get('datasets', {
-		"id": `eq.${referencedsid}`,
-		"select": ["processed_files"],
-	}, { one: true });
-
-	payload.referenceurl = maybe(refs.processed_files.find(x => x.func === 'vectors'), 'endpoint');
-
-	const t = await remote_tmpl('datasets/paver-clip-proximity.html');
-
-	const m = new modal('paver-modal', {
-		header: "Clip Proximity",
-		content: t.innerHTML,
-	});
-
-	const c = m.content;
-
-	c.querySelector('form input[name=fields]').value = payload.fields;
-
-	c.querySelector('button[bind=geojson]').onclick = function() {
-		geojson_summary_iframe(obj);
-	};
-
-	c.querySelector('form').onsubmit = function(e) {
-		e.preventDefault();
-
-		submit('clip-proximity', payload)
+	return function() {
+		submit('clip-proximity', payload, modal)
 			.then(async r => {
 				const j = await r.json();
 
-				dt_client.patch('datasets', { "id": `eq.${d.id}` }, {
+				dt_client.patch('datasets', { "id": `eq.${obj.data.id}` }, {
 					payload: {
 						"processed_files": [{
 							"func": 'vectors',
@@ -289,68 +232,16 @@ async function clip_proximity(obj) {
 					}
 				});
 			});
-
-		this.disabled = true;
 	};
-
-	m.show();
 };
 
-async function crop_raster(obj) {
-	const d = obj.data;
-
-	const payload = {
-		geographyid: d.geography_id,
-		datasetid: d.id,
-		dataseturl: null,
-		referenceurl: null,
-	};
-
-	await obj.fetch();
-
-	payload.dataseturl = maybe(d.source_files.find(x => x.func === 'raster'), 'endpoint');
-
-	if (!payload.dataseturl) {
-		alert("Could not get endpoint for the raster source file. Check that...");
-		return;
-	}
-
-	const r = await dt_client.get('geographies', {
-		"id": `eq.${payload.geographyid}`,
-		"select": ["configuration"],
-	}, { one: true });
-
-	const referencedsid = maybe(r, 'configuration', 'divisions', 0, 'dataset_id');
-
-	if (!referencedsid) {
-		alert("The outline for this geography is not setup properly.");
-		return;
-	}
-
-	const refs = await dt_client.get('datasets', {
-		"id": `eq.${referencedsid}`,
-		"select": ["processed_files"],
-	}, { one: true });
-
-	payload.referenceurl = maybe(refs.processed_files.find(x => x.func === 'vectors'), 'endpoint');
-
-	const t = await remote_tmpl('datasets/paver-crop-raster.html');
-
-	const m = new modal('paver-modal', {
-		header: "Crop Raster",
-		content: t.innerHTML,
-	});
-
-	const c = m.content;
-
-	c.querySelector('form').onsubmit = function(e) {
-		e.preventDefault();
-
-		submit('crop-raster', payload)
+async function crop_raster(obj, payload, modal) {
+	return function() {
+		submit('crop-raster', payload, modal)
 			.then(async r => {
 				const j = await r.json();
 
-				dt_client.patch('datasets', { "id": `eq.${d.id}` }, {
+				dt_client.patch('datasets', { "id": `eq.${obj.data.id}` }, {
 					payload: {
 						"processed_files": [{
 							"func": 'raster',
@@ -359,9 +250,5 @@ async function crop_raster(obj) {
 					}
 				});
 			});
-
-		this.disabled = true;
 	};
-
-	m.show();
 };
