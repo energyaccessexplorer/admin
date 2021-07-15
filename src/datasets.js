@@ -451,7 +451,6 @@ export const model = {
 
 		m.inproduction = m.deployment.indexOf("production") > -1;
 		m.instaging = m.deployment.indexOf("staging") > -1;
-		m.file_count = m.files ? m.files.length : "?";
 		m.ok = !m.flagged;
 		return m;
 	},
@@ -551,7 +550,7 @@ export const collection = {
 	"filters": ['name', 'name_long', 'category_name'],
 
 	"endpoint": function() {
-		const attrs = ['id', 'datatype', 'deployment', 'flagged', 'name', 'category(*)', 'category_id', 'category_name', 'geography_circle', 'pack', 'geography_id', 'files(id)', '_datasets_files(*,file:files(endpoint))', 'created', 'created_by', 'updated', 'updated_by'];
+		const attrs = ['id', 'datatype', 'deployment', 'flagged', 'name', 'category(*)', 'category_id', 'category_name', 'geography_circle', 'pack', 'geography_id', 'created', 'created_by', 'updated', 'updated_by'];
 		const params = { "select": attrs };
 
 		if (dataset_id)

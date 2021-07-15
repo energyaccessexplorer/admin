@@ -52,40 +52,11 @@ dt_fetchables = {
 			}
 		}
 	},
-
-	"files": {
-		primary: 'id',
-		placeholder: "label (optional)",
-		options: function(v) {
-			const u = new URL(location);
-			const em = u.searchParams.get('edit_model');
-
-			const q = {
-				"select": ['id', 'label', 'endpoint'],
-			};
-
-			if (dt_model === 'datasets' && em && em.match(UUID_REGEXP))
-				q['dataset_id'] = `eq.${em}`;
-
-			if (v === '' || v === null) ;
-			else q['label'] = `ilike.*${v}*`;
-
-			return {
-				table: 'files',
-				query: q,
-				input: x => x['id'],
-				descriptor: x => `${x.label} - <code>${x.endpoint}</code>`,
-				value: v,
-				threshold: 0
-			};
-		}
-	}
 };
 
 dt_navlist = [
 	["geographies", "Geographies", "globe"],
 	["categories", "Categories", "list-nested"],
-	["files", "Files", "file-earmark"],
 ];
 
 dt_paver = {
