@@ -78,10 +78,6 @@ export const model = {
 					"options": ["", "linear", "intervals"],
 					"default": "linear"
 				},
-				"precision": {
-					"type": "number",
-					"hint": "Tell the tool to show numbers with this amount of decimals."
-				},
 				"intervals": {
 					"type": "array",
 					"nullable": true,
