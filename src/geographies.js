@@ -12,11 +12,11 @@ function envelope_validate(data, newdata) {
 	const e = newdata['envelope'];
 
 	return and(e[0] >= -180,
-						 e[1] <=  180,
-						 e[0] <  e[1],
-						 e[2] >=  -90,
+						 e[2] <=  180,
+						 e[0] <  e[2],
+						 e[1] >=  -90,
 						 e[3] <=   90,
-						 e[2] <  e[3]);
+						 e[1] <  e[3]);
 };
 
 export const model = {
