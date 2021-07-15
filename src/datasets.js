@@ -442,6 +442,7 @@ export const model = {
 		m.haspaver = [
 			'points',
 			'lines',
+			'raster',
 			'polygons',
 			'polygons-boundaries',
 		].includes(m.datatype);

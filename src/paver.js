@@ -26,6 +26,10 @@ export async function routine(obj) {
 			outline(obj);
 		break;
 
+	case 'raster':
+		crop_raster(obj);
+		break;
+
 	default:
 		break;
 	}
@@ -292,6 +296,76 @@ async function clip_proximity(obj) {
 	const form = c.querySelector('form');
 
 	form.querySelector('input[name=fields]').value = payload.fields;
+
+	m.show();
+};
+
+async function crop_raster(obj) {
+	const d = obj.data;
+
+	const payload = {
+		geographyid: d.geography_id,
+		datasetid: d.id,
+		dataseturl: null,
+		referenceurl: null,
+	};
+
+	await obj.fetch();
+
+	payload.dataseturl = maybe(d.source_files.find(x => x.func === 'raster'), 'endpoint');
+
+	if (!payload.dataseturl) {
+		alert("Could not get endpoint for the raster source file. Check that...");
+		return;
+	}
+
+	const r = await dt_client.get('geographies', {
+		"id": `eq.${payload.geographyid}`,
+		"select": ["configuration"],
+	}, { one: true });
+
+	const referencedsid = maybe(r, 'configuration', 'divisions', 0, 'dataset_id');
+
+	if (!referencedsid) {
+		alert("The outline for this geography is not setup properly.");
+		return;
+	}
+
+	const refs = await dt_client.get('datasets', {
+		"id": `eq.${referencedsid}`,
+		"select": ["processed_files"],
+	}, { one: true });
+
+	payload.referenceurl = maybe(refs.processed_files.find(x => x.func === 'vectors'), 'endpoint');
+
+	const t = await remote_tmpl('datasets/paver-crop-raster.html');
+
+	const m = new modal('paver-modal', {
+		header: "Crop Raster",
+		content: t.innerHTML,
+	});
+
+	const c = m.content;
+
+	c.querySelector('form').onsubmit = function(e) {
+		e.preventDefault();
+
+		submit('crop-raster', payload)
+			.then(async r => {
+				const j = await r.json();
+
+				dt_client.patch('datasets', { "id": `eq.${d.id}` }, {
+					payload: {
+						"processed_files": [{
+							"func": 'raster',
+							"endpoint": `https://wri-public-data.s3.amazonaws.com/EnergyAccess/paver-outputs/${j.raster}`,
+						}]
+					}
+				});
+			});
+
+		this.disabled = true;
+	};
 
 	m.show();
 };
