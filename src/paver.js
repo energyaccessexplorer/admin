@@ -57,8 +57,33 @@ export async function routine(obj) {
 
 	await obj.fetch();
 
-	set_dataset_url(d, payload, datasets_func);
-	set_reference_url(payload);
+	(async function payload_fill() {
+		payload.dataseturl = maybe(d.source_files.find(x => x.func === datasets_func), 'endpoint');
+
+		if (!payload.dataseturl) {
+			alert(`Could not get endpoint for the ${datasets_func} source file. Check that...`);
+			return;
+		}
+
+		const r = await dt_client.get('geographies', {
+			"id": `eq.${payload.geographyid}`,
+			"select": ["configuration"],
+		}, { one: true });
+
+		const rid = maybe(r, 'configuration', 'divisions', 0, 'dataset_id');
+
+		if (!rid) {
+			alert("The outline for this geography is not setup properly.");
+			return;
+		}
+
+		const refs = await dt_client.get('datasets', {
+			"id": `eq.${rid}`,
+			"select": ["processed_files"],
+		}, { one: true });
+
+		payload.referenceurl = maybe(refs.processed_files.find(x => x.func === 'vectors'), 'endpoint');
+	})();
 
 	const t = await remote_tmpl(template);
 
@@ -82,36 +107,6 @@ export async function routine(obj) {
 
 	m.show();
 };
-
-async function set_reference_url(payload) {
-	const r = await dt_client.get('geographies', {
-		"id": `eq.${payload.geographyid}`,
-		"select": ["configuration"],
-	}, { one: true });
-
-	const rid = maybe(r, 'configuration', 'divisions', 0, 'dataset_id');
-
-	if (!rid) {
-		alert("The outline for this geography is not setup properly.");
-		return;
-	}
-
-	const refs = await dt_client.get('datasets', {
-		"id": `eq.${rid}`,
-		"select": ["processed_files"],
-	}, { one: true });
-
-	payload.referenceurl = maybe(refs.processed_files.find(x => x.func === 'vectors'), 'endpoint');
-};
-
-function set_dataset_url(d, payload, func) {
-	payload.dataseturl = maybe(d.source_files.find(x => x.func === func), 'endpoint');
-
-	if (!payload.dataseturl) {
-		alert(`Could not get endpoint for the ${func} source file. Check that...`);
-		return;
-	}
-}
 
 async function submit(routine, payload, modal) {
 	const body = [];

@@ -87,7 +87,7 @@ export const model = {
 						"type": "number",
 						"required": true
 					}
-				}
+				},
 			}
 		},
 
