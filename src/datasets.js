@@ -12,7 +12,7 @@ const category_id = url.searchParams.get('category_id');
 function source_files_requirements(m) {
 	let n;
 
-	switch (datatype(m)) {
+	switch (m.datatype) {
 	case 'points':
 	case 'polygons':
 	case 'lines':
@@ -101,7 +101,7 @@ export const base = 'datasets';
 export const model = {
 	"main": m => "&nbsp;",
 
-	"columns": ["category_name", "geography_name"],
+	"columns": ["datatype", "category_name", "geography_name"],
 
 	"schema": {
 		"category_id": {
