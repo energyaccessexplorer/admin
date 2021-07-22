@@ -9,64 +9,6 @@ const dataset_id = url.searchParams.get('id');
 const geography_id = url.searchParams.get('geography_id');
 const category_id = url.searchParams.get('category_id');
 
-function source_files_requirements(m) {
-	let n;
-
-	switch (m.datatype) {
-	case 'points':
-	case 'polygons':
-	case 'lines':
-		n = ['vectors'];
-		break;
-
-	case 'table':
-	case 'polygons-boundaries':
-		if (m.category_name === 'outline')
-			n = ['vectors'];
-		else
-			n = ['vectors', 'csv'];
-		break;
-
-	case 'raster':
-		n = ['raster'];
-		break;
-
-	case 'raster-mutant':
-	case 'polygons-fixed':
-	case 'polygons-timeline':
-		n = [];
-		break;
-
-	default:
-		n = [];
-		break;
-	}
-
-	return n;
-};
-
-function source_files_validate(data, newdata) {
-	const reqs = source_files_requirements(data);
-
-	const existing = newdata['source_files'].map(s => s.func);
-
-	let ok = true;
-
-	for (const r of reqs) {
-		if (existing.indexOf(r) < 0) {
-			ok = false;
-
-			dt_flash.push({
-				type: 'error',
-				title: `Source Files are incomplete`,
-				message: `'${r}' element is missing.`
-			});
-		}
-	}
-
-	return ok;
-};
-
 const clonable_attrs = [
 	'geography_id',
 	'category_id',
@@ -77,27 +19,6 @@ const clonable_attrs = [
 	'presets',
 	'metadata'
 ];
-
-function clone() {
-	const t = arguments[0];
-
-	const data = {};
-
-	for (const k of clonable_attrs)
-		data[k] = t.data[k];
-
-	const n = (t.data.name || t.data.category_name);
-
-	data['name'] = n + "-clone-" + (new Date).getTime();
-
-	const o = new dt_object({
-		"model": model,
-		"data": data,
-		"collection": t.collection,
-	});
-
-	if (confirm(`Clone '${n}' dataset?`)) o.create();
-};
 
 export const base = 'datasets';
 
@@ -621,4 +542,83 @@ function flag(obj) {
 	data.flagged = !data.flagged;
 
 	obj.patch(data);
+};
+
+function clone() {
+	const t = arguments[0];
+
+	const data = {};
+
+	for (const k of clonable_attrs)
+		data[k] = t.data[k];
+
+	const n = (t.data.name || t.data.category_name);
+
+	data['name'] = n + "-clone-" + (new Date).getTime();
+
+	const o = new dt_object({
+		"model": model,
+		"data": data,
+		"collection": t.collection,
+	});
+
+	if (confirm(`Clone '${n}' dataset?`)) o.create();
+};
+
+function source_files_requirements(m) {
+	let n;
+
+	switch (m.datatype) {
+	case 'points':
+	case 'polygons':
+	case 'lines':
+		n = ['vectors'];
+		break;
+
+	case 'table':
+	case 'polygons-boundaries':
+		if (m.category_name === 'outline')
+			n = ['vectors'];
+		else
+			n = ['vectors', 'csv'];
+		break;
+
+	case 'raster':
+		n = ['raster'];
+		break;
+
+	case 'raster-mutant':
+	case 'polygons-fixed':
+	case 'polygons-timeline':
+		n = [];
+		break;
+
+	default:
+		n = [];
+		break;
+	}
+
+	return n;
+};
+
+function source_files_validate(data, newdata) {
+	const reqs = source_files_requirements(data);
+
+	const existing = newdata['source_files'].map(s => s.func);
+
+	let ok = true;
+
+	for (const r of reqs) {
+		if (existing.indexOf(r) < 0) {
+			ok = false;
+
+			dt_flash.push({
+				type: 'error',
+				title: `Source Files are incomplete`,
+				message: `'${r}' element is missing.`
+			});
+		}
+	}
+
+	return ok;
 };
