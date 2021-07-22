@@ -71,6 +71,7 @@ export const model = {
 			"type": "object",
 			"label": "Raster configuration",
 			"nullable": true,
+			"validate": raster_paver_validate,
 			"schema": {
 				"scale": {
 					"type": "select",
@@ -394,4 +395,18 @@ export const collection = {
 	"sort_by": 'dscount',
 
 	"order": -1
+};
+
+function raster_paver_validate(data, newdata) {
+	if (and(maybe(newdata, 'raster', 'paver'),
+	        or(newdata['vectors'], newdata['csv']))) {
+		dt_flash.push({
+			type: 'error',
+			title: "Paver configuration error",
+			message: "Only pure raster categories require a paver->raster configuration",
+		});
+		return false;
+	}
+
+	return true;
 };

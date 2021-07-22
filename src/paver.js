@@ -25,14 +25,15 @@ export async function routine(obj) {
 	switch (d.datatype) {
 	case 'lines':
 	case 'points':
-	case 'polygons':
+	case 'polygons': {
 		fn = clip_proximity;
 		datasets_func = 'vectors';
 		template = 'datasets/paver-clip-proximity.html';
 		header = "Clip Proximity";
 		break;
+	}
 
-	case 'polygons-boundaries':
+	case 'polygons-boundaries': {
 		datasets_func = 'vectors';
 		template = 'datasets/paver-outline.html';
 
@@ -45,13 +46,15 @@ export async function routine(obj) {
 			fn = outline;
 		}
 		break;
+	}
 
-	case 'raster':
+	case 'raster': {
 		datasets_func = 'raster';
 		template = 'datasets/paver-crop-raster.html';
 		fn = crop_raster;
 		header = "Crop Raster";
 		break;
+	}
 
 	default:
 		break;
@@ -92,8 +95,9 @@ export async function routine(obj) {
 			"select": ["raster"],
 		}, { one: true });
 
-		if (!cat.raster.paver) {
-			const msg = "Category's raster->paver configuration is not setup!";
+		if (and(d.datatype === 'raster', !cat.raster.paver)) {
+			const msg = `'${d.category_name}' category raster->paver configuration is not setup!`;
+
 			dt_flash.push({
 				type: 'error',
 				title: "Configuration error",
