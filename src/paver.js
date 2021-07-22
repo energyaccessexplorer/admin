@@ -98,6 +98,24 @@ export async function routine(obj) {
 
 	if (g) g.onclick = _ => geojson_summary_iframe(obj);
 
+	(async function pavercheck() {
+		fetch(`${dt_paver.base}/routines`, {
+			method: 'OPTIONS',
+			headers: {
+				'Authorization': `Bearer ${localStorage.getItem('token')}`
+			},
+		}).then(r => {
+			if (!r.ok) {
+				const msg = "Paver is not running... :(";
+
+				m.set({ "content": msg });
+				m.show();
+
+				throw new Error(msg);
+			}
+		});
+	})();
+
 	const s = await fn(obj, payload, c);
 
 	f.onsubmit = function(e) {
