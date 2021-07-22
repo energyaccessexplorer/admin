@@ -21,7 +21,10 @@ function source_files_requirements(m) {
 
 	case 'table':
 	case 'polygons-boundaries':
-		n = ['vectors', 'csv'];
+		if (m.category_name === 'outline')
+			n = ['vectors'];
+		else
+			n = ['vectors', 'csv'];
 		break;
 
 	case 'raster':
