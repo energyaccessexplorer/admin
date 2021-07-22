@@ -88,6 +88,58 @@ export const model = {
 						"required": true
 					}
 				},
+				"paver": {
+					"type": "object",
+					"nullable": true,
+					"schema": {
+						"resample": {
+							"type": "select",
+							"options": [],
+							"required": true,
+							"hint": "https://gdal.org/programs/gdalwarp.html#cmdoption-gdalwarp-r",
+							"options": [
+								"average",
+								"sum",
+								"near",
+								"max",
+								"min",
+								"med",
+								"bilinear",
+								"cubic",
+								"cubicspline",
+								"lanczos",
+								"rms",
+								"mode",
+								"q1",
+								"q3",
+							],
+							"default": "average",
+						},
+						"numbertype": {
+							"type": "select",
+							"required": true,
+							"options": [
+								"Byte",
+								"UInt16",
+								"Int16",
+								"UInt32",
+								"Int32",
+								"Float32",
+								"Float64",
+								"CInt16",
+								"CInt32",
+								"CFloat32",
+								"CFloat64",
+							],
+							"default": "Int16"
+						},
+						"nodata": {
+							"type": "number",
+							"required": true,
+							"default": -1,
+						}
+					}
+				},
 			}
 		},
 

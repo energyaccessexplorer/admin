@@ -11,8 +11,10 @@ export async function routine(obj) {
 		geographyid: d.geography_id,
 		datasetid: d.id,
 		dataseturl: null,
+		baseurl: null,
 		field: null,
 		fields: [],
+		config: null,
 	};
 
 	let fn;
@@ -83,6 +85,14 @@ export async function routine(obj) {
 		}, { one: true });
 
 		payload.referenceurl = maybe(refs.processed_files.find(x => x.func === 'vectors'), 'endpoint');
+		payload.baseurl = maybe(refs.processed_files.find(x => x.func === 'raster'), 'endpoint');
+
+		const cat = await dt_client.get('categories', {
+			"id": `eq.${obj.data.category_id}`,
+			"select": ["raster"],
+		}, { one: true });
+
+		payload.config = JSON.stringify(cat.raster.paver);
 	})();
 
 	const t = await remote_tmpl(template);
