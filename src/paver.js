@@ -59,7 +59,7 @@ export async function routine(obj) {
 
 	await obj.fetch();
 
-	(async function payload_fill() {
+	await (async function payload_fill() {
 		payload.dataseturl = maybe(d.source_files.find(x => x.func === datasets_func), 'endpoint');
 
 		if (!payload.dataseturl) {
@@ -91,6 +91,17 @@ export async function routine(obj) {
 			"id": `eq.${obj.data.category_id}`,
 			"select": ["raster"],
 		}, { one: true });
+
+		if (!cat.raster.paver) {
+			const msg = "Category's raster->paver configuration is not setup!";
+			dt_flash.push({
+				type: 'error',
+				title: "Configuration error",
+				message: msg,
+			});
+
+			throw new Error(msg);
+		}
 
 		payload.config = JSON.stringify(cat.raster.paver);
 	})();
