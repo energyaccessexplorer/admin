@@ -77,16 +77,9 @@ export const model = {
 					"type": "boolean",
 					"default": true,
 				},
-				"scale": {
-					"type": "select",
-					"required": true,
-					"options": ["", "linear", "intervals"],
-					"default": "linear"
-				},
 				"intervals": {
 					"type": "array",
 					"nullable": true,
-					"needs": m => maybe(m.raster, 'scale') === "intervals",
 					"sortable": true,
 					"schema": {
 						"type": "number",
@@ -237,7 +230,6 @@ export const model = {
 					"type": "array",
 					"nullable": true,
 					"sortable": true,
-					"needs": m => maybe(m.raster, 'scale') === "intervals",
 					"schema": {
 						"type": "number",
 						"required": true
@@ -427,7 +419,6 @@ function raster_proximity_validate(data, newdata) {
 
 	if (and(maybe(r, 'proximity'),
 					or(maybe(r, 'intervals'),
-						 maybe(r, 'scale'),
 						 maybe(r, 'paver')))) {
 		dt_flash.push({
 			type: 'error',
