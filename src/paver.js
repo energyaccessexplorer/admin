@@ -15,6 +15,7 @@ export async function routine(obj) {
 		field: null,
 		fields: [],
 		config: null,
+		resolution: null,
 	};
 
 	let fn;
@@ -72,7 +73,7 @@ export async function routine(obj) {
 
 		const r = await dt_client.get('geographies', {
 			"id": `eq.${payload.geographyid}`,
-			"select": ["configuration"],
+			"select": ["configuration", "resolution"],
 		}, { one: true });
 
 		const rid = maybe(r, 'configuration', 'divisions', 0, 'dataset_id');
@@ -108,6 +109,8 @@ export async function routine(obj) {
 		}
 
 		payload.config = JSON.stringify(cat.raster.paver);
+
+		payload.resolution = r.resolution;
 	})();
 
 	const t = await remote_tmpl(template);

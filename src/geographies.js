@@ -74,6 +74,12 @@ export const model = {
 			}
 		},
 
+		"resolution": {
+			"type": "number",
+			"required": true,
+			"editable": false,
+		},
+
 		"flagged": {
 			"type": "boolean"
 		},
