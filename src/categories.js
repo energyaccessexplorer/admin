@@ -395,12 +395,12 @@ export const collection = {
 
 function raster_validate(data, newdata) {
 	return and(
-		raster_paver_validate(data, newdata),
-		raster_proximity_validate(data, newdata),
+		raster_paver_validate(newdata),
+		raster_proximity_validate(newdata),
 	);
 };
 
-function raster_paver_validate(data, newdata) {
+function raster_paver_validate(newdata) {
 	if (and(maybe(newdata, 'raster', 'paver'),
 	        or(newdata['vectors'], newdata['csv']))) {
 		dt_flash.push({
@@ -414,7 +414,7 @@ function raster_paver_validate(data, newdata) {
 	return true;
 };
 
-function raster_proximity_validate(data, newdata) {
+function raster_proximity_validate(newdata) {
 	const r = newdata['raster'];
 
 	if (and(maybe(r, 'proximity'),
