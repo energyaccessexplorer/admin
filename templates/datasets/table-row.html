@@ -36,12 +36,20 @@
     <span title="deployed in production"
           bind-icon="production"
           bind-cond="inproduction"></span>
+
+    <span title="NOT deployed in production"
+          bind-icon="empty"
+          bind-unless="inproduction"></span>
   </td>
 
   <td style="text-align: center;">
     <span title="deployed in staging"
           bind-icon="staging"
           bind-cond="instaging"></span>
+
+    <span title="NOT deployed in staging"
+          bind-icon="empty"
+          bind-unless="instaging"></span>
   </td>
 
   <td>
