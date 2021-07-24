@@ -71,8 +71,12 @@ export const model = {
 			"type": "object",
 			"label": "Raster configuration",
 			"nullable": true,
-			"validate": raster_paver_validate,
+			"validate": raster_validate,
 			"schema": {
+				"proximity": {
+					"type": "boolean",
+					"default": true,
+				},
 				"scale": {
 					"type": "select",
 					"required": true,
@@ -397,6 +401,13 @@ export const collection = {
 	"order": -1
 };
 
+function raster_validate(data, newdata) {
+	return and(
+		raster_paver_validate(data, newdata),
+		raster_proximity_validate(data, newdata),
+	);
+};
+
 function raster_paver_validate(data, newdata) {
 	if (and(maybe(newdata, 'raster', 'paver'),
 	        or(newdata['vectors'], newdata['csv']))) {
@@ -405,6 +416,25 @@ function raster_paver_validate(data, newdata) {
 			title: "Paver configuration error",
 			message: "Only pure raster categories require a paver->raster configuration",
 		});
+		return false;
+	}
+
+	return true;
+};
+
+function raster_proximity_validate(data, newdata) {
+	const r = newdata['raster'];
+
+	if (and(maybe(r, 'proximity'),
+					or(maybe(r, 'intervals'),
+						 maybe(r, 'scale'),
+						 maybe(r, 'paver')))) {
+		dt_flash.push({
+			type: 'error',
+			title: "Raster configuration error",
+			message: "If raster->proximity is set to 'true', no other raster configuration should be set",
+		});
+
 		return false;
 	}
 
