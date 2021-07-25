@@ -25,9 +25,14 @@ export const model = {
 			"label": "Unit"
 		},
 
+		"description": {
+			"type": "text",
+			"nullable": true,
+			"label": "Description",
+		},
+
 		"domain": {
 			"type": "object",
-			"collapsed": false,
 			"nullable": true,
 			"schema": {
 				"min": {
@@ -59,7 +64,6 @@ export const model = {
 
 		"colorstops": {
 			"type": "array",
-			"collapsed": false,
 			"nullable": true,
 			"sortable": true,
 			"schema": {
@@ -306,17 +310,6 @@ export const model = {
 						"required": true
 					}
 				}
-			}
-		},
-
-		"metadata": {
-			"type": "object",
-			"nullable": true,
-			"schema": {
-				"why": {
-					"type": "text",
-					"nullable": true
-				},
 			}
 		},
 
