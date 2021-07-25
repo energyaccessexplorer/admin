@@ -280,6 +280,12 @@ export const model = {
 			}
 		},
 
+		"mutant": {
+			"type": "boolean",
+			"default": false,
+			"validate": mutant_validate,
+		},
+
 		"controls": {
 			"type": "object",
 			"nullable": true,
@@ -417,6 +423,24 @@ function raster_proximity_validate(newdata) {
 			type: 'error',
 			title: "Raster configuration error",
 			message: "If raster->proximity is set to 'true', no other raster configuration should be set",
+		});
+
+		return false;
+	}
+
+	return true;
+};
+
+function mutant_validate(data, newdata) {
+	if (and(newdata['mutant'],
+					or(newdata['raster'],
+						 newdata['vectors'],
+						 newdata['csv']))) {
+
+		dt_flash.push({
+			type: 'error',
+			title: "Mutant configuration error",
+			message: "If mutant is set to 'true', no other (raster,csv,vectors) configuration should be set",
 		});
 
 		return false;
