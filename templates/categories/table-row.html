@@ -1,5 +1,4 @@
-<tr bind-attr="title"
-    bind-value="features">
+<tr>
   <td><a bind-icon="edit"></a></td>
 
   <td bind="name_long"></td>
@@ -7,8 +6,15 @@
   <td bind="name"
       style="font-family: monospace;"></td>
 
-  <td bind="unit"
-      style="font-family: monospace; text-align: center;"></td>
+  <td bind-attr="title"
+      bind-value="features"
+      style="font-family: monospace;">
+    <span bind="datatype"></span>
+    <span bind-cond="unit"
+          style="opacity: 0.6;">
+      (<span bind="unit"></span>)
+    </span>
+  </td>
 
   <td style="text-align: right;">
     <a bind-attr="href"
