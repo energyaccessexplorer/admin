@@ -233,7 +233,20 @@ export const collection = {
 	"filters": ['name'],
 
 	"endpoint": function() {
-		const attrs = ['id', 'name', 'cca3', 'adm', 'deployment', 'flagged', 'configuration', 'datasets(id)', 'created', 'created_by', 'updated', 'updated_by'];
+		const attrs = [
+			'id',
+			'name',
+			'cca3',
+			'adm',
+			'deployment',
+			'flagged',
+			'configuration',
+			'datasets(id)',
+			'created',
+			'created_by',
+			'updated',
+			'updated_by',
+		];
 
 		const params = {
 			"select": attrs

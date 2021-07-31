@@ -361,7 +361,23 @@ export const collection = {
 	"filters": ['name', 'name_long', 'unit', 'features'],
 
 	"endpoint": function() {
-		const attrs = ['id', 'name', 'name_long', 'unit', 'datatype', 'timeline', 'analysis', 'raster', 'vectors', 'csv', 'datasets(id)', 'created', 'created_by', 'updated', 'updated_by'];
+		const attrs = [
+			'id',
+			'name',
+			'name_long',
+			'unit',
+			'datatype',
+			'timeline',
+			'analysis',
+			'raster',
+			'vectors',
+			'csv',
+			'datasets(id)',
+			'created',
+			'created_by',
+			'updated',
+			'updated_by',
+		];
 
 		const params = {
 			"select": attrs,

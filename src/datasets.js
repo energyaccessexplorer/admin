@@ -474,7 +474,24 @@ export const collection = {
 	"filters": ['name', 'name_long', 'category_name'],
 
 	"endpoint": function() {
-		const attrs = ['id', 'datatype', 'deployment', 'flagged', 'name', 'category(*)', 'category_id', 'category_name', 'geography_circle', 'pack', 'geography_id', 'created', 'created_by', 'updated', 'updated_by'];
+		const attrs = [
+			'id',
+			'datatype',
+			'deployment',
+			'flagged',
+			'name',
+			'category(*)',
+			'category_id',
+			'category_name',
+			'geography_circle',
+			'pack',
+			'geography_id',
+			'created',
+			'created_by',
+			'updated',
+			'updated_by',
+		];
+
 		const params = { "select": attrs };
 
 		if (dataset_id)
