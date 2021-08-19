@@ -223,6 +223,8 @@ export const model = {
 				"weight": {
 					"type": "number",
 					"default": 2,
+					"min": 1,
+					"max": 5,
 					"nullable": false
 				},
 				"clamp": {

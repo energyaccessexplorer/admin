@@ -64,6 +64,7 @@ export const model = {
 
 		"deployment": {
 			"type": "array",
+			"unique": true,
 			"schema": {
 				"type": "string",
 				"options": ["staging", "production"],
