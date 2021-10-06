@@ -65,6 +65,7 @@ export const model = {
 		"deployment": {
 			"type": "array",
 			"unique": true,
+			"hint": "Select the environment(s) where the dataset will be deployed.",
 			"schema": {
 				"type": "string",
 				"options": ["staging", "production"],
@@ -73,7 +74,8 @@ export const model = {
 		},
 
 		"flagged": {
-			"type": "boolean"
+			"type": "boolean",
+			"hint": "Flagging a dataset will automatically remove it from the production environment for revision. Flagged datasets can be reviewed in the staging environment. Unflagging does not add the dataset back into the production environment.",
 		},
 
 		"pack": {
@@ -93,13 +95,15 @@ export const model = {
 					"func": {
 						"type": "select",
 						"required": true,
-						"options": ["vectors", "raster", "csv"]
+						"options": ["vectors", "raster", "csv"],
+						"hint": "Select the type of dataset: vector, raster, or csv",
 					},
 
 					"endpoint": {
 						"type": "string",
 						"required": true,
-						"pattern": "^https://(.+)"
+						"pattern": "^https://(.+)",
+						"hint": "Enter the secure URL that corresponds to the dataset in the cloud",
 					},
 				}
 			}
@@ -108,6 +112,7 @@ export const model = {
 		"processed_files": {
 			"type": "array",
 			"nullable": false,
+			"hint": "These fields will generate automatically with PAVER",
 			"schema": {
 				"type": "object",
 				"schema": {
@@ -137,22 +142,25 @@ export const model = {
 					"type": "number",
 					"nullable": true,
 					"needs": m => m.category_name.match(/indicator/),
+					"hint": "The national/subnational administrative level that corresponds with the CSV data. 0 = National",
 				},
 
 				"csv_columns": {
 					"type": "object",
 					"nullable": true,
+					"hint": "CSV file configuration",
 					"schema": {
 						"id": {
 							"type": "string",
 							"required": true,
+							"hint": "Column header containing IDs for geographic divisions in linked CSV file",
 						},
 
 						"value": {
 							"type": "string",
 							"nullable": true,
 							// TODO: "needs" to be 'boundaries' ds
-							"hint": "",
+							"hint": "Column header containing numerical values for indicator in linked CSV file. Percentages should be formatted as decimal numbers (i.e. 25% should be 25.0)",
 						}
 					}
 				},
@@ -160,17 +168,20 @@ export const model = {
 				"attributes_map": {
 					"type": "array",
 					"nullable": true,
+					"hint": "GeoJSON file attributes configuration",
 					"schema": {
 						"type": "object",
 						"nullable": false,
 						"schema": {
 							"target": {
 								"type": "string",
-								"required": true
+								"required": true,
+								"hint": "Display name for feature attributes in EAE",
 							},
 							"dataset": {
 								"type": "string",
-								"required": true
+								"required": true,
+								"hint": "Column header for feature attributes in linked GeoJSON file",
 							}
 						}
 					}
@@ -179,9 +190,11 @@ export const model = {
 				"properties_search": {
 					"type": "array",
 					"nullable": true,
+					"hint": "GeoJSON file properties search configuration",
 					"schema": {
 						"type": "string",
 						"required": true,
+						"hint": "Column header containing attributes to make searchable in EAE",
 					}
 				},
 
@@ -195,6 +208,7 @@ export const model = {
 
 						details.querySelector(':scope > summary').append(button);
 					},
+					"hint": "GeoJSON file features visual configuration",
 					"schema": {
 						"type": "object",
 						"nullable": false,
@@ -202,28 +216,33 @@ export const model = {
 						"schema": {
 							"key": {
 								"type": "string",
-								"required": true
+								"required": true,
+								"hint": "Key refers to the column header corresponding to the desired display attribute in the linked GeoJSONfile.",
 							},
 							"match": {
 								"type": "regexp",
-								"required": true
+								"required": true,
+								"hint": "Match refers to the corresponding value under the desired attribute column in the linked GeoJSON file.",
 							},
 							"radius": {
 								"type": "number",
 								"hint": "points only",
 								"droppable": true,
-								"required": true
+								"required": true,
+								"hint": "Refers to the radius size only for point features.",
 							},
 							"stroke": {
 								"type": "colour",
 								"droppable": true,
-								"required": true
+								"required": true,
+								"hint": "Refers to the border color for point and polygon features, and to the line color for linear features.",
 							},
 							"stroke-width": {
 								"type": "number",
 								"hint": "does not apply to polygons",
 								"droppable": true,
-								"required": true
+								"required": true,
+								"hint": "The width of linear features, or borders for point. Does not apply for polygon features.",
 							}
 						}
 					}
@@ -242,7 +261,8 @@ export const model = {
 		"category_overrides": {
 			"type": "json",
 			"label": "Category Overrides",
-			"nullable": true
+			"nullable": true,
+			"hint": "Category overrides enable users to override category-level settings to customize dataset configuration for a specific geography. To override a category-level setting, import the GeoJSON section of interest, and enter the values to modify.",
 		},
 
 		"presets": {
@@ -254,23 +274,27 @@ export const model = {
 					"name": {
 						"type": "string",
 						"required": true,
-						"options": ["market", "planning", "investment"]
+						"options": ["market", "planning", "investment"],
+						"hint": "Name of a preset scenario",
 					},
 
 					"weight": {
 						"type": "number",
 						"required": true,
-						"default": 2
+						"default": 2,
+						"name": "Level of importance of the dataset in the preset scenario",
 					},
 
 					"min": {
 						"type": "number",
-						"default": 0
+						"default": 0,
+						"hint": "minimum preset value",
 					},
 
 					"max": {
 						"type": "number",
-						"default": 100
+						"default": 100,
+						"hint": "maximum preset value",
 					}
 				}
 			}
@@ -281,48 +305,57 @@ export const model = {
 			"schema": {
 				"description": {
 					"type": "text",
-					"nullable": true
+					"nullable": true,
+					"hint": "Description of the dataset, methodology, and its sources",
 				},
 
 				"suggested_citation": {
 					"type": "text",
-					"nullable": true
+					"nullable": true,
+					"hint": "Suggested citation of dataset. Includes \"Available from [original link]. Accessed through Energy Access Explorer, [date]. www.energyaccessexplorer.org.\"",
 				},
 
 				"cautions": {
 					"type": "text",
-					"nullable": true
+					"nullable": true,
+					"hint": "Description of any limitations or cautions in the use of the dataset",
 				},
 
 				"spatial_resolution": {
 					"type": "string",
-					"nullable": true
+					"nullable": true,
+					"hint": "Dataset resolution (e.g. 1 km2 , sub-national, etc.)",
 				},
 
 				"download_original_url": {
 					"type": "string",
-					"nullable": true
+					"nullable": true,
+					"hint": "Online link to original dataset (optional)",
 				},
 
 				"learn_more_url": {
 					"type": "string",
-					"nullable": true
+					"nullable": true,
+					"hint": "Online link to original dataset methodology",
 				},
 
 				"license": {
 					"type": "text",
-					"nullable": true
+					"nullable": true,
+					"hint": "Dataset license for attribution requirements",
 				},
 
 				"sources": {
 					"type": "text",
-					"nullable": true
+					"nullable": true,
+					"hint": "Dataset sources"
 				},
 
 				"content_date": {
 					"type": "string",
 					"pattern": "^[0-9]{4}(-[0-9]{4})?$",
-					"nullable": true
+					"nullable": true,
+					"hint": "Date of the dataset content",
 				}
 			}
 		},

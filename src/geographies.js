@@ -26,8 +26,8 @@ export const model = {
 		"name": {
 			"type": "string",
 			"required": true,
+			"label": "Geography Name",
 			"hint": "The short name of the geography.",
-			"label": "Geography Name"
 		},
 
 		"parent_id": {
@@ -37,25 +37,29 @@ export const model = {
 			"constraint": "parent",
 			"required": false,
 			"editable": false,
-			"columns": ['*']
+			"columns": ['*'],
+			"hint": "The name of the parent geography. This applies to adm. 1, 2, 3 divisions. For instance, for a adm.1 geography, the parent geography is the name of the country."
 		},
 
 		"cca3": {
 			"type": "string",
 			"required": true,
 			"editable": false,
-			"label": "CCA3 code"
+			"label": "CCA3 code",
+			"hint": "This is the ISO 3166-1 alpha-3 country code. A list of codes can be found here: https://unstats.un.org/unsd/tradekb/knowledgebase/country-code",
 		},
 
 		"adm": {
 			"type": "number",
 			"required": true,
 			"editable": false,
-			"label": "Adm. Level"
+			"label": "Adm. Level",
+			"hint": "Indicates the level of an administrative boundary",
 		},
 
 		"deployment": {
 			"type": "array",
+			"hint": "Select the environments where the geography will be deployed",
 			"schema": {
 				"type": "string",
 				"options": ["staging", "production"],
@@ -66,6 +70,7 @@ export const model = {
 		"envelope": {
 			"type": "array",
 			"validate": envelope_validate,
+			"hint": "Geography extent coordinates (4 coordinates values)",
 			"schema": {
 				"type": "number",
 				"step": "any",
@@ -78,10 +83,12 @@ export const model = {
 			"type": "number",
 			"required": true,
 			"editable": false,
+			"hint": "Raster resolution in meters",
 		},
 
 		"flagged": {
-			"type": "boolean"
+			"type": "boolean",
+			"hint": "Flagging a geography will automatically remove it from the production environment for revision. Flagged geographies can be reviewed in the staging environment. Unflagging does not add the geography back into the production environment",
 		},
 
 		"circle": {
@@ -108,6 +115,7 @@ export const model = {
 					"nullable": false,
 					"sortable": true,
 					"collapsed": false,
+					"hint": "The national/subnational administrative level that corresponds with the geography boundaries. 0 = Outline (National)",
 					"schema": {
 						"type": "object",
 						"schema": {
@@ -120,6 +128,7 @@ export const model = {
 								"type": "uuid",
 								"nullable": true,
 								"fkey": "datasets",
+								"hint": "Outline or Admin boundaries dataset id",
 							}
 						}
 					}
@@ -129,6 +138,7 @@ export const model = {
 					"type": "array",
 					"nullable": true,
 					"needs": m => maybe(m.configuration, 'timeline'),
+					"hint": "Configuration of dates for historical timeline component (optional)",
 					"schema": {
 						"type": "date",
 						"required": true
@@ -163,6 +173,7 @@ export const model = {
 				"sort_branches": {
 					"type": "array",
 					"nullable": false,
+					"hint": "Configuration of dataset branches within the geography",
 					"schema": {
 						"type": "string",
 						"required": true,
@@ -172,6 +183,7 @@ export const model = {
 				"sort_subbranches": {
 					"type": "array",
 					"nullable": false,
+					"hint": "Configuration of dataset sub-branches within the geography",
 					"schema": {
 						"type": "string",
 						"required": true,
@@ -181,6 +193,7 @@ export const model = {
 				"sort_datasets": { // TODO: should come from dataset's name (or category_name)
 					"type": "array",
 					"nullable": false,
+					"hint": "Configuration of dataset order within the geography",
 					"schema": {
 						"type": "string",
 						"required": true,

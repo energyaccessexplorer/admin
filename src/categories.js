@@ -29,6 +29,7 @@ export const model = {
 			"type": "text",
 			"nullable": true,
 			"label": "Description",
+			"hint": "Description of the category and its use",
 		},
 
 		"domain": {
@@ -37,11 +38,13 @@ export const model = {
 			"schema": {
 				"min": {
 					"type": "number",
-					"required": true
+					"required": true,
+					"hint": "minimum category value",
 				},
 				"max": {
 					"type": "number",
-					"required": true
+					"required": true,
+					"hint": "maximum category value",
 				}
 			}
 		},
@@ -53,11 +56,13 @@ export const model = {
 			"schema": {
 				"min": {
 					"type": "number",
-					"required": true
+					"required": true,
+					"hint": "Preset minimum initialization value (optional)",
 				},
 				"max": {
 					"type": "number",
-					"required": true
+					"required": true,
+					"hint": "Preset maximum initialization value (optional)"
 				}
 			}
 		},
@@ -66,6 +71,7 @@ export const model = {
 			"type": "array",
 			"nullable": true,
 			"sortable": true,
+			"hint": "Configuration of colorstops",
 			"schema": {
 				"type": "colour"
 			}
@@ -85,6 +91,7 @@ export const model = {
 					"type": "array",
 					"nullable": true,
 					"sortable": true,
+					"hint": "Configuration of intervals for a TIFF file",
 					"schema": {
 						"type": "number",
 						"required": true
@@ -98,7 +105,7 @@ export const model = {
 							"type": "select",
 							"options": [],
 							"required": true,
-							"hint": "https://gdal.org/programs/gdalwarp.html#cmdoption-gdalwarp-r",
+							"hint": "Resample setting for PAVER processing",
 							"options": [
 								"average",
 								"sum",
@@ -120,6 +127,7 @@ export const model = {
 						"numbertype": {
 							"type": "select",
 							"required": true,
+							"hint": "Number type setting for PAVER processing",
 							"options": [
 								"Byte",
 								"UInt16",
@@ -139,6 +147,7 @@ export const model = {
 							"type": "number",
 							"required": true,
 							"default": -1,
+							"hint": "No data values setting for PAVER processing",
 						}
 					}
 				},
@@ -154,38 +163,40 @@ export const model = {
 				"shape_type": {
 					"type": "select",
 					"required": true,
-					"options": ["points", "polygons", "lines"]
+					"options": ["points", "polygons", "lines"],
+					"hint": "GeoJSON file shape type",
 				},
 				"opacity": {
 					"type": "number",
 					"step": 0.01,
 					"default": 1,
 					"nullable": true,
-					"hint": "Applies to polygons and points"
+					"hint": "Applies to polygons and points",
 				},
 				"stroke": {
 					"type": "colour",
-					"nullable": true
+					"nullable": true,
+					"hint": "Refers to the border color for point and polygon features, and to the line color for linear features.",
 				},
 				"stroke-width": {
 					"type": "number",
 					"nullable": false,
 					"droppable": true,
 					"default": 1,
-					"hint": "Does not apply to polygons"
+					"hint": "The width of linear features, or borders for point. Does not apply for polygon features.",
 				},
 				"fill": {
 					"type": "colour",
 					"nullable": true,
 					"droppable": true,
-					"hint": "Applies to polygons and points"
+					"hint": "Applies to polygons and points",
 				},
 				"radius": {
 					"label": "radius",
 					"type": "number",
-					"hint": "Points only",
 					"droppable": true,
-					"nullable": false
+					"nullable": false,
+					"hint": "Refers to the radius size only for point features.",
 				},
 				"dasharray": {
 					"type": "string",
@@ -203,7 +214,8 @@ export const model = {
 			"nullable": true,
 			"schema": {
 				"enabled": {
-					"type": "boolean"
+					"type": "boolean",
+					"hint": "If enabled category includes a CSV file",
 				}
 			}
 		},
@@ -218,14 +230,16 @@ export const model = {
 					"required": true,
 					"label": "index",
 					"options": ['', "ani", "eai", "demand", "supply"],
-					"default": ''
+					"default": '',
+					"hint": "Analysis index of the category",
 				},
 				"weight": {
 					"type": "number",
 					"default": 2,
 					"min": 1,
 					"max": 5,
-					"nullable": false
+					"nullable": false,
+					"hint": "Level of importance of the dataset in analysis",
 				},
 				"clamp": {
 					"type": "boolean",
@@ -252,17 +266,20 @@ export const model = {
 							"index": {
 								"type": "string",
 								"required": true,
-								"options": ["eai", "ani", "supply", "demand"]
+								"options": ["eai", "ani", "supply", "demand"],
+								"hint": "Other analysis indexes that apply",
 							},
 							"invert": {
 								"type": "boolean",
-								"default": false
+								"default": false,
+								"hint": "If a higher value of the select category, imply a lower value for the index, then enable \"invert\". For instance",
 							},
 							"scale": {
 								"type": "select",
 								"label": "functionality",
 								"default": null,
-								"options": ["", "linear", "key-delta", "exclusion-buffer", "inclusion-buffer", "intervals"]
+								"options": ["", "linear", "key-delta", "exclusion-buffer", "inclusion-buffer", "intervals"],
+								"hint": "Functionality of index according to data type and preference",
 							}
 						}
 					}
@@ -278,6 +295,7 @@ export const model = {
 				"dummy": {
 					"type": "boolean",
 					"default": true,
+					"hint": "For data with historical timeline component (optional)",
 				},
 			}
 		},
@@ -295,15 +313,18 @@ export const model = {
 				"range": {
 					"type": "select",
 					"options": ["", "single", "double"],
-					"default": "double"
+					"default": "double",
+					"hint": "Configuration of scroll range type",
 				},
 				"range_steps": {
 					"type": "number",
 					"nullable": true,
-					"default": 0
+					"default": 0,
+					"hint": "Configuration of scroll range steps (optional)",
 				},
 				"range_label": {
-					"type": "string"
+					"type": "string",
+					"hint": "Configuration of scroll range label",
 				},
 				"weight": {
 					"type": "boolean",
@@ -312,6 +333,7 @@ export const model = {
 				"path": {
 					"type": "array",
 					"collapsed": false,
+					"hint": "Branch and Subbranch of the category",
 					"schema": {
 						"type": "string",
 						"pattern": "^[a-z][a-z0-9\-]+$",
