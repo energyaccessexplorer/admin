@@ -110,6 +110,11 @@ export const model = {
 					"default": false,
 				},
 
+				"introduction": {
+					"type": "text",
+					"default": null
+				},
+
 				"divisions": {
 					"type": "array",
 					"nullable": false,
