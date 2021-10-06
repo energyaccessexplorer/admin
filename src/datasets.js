@@ -626,7 +626,6 @@ function source_files_requirements(m) {
 		n = ['vectors'];
 		break;
 
-	case 'table':
 	case 'polygons-boundaries':
 		if (m.category_name === 'outline')
 			n = ['vectors'];
@@ -636,6 +635,10 @@ function source_files_requirements(m) {
 
 	case 'raster':
 		n = ['raster'];
+		break;
+
+	case 'table':
+		n = ['csv'];
 		break;
 
 	case 'raster-mutant':

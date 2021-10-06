@@ -73,7 +73,7 @@ export const model = {
 			"sortable": true,
 			"hint": "Configuration of colorstops",
 			"schema": {
-				"type": "colour"
+				"type": "colour",
 			}
 		},
 
@@ -252,7 +252,7 @@ export const model = {
 					"sortable": true,
 					"schema": {
 						"type": "number",
-						"required": true
+						"required": true,
 					}
 				},
 				"indexes": {
@@ -328,7 +328,7 @@ export const model = {
 				},
 				"weight": {
 					"type": "boolean",
-					"default": true
+					"default": true,
 				},
 				"path": {
 					"type": "array",
@@ -337,7 +337,7 @@ export const model = {
 					"schema": {
 						"type": "string",
 						"pattern": "^[a-z][a-z0-9\-]+$",
-						"required": true
+						"required": true,
 					}
 				}
 			}
