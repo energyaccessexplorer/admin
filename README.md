@@ -2,41 +2,20 @@
 
 This is the frontend code for the platform's admin panel.
 
-## Development
+## Building & Hacking
 
-The magic is really done by [duck-tape](). This repository only contains the
-EAE's specific code. Basic tasks for administration/development tools are
-contained in the `makefile`.
+The magic is really done by [duck-tape](https://git.263.nu/f/duck-tape). This
+repository only contains the EAE's specific code. See duck-tape's documentation
+to get started.
 
-## Building & hacking
+You will need the [database](https://github.com/energyaccessexplorer/database)
+and [PostgREST](https://postgrest.org/) up and running.
 
-Assumptions made:
+Additionally, [paver](https://github.com/energyaccessexplorer/paver) is required
+to get _full enchilada_.
 
-- development is in a Unix-like environment (cat, sed, echo, make...)
-  with a _static web server_ and rsync installed
-- [PostgREST](https://postgrest.org) is installed.
-- an PostgreSQL instance is running the
-  [database](https://github.com/energyaccessexplorer/database)
-- (optionally) the [website](https://github.com/energyaccessexplorer/website)
-  is running
+## License
 
-To get started, you will need to
-
-    $ cp default.mk-sample default.mk
-
-and configure `default.mk` to your needs. Where the `WATCH` variable is a custom
-command to rebuild the project upon code changes. This is left to the developer
-to use whatever he/she desires.
-
-Then fetch and install the contents of `dependencies.tsv` under `dist/lib/`
-
-Now you can run in development mode with:
-
-    $ make reconfig build start watch
-
-Once up and running, on another terminal run
-
-    $ make signin
-
-visit `http://localhost:${WEB_PORT}` on your web browser, open the developer
-tools and copy/paste the result.
+This project is licensed under MIT. Additionally, you must read the
+[attribution page](https://www.energyaccessexplorer.org/attribution)
+before using any part of this project.
