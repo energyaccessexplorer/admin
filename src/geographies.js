@@ -120,7 +120,7 @@ export const model = {
 					"nullable": false,
 					"sortable": true,
 					"collapsed": false,
-					"hint": "The national/subnational administrative level that corresponds with the geography boundaries. 0 = Outline (National)",
+					"hint": "The national/subnational administrative level that corresponds with the geography boundaries.",
 					"schema": {
 						"type": "object",
 						"schema": {

@@ -25,6 +25,12 @@ export const model = {
 			"label": "Unit"
 		},
 
+		"mutant": {
+			"type": "boolean",
+			"default": false,
+			"validate": mutant_validate,
+		},
+
 		"description": {
 			"type": "text",
 			"nullable": true,
@@ -233,6 +239,7 @@ export const model = {
 					"default": '',
 					"hint": "Analysis index of the category",
 				},
+
 				"weight": {
 					"type": "number",
 					"default": 2,
@@ -241,11 +248,7 @@ export const model = {
 					"nullable": false,
 					"hint": "Level of importance of the dataset in analysis",
 				},
-				"clamp": {
-					"type": "boolean",
-					"default": false,
-					"hint": "Clamping is explained at: \nhttps://github.com/d3/d3-scale#continuous_clamp"
-				},
+
 				"intervals": {
 					"type": "array",
 					"nullable": true,
@@ -255,6 +258,7 @@ export const model = {
 						"required": true,
 					}
 				},
+
 				"indexes": {
 					"type": "array",
 					"collapsed": false,
@@ -292,18 +296,12 @@ export const model = {
 			"label": "Timeline configuration",
 			"nullable": true,
 			"schema": {
-				"dummy": {
+				"enabled": {
 					"type": "boolean",
 					"default": true,
 					"hint": "For data with historical timeline component (optional)",
 				},
 			}
-		},
-
-		"mutant": {
-			"type": "boolean",
-			"default": false,
-			"validate": mutant_validate,
 		},
 
 		"controls": {
@@ -473,9 +471,9 @@ function raster_proximity_validate(newdata) {
 
 function mutant_validate(data, newdata) {
 	if (and(newdata['mutant'],
-					or(newdata['raster'],
-						 newdata['vectors'],
-						 newdata['csv']))) {
+	        or(newdata['raster'],
+	           newdata['vectors'],
+	           newdata['csv']))) {
 
 		dt_flash.push({
 			type: 'error',

@@ -60,6 +60,11 @@ export const model = {
 			"placeholder": "leave blank to inherit from category"
 		},
 
+		"flagged": {
+			"type": "boolean",
+			"hint": "Flagging a dataset will automatically remove it from the production environment for revision. Flagged datasets can be reviewed in the staging environment. Unflagging does not add the dataset back into the production environment.",
+		},
+
 		"deployment": {
 			"type": "array",
 			"unique": true,
@@ -69,11 +74,6 @@ export const model = {
 				"options": ["staging", "production"],
 				"required": true
 			}
-		},
-
-		"flagged": {
-			"type": "boolean",
-			"hint": "Flagging a dataset will automatically remove it from the production environment for revision. Flagged datasets can be reviewed in the staging environment. Unflagging does not add the dataset back into the production environment.",
 		},
 
 		"source_files": {
