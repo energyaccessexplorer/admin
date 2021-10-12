@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8">
+
+    <title>Energy Access Explorer :: Admin Documentation</title>
+
+    <style>
+      body {
+        font-family: Noto Serif, Times, serif;
+        color: black;
+      }
+
+      h1 {
+        text-align: center;
+        margin: 2em auto;
+      }
+
+      h1, h2, h3, h4, h5 {
+        font-family: sans-serif;
+      }
+
+      section {
+        max-width: 42em;
+        margin: auto;
+        margin-top: 4em;
+      }
+
+      section > section {
+        margin-left: 2em;
+      }
+
+      attr {
+        font-family: monospace;
+        font-weight: bold;
+      }
+
+      p > attr:first-child {
+        margin-right: 0.6em;
+      }
+
+      text {
+        font-family: monospace;
+        font-size: 12px;
+      }
+
+      code {
+        background-color: #e1e1e1;
+        border-radius: 2px;
+        padding: 1px 3px;
+      }
+
+      pre {
+        background-color: #f0f0f0;
+        border-radius: 2px;
+        padding: 10px 20px;
+      }
+
+      #back-top {
+        position: fixed;
+        right: 1em;
+        top: 1em;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h1>Energy Access Explorer :: Admin Documentation</h1>
+
+    <section id="table-contents">
+      <h2>Table of contents</h2>
+
+      <ol></ol>
+    </section>
+
+    <section id="intro">
+      <h2>Introduction</h2>
+
+      <p>
+        This document is meant to be read whilst inspecting the administration
+        panel which itself contains useful descriptions. Here we intent to
+        provide a more detailed description on what might not be aparent from
+        just browsing the administration panel.
+      </p>
+
+      <p>
+        The administration is not trivial. A good understanding of the basic
+        geolocation dataset formats is required at the very least - GeoJSON,
+        GeoTIFF, CSV.
+      </p>
+
+      <p>
+        The following diagram shows the models used by the platform:
+        a <i>geography</i> combined with a <i>category</i> spawns
+        a <i>dataset</i>.
+      </p>
+
+      <pre>
+         <a href="#geography">Geography</a>                             <a href="#category">Category</a>
+
+             |                                     |
+             ───────────────────────────────────────
+                               |
+
+                          <a href="#dataset">[]Datasets</a>
+      </pre>
+
+      <p>
+        Each of these entities has several attributes and configuratitons
+        depending on their nature. This document explains the <b>non-trivial</b>
+        aspects of these entities. The basic definitions of the attributes are
+        usually found on the CMS with a hoverable question mark
+        (<a href="#" title="that looks like this">?</a>) that, when hovered,
+        shows the description.
+      </p>
+
+      <p>
+        These 3 concepts are heavily intertwined so it's impossible to describe
+        one without mentioning the others. Hence, the order this document
+        is presented is merely a personal choice.
+      </p>
+    </section>
+
+    <section id="geography">
+      <h2>Geography</h2>
+
+      <p>
+        A region on the world. Generally a country (<code>adm0</code>),
+        state/province (<code>adm1</code>) or municipality/county
+        (<code>adm2</code>). Naming will vary depending on the country.
+      </p>
+
+      <p>
+        Each may have a "parent" Geography which is another Geography on the
+        database. Naturally, an <code>adm1</code> would have
+        and <code>adm0</code> as a parent but not the other way around.
+      </p>
+
+      <p>
+        All geographies within a country should have the same <attr>CCA3</attr>
+        attribute to the country containing them.
+      </p>
+
+      <details>
+        <summary>Example of <attr>parent</attr> tree geographies
+          and <attr>CCA3</attr></summary>
+
+        <p>
+          Sweden is divided into counties which in turn are divided into
+          municipalities. So,
+        </p>
+
+        <pre>
+          <a href="https://en.wikipedia.org/wiki/Counties_of_Sweden">Sweden</a> (adm0, SWE)
+          │
+          │── <a href="https://en.wikipedia.org/wiki/Stockholm_County">Stockholm County</a> (adm1, SWE)
+          │   │
+          │   │── <a href="https://en.wikipedia.org/wiki/Stockholm_Municipality">Stockholm Municipality</a> (adm1, SWE)
+          │   │
+          │   │── <a href="https://en.wikipedia.org/wiki/S%C3%B6dert%C3%A4lje_Municipality">Södertälje Municipality</a> (adm1, SWE)
+          │   │
+          │   │── <a href="https://en.wikipedia.org/wiki/T%C3%A4by_Municipality">Täby Municipality</a> (adm1, SWE)
+          │   │
+          │   │── ...
+          │
+          │── <a href="https://en.wikipedia.org/wiki/Dalarna_County">Dalarna County</a> (adm1, SWE)
+          │   │
+          │   │── ...
+          │
+          │── <a href="https://en.wikipedia.org/wiki/Norrbotten_County">Norrbotten County</a> (adm1, SWE)
+          │   │
+          │   │── ...
+          │
+          │── ...
+
+        </pre>
+      </details>
+
+      <p attr="configuration">
+        of a geography is a <i>JSON document</i> which visual and/or functional
+        aspects on the tool. Consider the following <i>JSON object</i>:
+      </p>
+
+      <pre>
+{
+  "timeline": true,
+
+  "timeline_dates": [
+    "2020-10-31",
+    "2021-10-31",
+    "2022-10-31"
+  ],
+
+  "sort_branches": [
+    "census",
+    "demand",
+    "supply",
+    "other"
+  ],
+
+  "sort_subbranches": [
+    "demographics",
+    "productive-uses"
+  ],
+
+  "sort_datasets": [
+    "mines",
+    "health",
+    "poverty",
+    "population-density"
+  ],
+
+  "divisions": [
+    {
+      "name": "Outline",
+      "dataset_id": 00000000-0000-0000-0000-000000000000,
+    },
+
+    {
+      "name": "States",
+      "dataset_id": 11111111-1111-1111-1111-111111111111,
+    },
+
+    {
+      "name": "Counties",
+      "dataset_id": 22222222-2222-2222-2222-222222222222,
+    }
+  ]
+}
+      </pre>
+
+      <p attr="timeline">
+        indicates wether the <i>tool</i> should expect it's datasets to support
+        evolution through time.
+      </p>
+
+      <p attr="timeline_dates">
+        a list of dates (formatted as <code>YYYY-MM-DD</code>) for the tool to
+        consider when data from the <code>timeline-indicator</code> datasets CSV's
+        files. This requires <attr>timeline</attr> to be <code>true</code>.
+      </p>
+
+      <p attr="sort_branches">
+        sets how the specified branches are shown first on the tool's
+        <i>control panel</i>. The rest of the branches' order is not guaranteed.
+      </p>
+
+      <p attr="sort_subbranches">
+        sets how the specified subbranches are shown first on the
+        tool's <i>control panel</i>. The rest of the subbranches' order is not
+        guaranteed.
+      </p>
+
+      <p attr="sort_datasets">
+        sets how the specified categories (by name) are shown first on the
+        tool's <i>control panel</i>. The rest of the datasets' order is not
+        guaranteed.
+      </p>
+
+      <p>
+        The above "sort_" sections of the <i>JSON object</i> correspond to the
+        following configuration:
+
+        <div style="margin: auto; text-align: center;">
+          <img src="./images/controls-screenshot.jpeg" width="500">
+        </div>
+      </p>
+
+      <p attr="divisions">
+        This is a collection of datasets corresponding to the administrative
+        sub-divisions of the current geometry. The first element should always
+        be a dataset with category <code>outline</code> -
+        <b>A geography will NOT work without this first element</b>. Subsequent
+        elements should have category <code>boundaries</code>. Moreover,
+        <b>order matters:</b> The <code>n</code>th element should be more granular
+        than the <code>(n-1)</code>th element.
+      </p>
+    </section>
+
+    <section id="category">
+      <h2>Category</h2>
+
+      <p>
+        Categories are a way to generalise datasets across geographies and keep
+        the <i>tool</i> and the management of the platform more uniform. Their
+        definitions affect all <i>datasets</i> that inherit from them.
+      </p>
+
+      <p>
+        It's important to have a good understanding of categories. Their misuse
+        will imply useless duplication and excess work. And, on the contrary,
+        using them wisely will allow administrators to make "bulk changes"
+        across the entire platform seemlessly.
+      </p>
+
+      <p attr="color_stops">
+        define a scale at which different values within <attr>domain</attr> of a
+        dataset will be drawn. These will be used depending on the usage case.
+      </p>
+
+      <p>
+        The default <attr>color_stops</attr> for a dataset is:
+
+        <br><br>
+
+        <div style="border: 1px solid #e1e1e1; width: 400px; margin: auto; display: flex; padding: 0;">
+          <svg width="400px" height="5">
+            <g>
+              <rect fill="#0571b0" stroke="none" x="0%"  width="20%" height="5"></rect>
+              <rect fill="#92c5de" stroke="none" x="20%" width="20%" height="5"></rect>
+              <rect fill="#f7f7f7" stroke="none" x="40%" width="20%" height="5"></rect>
+              <rect fill="#f4a582" stroke="none" x="60%" width="20%" height="5"></rect>
+              <rect fill="#ca0020" stroke="none" x="80%" width="20%" height="5"></rect>
+            </g>
+          </svg>
+        </div>
+      </p>
+
+      <p>
+        The <attr>color_stops</attr> for an analysis is:
+
+        <br><br>
+
+        <div style="border: 1px solid #e1e1e1; width: 400px; margin: auto; display: flex; padding: 0;">
+          <svg width="400px" height="5" style="margin: auto; display: block;">
+            <g>
+              <rect fill="#000004" stroke="none" x="0%"  width="20%" height="5"></rect>
+              <rect fill="#51127c" stroke="none" x="20%" width="20%" height="5"></rect>
+              <rect fill="#b73779" stroke="none" x="40%" width="20%" height="5"></rect>
+              <rect fill="#fc8961" stroke="none" x="60%" width="20%" height="5"></rect>
+              <rect fill="#fcfdbf" stroke="none" x="80%" width="20%" height="5"></rect>
+            </g>
+          </svg>
+        </div>
+      </p>
+
+      <section id="category-raster">
+        <h3>Raster (heatmap)</h3>
+
+        <p attr="intervals">
+          is an array of numbers encapsulating the <attr>color_stops</attr> so
+          they are <i>plus one</i> of them.  In order for this to have any
+          effect, <attr>scale</attr> needs to be set to <i>intervals</i>. In our
+          example: 9 colors, 10 intervals.
+        </p>
+
+        <pre>
+[
+  500,
+  1000,
+  1500,
+  1800,
+  2000,
+  2100,
+  2200,
+  2300,
+  2400,
+  2800
+]
+        </pre>
+
+        <svg width="400px" height="5" style="margin: auto; display: block;">
+          <g>
+            <rect fill="#5da3ae" stroke="none" x="0%"                 width="11.11111111111111%" height="5"></rect>
+            <rect fill="#69caab" stroke="none" x="11.11111111111111%" width="11.11111111111111%" height="5"></rect>
+            <rect fill="#8ae975" stroke="none" x="22.22222222222222%" width="11.11111111111111%" height="5"></rect>
+            <rect fill="#c5f052" stroke="none" x="33.33333333333333%" width="11.11111111111111%" height="5"></rect>
+            <rect fill="#edf543" stroke="none" x="44.44444444444444%" width="11.11111111111111%" height="5"></rect>
+            <rect fill="#fac929" stroke="none" x="55.55555555555556%" width="11.11111111111111%" height="5"></rect>
+            <rect fill="#e3940b" stroke="none" x="66.66666666666666%" width="11.11111111111111%" height="5"></rect>
+            <rect fill="#ef7906" stroke="none" x="77.77777777777777%" width="11.11111111111111%" height="5"></rect>
+            <rect fill="#df343f" stroke="none" x="88.88888888888889%" width="11.11111111111111%" height="5"></rect>
+          </g>
+        </svg>
+        <br>
+
+        <svg width="420px" height="16" style="margin: auto; display: block;">
+          <g>
+            <text fill="black" stroke="none" y="12" x="1%"    width="20">1</text>
+            <text fill="black" stroke="none" y="12" x="12%"   width="20">2</text>
+            <text fill="black" stroke="none" y="12" x="22.2%" width="20">3</text>
+            <text fill="black" stroke="none" y="12" x="33.3%" width="20">4</text>
+            <text fill="black" stroke="none" y="12" x="44%"   width="20">5</text>
+            <text fill="black" stroke="none" y="12" x="55%"   width="20">6</text>
+            <text fill="black" stroke="none" y="12" x="65.5%" width="20">7</text>
+            <text fill="black" stroke="none" y="12" x="76%"   width="20">8</text>
+            <text fill="black" stroke="none" y="12" x="86%"   width="20">9</text>
+            <text fill="black" stroke="none" y="12" x="96%"   width="20">10</text>
+          </g>
+        </svg>
+
+        <br>
+
+        <svg width="420px" height="16" style="margin: auto; display: block;">
+          <g>
+            <text fill="black" stroke="none" y="12" x="1%"  width="20">500</text>
+            <text fill="black" stroke="none" y="12" x="15%" width="20">...</text>
+            <text fill="black" stroke="none" y="12" x="30%" width="20">1800</text>
+            <text fill="black" stroke="none" y="12" x="47%" width="20">...</text>
+            <text fill="black" stroke="none" y="12" x="63%" width="20">2200</text>
+            <text fill="black" stroke="none" y="12" x="80%" width="20">...</text>
+            <text fill="black" stroke="none" y="12" x="92.5%" width="20">2800</text>
+          </g>
+        </svg>
+
+        <p attr="paver">
+          Paver is the dataset-processing backend for the EAE. The attributes
+          configured here will be sent to Paver as arguments for optimisation.
+        </p>
+      </section>
+
+      <section id="category-vectors">
+        <h3>Vectors</h3>
+
+        <p>
+          This is quite straight forward. Some attributes apply (or not)
+          depending on their nature. For example, setting the <em>radius</em>
+          or <em>fill</em> on a <em>line</em> has no effect.
+        </p>
+      </section>
+
+      <section id="category-csv">
+        <h3>CSV</h3>
+
+        <p attr="enabled">
+          Wether the category should store data this way.
+        </p>
+      </section>
+
+      <section id="category-analysis">
+        <h3>Analysis</h3>
+
+        <p>
+          An analysis is a heatmap or
+          <a href="https://en.wikipedia.org/wiki/Scalar_field">scalar field</a>
+          compromising one or more datasets' rasters. These dataset rasters
+          <b>MUST HAVE</b> the same dimensions (width &times; height).
+        </p>
+
+        <p attr="index">
+          the part of the analysis where a category contributes to. It can
+          be <code>eai</code>, <code>ani</code>, <code>demand</code>,
+          <code>supply</code> or <code>null</code>.
+        </p>
+
+        <p attr="weight">
+          a number between 1 and 5 (defaulting to 2) setting the initial importance of
+          the category.
+        </p>
+
+        <p attr="clamp">
+          given the current domain, how to manage the values greater or lesser
+          than the domain. If not, they are <em>clipped</em>.
+          See <a href="https://github.com/d3/d3-scale#continuous_clamp">this</a>
+          for a formal description.
+        </p>
+
+        <p attr="intervals"> <!-- TODO: check this -->
+          WIP.
+        </p>
+
+        <p attr="indexes">
+          each category can behave differently given an analysis. This is an
+          array of object describing the different scenarios.  Consider the
+          following <i>JSON</i>:
+
+          <pre>
+[
+  {
+    "index": "demand",
+    "invert": true,
+    "functionality": "linear"
+  },
+
+  {
+    "index": "eai",
+    "invert": false,
+    "functionality": "exclusion-buffer"
+  }
+]
+        </pre>
+
+          This would imply that the raster would:
+          <ol>
+            <li>
+              Have no impact in a <code>ani</code> or <code>supply</code>
+              analysis.
+            </li>
+
+            <li>
+              Invert it's range in the analysis whilst keeping a linear scale
+              in <code>eai</code>.
+            </li>
+
+            <li>
+              Exclude the selected domain whilst on <code>supply</code>.
+            </li>
+          </ol>
+        </p>
+      </section>
+
+      <section id="category-controls">
+        <h3>Controls</h3>
+
+        <p attr="range">
+          the amount of sliders to restrict the range of a dataset. This can be
+          one of <code>null</code>, <code>single</code> or <code>double</code>.
+        </p>
+
+        <p attr="range_steps">
+          if not <code>null</code>, it sets the amount of "clicks minus one"
+          that the range of the dataset should be divided <em>evenly</em>
+          distributed into.
+        </p>
+
+        <p attr="range_label">
+          corresponds to the words to appear unders the sliders. This defaults
+          to the dataset's unit.
+        </p>
+
+        <p attr="weight">
+          whether to enable the weight slider.
+        </p>
+
+        <p attr="path">
+          an array that sets the "breadcrums" within the datasets category tree
+          in the controls panel.
+        </p>
+      </section>
+    </section>
+
+    <section id="dataset">
+      <h2>Dataset</h2>
+
+      <p>
+        A dataset is, initially, the combination between a dataset and a
+        geography - plus some specific attributes and a collection of files.
+      </p>
+
+      <p attr="name">
+        A "programmer-friendly" string that describes to differentiate from
+        other datasets that have the same category.
+      </p>
+
+      <p attr="name_long">
+        A "user-friendly" string which will appear to the users of the tool.
+      </p>
+
+      <p attr="configuration">
+        of a file may include:
+
+        <ul>
+          <li attr="divisions_tier">
+            WIP
+          </li>
+
+          <li attr="csv_columns">
+            the name of the CSV column that will be used to match the GEOJSON
+            feature <br> (see <code>file -> configuration -> key</code>)
+          </li>
+
+          <li attr="properties_search">
+            WIP
+          </li>
+
+          <li attr="attributes_map">
+            WIP
+          </li>
+
+          <li attr="features_specs">
+            WIP
+          </li>
+
+          <li attr="mutant_targets">
+            WIP
+          </li>
+        </ul>
+      </p>
+
+      <p attr="category_overrides">
+        WIP
+      </p>
+
+      <p attr="metadata">
+        a collection attributes about the dataset to be shown in the
+        "about this dataset" section of the tool.
+      </p>
+    </section>
+
+    <section>
+      <h2>About this document</h2>
+
+      This document is very strictly formatted. Keep it that way, OK?
+    </section>
+
+    <a href="#" id="back-top">
+      <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+        <path fill="gray" d="M13,20H11V8L5.5,13.5L4.08,12.08L12,4.16L19.92,12.08L18.5,13.5L13,8V20Z" />
+      </svg>
+    </a>
+  </body>
+
+  <script>
+    (function() {
+      const sol = document.querySelector('#table-contents ol');
+
+      const plis = document.querySelectorAll('p,li');
+      for (let x of plis) {
+        const a = x.getAttribute('attr'); if (a) {
+          const e = document.createElement('attr');
+          e.innerText = a;
+          x.prepend(e);
+        }
+      }
+
+      const sections = document.querySelectorAll('body > section');
+      for (let s of sections) {
+        if (s.id === 'table-contents') continue;
+
+        const slink = document.createElement('a');
+        slink.href = '#' + s.id;
+        slink.innerHTML = s.querySelector('h2').innerText;
+
+        const sli = document.createElement('li');
+        sli.append(slink);
+
+        const subsections = s.querySelectorAll('section');
+        const ssol = document.createElement('ol');
+        ssol.type = 'a';
+        sli.append(ssol);
+
+        for (let ss of subsections) {
+          const h3 = ss.querySelector('h3');
+          if (!h3) continue;
+
+          const ssa = document.createElement('a');
+          ssa.href = '#' + ss.id;
+
+          ssa.innerHTML = h3.innerText;
+
+          const ssli = document.createElement('li');
+          ssli.append(ssa);
+
+          ssol.append(ssli);
+        }
+
+        sol.append(sli);
+      }
+    })();
+  </script>
+</html>
