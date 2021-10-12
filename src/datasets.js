@@ -15,8 +15,6 @@ const clonable_attrs = [
 	'name_long',
 	'configuration',
 	'category_overrides',
-	'pack',
-	'presets',
 	'metadata'
 ];
 
@@ -76,13 +74,6 @@ export const model = {
 		"flagged": {
 			"type": "boolean",
 			"hint": "Flagging a dataset will automatically remove it from the production environment for revision. Flagged datasets can be reviewed in the staging environment. Unflagging does not add the dataset back into the production environment.",
-		},
-
-		"pack": {
-			"type": "string",
-			"label": "Pack",
-			"pattern": "^[a-z][a-z0-9\-]+$",
-			"default": "all",
 		},
 
 		"source_files": {
@@ -263,41 +254,6 @@ export const model = {
 			"label": "Category Overrides",
 			"nullable": true,
 			"hint": "Category overrides enable users to override category-level settings to customize dataset configuration for a specific geography. To override a category-level setting, import the GeoJSON section of interest, and enter the values to modify.",
-		},
-
-		"presets": {
-			"type": "array",
-			"nullable": true,
-			"schema": {
-				"type": "object",
-				"schema": {
-					"name": {
-						"type": "string",
-						"required": true,
-						"options": ["market", "planning", "investment"],
-						"hint": "Name of a preset scenario",
-					},
-
-					"weight": {
-						"type": "number",
-						"required": true,
-						"default": 2,
-						"name": "Level of importance of the dataset in the preset scenario",
-					},
-
-					"min": {
-						"type": "number",
-						"default": 0,
-						"hint": "minimum preset value",
-					},
-
-					"max": {
-						"type": "number",
-						"default": 100,
-						"hint": "maximum preset value",
-					}
-				}
-			}
 		},
 
 		"metadata": {
@@ -518,7 +474,6 @@ export const collection = {
 			'category_id',
 			'category_name',
 			'geography_circle',
-			'pack',
 			'geography_id',
 			'created',
 			'created_by',
