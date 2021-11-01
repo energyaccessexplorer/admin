@@ -77,7 +77,7 @@ export const model = {
 			"type": "array",
 			"nullable": true,
 			"sortable": true,
-			"hint": "Configuration of colorstops",
+			"hint": "Configuration of colorstops. Left first (top). Right last (bottom)",
 			"schema": {
 				"type": "colour",
 			}
@@ -109,7 +109,6 @@ export const model = {
 					"schema": {
 						"resample": {
 							"type": "select",
-							"options": [],
 							"required": true,
 							"hint": "Resample setting for PAVER processing",
 							"options": [
