@@ -260,6 +260,7 @@ export const collection = {
 			'flagged',
 			'configuration',
 			'datasets(id)',
+			'has_subgeographies',
 			'created',
 			'created_by',
 			'updated',
@@ -271,9 +272,16 @@ export const collection = {
 		};
 
 		const url = new URL(location);
-		let geography_id	= url.searchParams.get('id');
+		const geography_id = url.searchParams.get('id');
+		let adm = url.searchParams.get('adm');
+		const parent_id = url.searchParams.get('parent_id');
+
 		if (geography_id)
 			params['id'] = `eq.${geography_id}`;
+		else if (parent_id)
+			params['parent_id'] = `eq.${parent_id}`;
+		else
+			params['adm'] = `eq.${adm ?? 0}`;
 
 		const circles = circles_user();
 		if (circles)

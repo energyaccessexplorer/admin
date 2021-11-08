@@ -5,12 +5,18 @@
     <a bind-icon="edit"></a>
   </td>
 
+  <td style="text-align: center;">
+    <a bind-attr="href"
+       bind-value="id"
+       bind-format="/?model=geographies&parent_id={0}"
+       bind-cond="has_subgeographies">
+      <i class="bi-filter"></i>
+    </a>
+  </td>
+
   <td bind="name"></td>
 
   <td bind="cca3"
-      style="text-align: center; font-family: monospace;"></td>
-
-  <td bind="adm"
       style="text-align: center; font-family: monospace;"></td>
 
   <td style="text-align: center;">
