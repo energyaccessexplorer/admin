@@ -381,7 +381,7 @@ export const model = {
 			d.prepend(c, object.data.haspaver ? p : undefined);
 		},
 		function(object, form) {
-			dt_external_link(object, form, m => `${dt_config.production}/a/?id=${m.geography_id}&inputs=${m.name}`);
+			dt_external_link(object, form, m => `${external_link_base(m)}/a/?id=${m.geography_id}&inputs=${m.name}`);
 		},
 		function(_, form) {
 			const metadatadetails = form.querySelector('details[name="metadata"]');

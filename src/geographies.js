@@ -234,7 +234,7 @@ export const model = {
 
 	"edit_modal_jobs": [
 		function(object, form) {
-			dt_external_link(object, form, m => `${dt_config.production}/a/?id=${m.id}&inputs=boundaries`);
+			dt_external_link(object, form, m => `${external_link_base(m)}/a/?id=${m.id}&inputs=boundaries`);
 		},
 	],
 
