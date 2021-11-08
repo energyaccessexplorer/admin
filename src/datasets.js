@@ -370,6 +370,16 @@ export const model = {
 	},
 
 	"edit_modal_jobs": [
+		function(object, _, modal) {
+			const p = ce('button', ce('i', null, { class: 'bi-gem', title: 'Paver' }));
+			p.onclick = _ => paver.routine(object);
+
+			const c = ce('button', ce('i', null, { class: 'bi-files', title: 'Clone' }));
+			c.onclick = _ => clone(object);
+
+			const d = qs('.actions-drawer', modal.dialog);
+			d.prepend(c, object.data.haspaver ? p : undefined);
+		},
 		function(object, form) {
 			dt_external_link(object, form, m => `${dt_config.production}/a/?id=${m.geography_id}&inputs=${m.name}`);
 		},
@@ -502,8 +512,6 @@ export const collection = {
 	},
 
 	"rowevents": {
-		"[action=paver]": ["click", paver.routine],
-		"[action=clone]": ["click", clone],
 		"td[bind=name]": ["dblclick", flag],
 	},
 
