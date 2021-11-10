@@ -136,6 +136,12 @@ export const model = {
 					"hint": "The national/subnational administrative level that corresponds with the CSV data. 0 = National",
 				},
 
+				"vectors_id": {
+					"hint": "IDs for geographic features in linked GeoJSON file. This corresponds to the csv_columns->id value below.",
+					"type": "string",
+					"needs": m => m.category_name.match(/boundaries/),
+				},
+
 				"csv_columns": {
 					"type": "object",
 					"nullable": true,
@@ -144,7 +150,7 @@ export const model = {
 						"id": {
 							"type": "string",
 							"required": true,
-							"hint": "Column header containing IDs for geographic divisions in linked CSV file",
+							"hint": "Column header containing IDs for geographic divisions in linked CSV file. This corresponds to the vectors_id value above.",
 						},
 
 						"value": {
