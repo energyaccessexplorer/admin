@@ -41,14 +41,6 @@ export const model = {
 			"hint": "The name of the parent geography. This applies to adm. 1, 2, 3 divisions. For instance, for a adm.1 geography, the parent geography is the name of the country."
 		},
 
-		"cca3": {
-			"type": "string",
-			"required": true,
-			"editable": false,
-			"label": "CCA3 code",
-			"hint": "This is the ISO 3166-1 alpha-3 country code. A list of codes can be found here: https://unstats.un.org/unsd/tradekb/knowledgebase/country-code",
-		},
-
 		"adm": {
 			"type": "number",
 			"required": true,
