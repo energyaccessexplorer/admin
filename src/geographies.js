@@ -233,7 +233,6 @@ export const model = {
 	"parse": function(m) {
 		m.inproduction = m.deployment.indexOf("production") > -1;
 		m.instaging = m.deployment.indexOf("staging") > -1;
-		m.dscount = m.datasets ? m.datasets.length : "?";
 		m.ok = !m.flagged;
 		return m;
 	}
@@ -251,7 +250,6 @@ export const collection = {
 			'deployment',
 			'flagged',
 			'configuration',
-			'datasets(id)',
 			'has_subgeographies',
 			'created',
 			'created_by',

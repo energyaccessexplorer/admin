@@ -1,21 +1,30 @@
 <tr bind-attr="class"
     bind-value="ok"
     bind-not="disabled">
-  <td>
-    <a bind-icon="edit"></a>
-  </td>
-
   <td style="text-align: center;">
     <a bind-attr="href"
        bind-value="id"
        bind-format="/?model=geographies&parent_id={0}"
-       bind-cond="has_subgeographies">
+       bind-cond="has_subgeographies"
+       title="Subgeographies">
       <i class="bi-filter"></i>
     </a>
   </td>
 
-  <td bind="name"></td>
+  <td style="text-align: right;">
+    <a bind-attr="href"
+       bind-value="id"
+       bind-format="/?model=datasets&geography_id={0}"
+       title="Datasets">
+      <i class="bi-collection"></i>
+    </a>
+  </td>
 
+  <td>
+    <a bind-icon="edit"></a>
+  </td>
+
+  <td bind="name"></td>
 
   <td style="text-align: center;">
     <span bind-icon="production"
@@ -35,14 +44,6 @@
     <span title="NOT deployed in staging"
           bind-icon="empty"
           bind-unless="instaging"></span>
-  </td>
-
-  <td style="text-align: right;">
-    <a bind-attr="href"
-       bind-value="id"
-       bind-format="/?model=datasets&geography_id={0}">
-      <span bind="dscount"></span> datasets
-    </a>
   </td>
 
   <td>
