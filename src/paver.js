@@ -79,7 +79,7 @@ export async function routine(obj) {
 		const rid = maybe(r, 'configuration', 'divisions', 0, 'dataset_id');
 
 		if (!rid) {
-			alert("The outline for this geography is not setup properly.");
+			alert("The geography -> configuration -> division -> 0 is not setup properly.");
 			return;
 		}
 
