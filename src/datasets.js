@@ -384,7 +384,7 @@ export const model = {
 			c.onclick = _ => clone(object);
 
 			const d = qs('.actions-drawer', modal.dialog);
-			d.prepend(c, object.data.haspaver ? p : undefined);
+			d.append(c, object.data.haspaver ? p : "");
 		},
 		function(object, form) {
 			dt_external_link(object, form, m => `${external_link_base(m)}/a/?id=${m.geography_id}&inputs=${m.name}`);
