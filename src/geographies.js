@@ -2,6 +2,8 @@ import {
 	circles_user,
 } from './circles.js';
 
+import * as paver from './paver.js';
+
 export const base = 'geographies';
 
 export const header = "Geographies";
@@ -17,6 +19,28 @@ function envelope_validate(data, newdata) {
 						 e[1] >=  -90,
 						 e[3] <=   90,
 						 e[1] <  e[3]);
+};
+
+async function generate_subgeographies() {
+	const divisions = this.configuration.divisions;
+
+	const dsid = maybe(this, 'configuration', 'divisions', 1, 'dataset_id');
+	if (!dsid)
+		throw new Error("buah!");
+
+	const div1 = await dt_client.get('datasets', { id: 'eq.' + dsid }, { one: true });
+
+	paver.subgeographies(this, {
+		"csv": {
+			"id": maybe(div1, 'configuration', 'csv_columns', 'id'),
+			"value": maybe(div1, 'configuration', 'csv_columns', 'value'),
+			"endpoint": div1.source_files.find(f => f.func === 'csv').endpoint,
+		},
+		"vectors": {
+			"id": maybe(div1, 'configuration', 'vectors_id'),
+			"endpoint": div1.source_files.find(f => f.func === 'vectors').endpoint,
+		}
+	});
 };
 
 export const model = {

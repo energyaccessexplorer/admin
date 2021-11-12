@@ -2,7 +2,13 @@ import {
 	geojson_summary_iframe
 } from './datasets.js';
 
+import {csvParse} from 'https://cdn.skypack.dev/d3-dsv@3';
+
 import * as socket from './socket.js';
+
+import {
+	model as dataset_model
+} from './datasets.js';
 
 export async function routine(obj) {
 	const d = obj.data;
@@ -188,6 +194,8 @@ ${msg}`;
 };
 
 async function outline(obj, payload, modal) {
+	modal.querySelector('form input[name=field]').value = maybe(obj.data, 'configuration', 'vectors_id');
+
 	return function() {
 		payload.field = modal.querySelector('form input[name=field]').value;
 
@@ -219,6 +227,8 @@ async function outline(obj, payload, modal) {
 };
 
 async function admin_boundaries(obj, payload, modal) {
+	modal.querySelector('form input[name=field]').value = maybe(obj.data, 'configuration', 'vectors_id');
+
 	return function() {
 		payload.field = modal.querySelector('form input[name=field]').value;
 
@@ -243,6 +253,9 @@ async function admin_boundaries(obj, payload, modal) {
 
 async function clip_proximity(obj, payload, modal) {
 	let f;
+	if (f = maybe(obj.data, 'configuration', 'vectors_id'))
+		payload.fields = payload.fields.push('vectors_id');
+
 	if (f = maybe(obj.data, 'configuration', 'attributes_map'))
 		payload.fields = payload.fields.concat(f.map(x => x['dataset']));
 
@@ -290,6 +303,104 @@ async function crop_raster(obj, payload, modal) {
 						}]
 					}
 				});
+			});
+	};
+};
+
+export async function subgeographies(obj, { vectors, csv }) {
+	const payload = {
+		"dataseturl": vectors.endpoint,
+		"idcolumn": vectors.id,
+	};
+
+	const table = await fetch(csv.endpoint).then(r => r.text()).then(r => csvParse(r));
+	const shapes = await fetch(vectors.endpoint).then(r => r.json());
+	const cid = (await dt_client.get('categories', { 'name': 'eq.'+"outline", 'select': ['id'] }, { one: true }))['id'];
+
+	if (table.length !== shapes.features.length)
+		throw new Error("different lengths. ciao.");
+
+	for (const r of table) {
+		if (!shapes.features.find(f => +f.properties[vectors.id] === +r[csv.id]))
+			throw new Error("you suck");
+	}
+
+	const t = await remote_tmpl("geographies/paver-subgeographies.html");
+
+	const m = new modal('paver-modal', {
+		content: t.innerHTML,
+	});
+
+	const c = m.content;
+	const f = c.querySelector('form');
+
+	m.show();
+
+	f.onsubmit = e => {
+		e.preventDefault();
+
+		submit('subgeographies', payload, m.content)
+			.then(async r => r.json())
+			.then(async results => {
+				const resolution = payload.field = m.content.querySelector('form input[name=resolution]').value;
+
+				dataset_model['base'] = 'datasets';
+
+				for (const r of table) {
+					const g = new dt_object({
+						"model": dt_modules['geographies']['model'],
+						"data": {
+							"name": r[csv.value],
+							"parent_id": obj.id,
+							"adm": obj.adm + 1,
+							"cca3": obj.cca3,
+							"resolution": parseInt(resolution),
+							"circle": obj.circle,
+							"deployment": ['staging'],
+						}
+					});
+
+					let gid, did;
+					await g.create().then(r => gid = r.id);
+
+					if (!gid)
+						throw new Error(`BU ${gid}`);
+
+					const source_files = [{
+						"func": "vectors",
+						"endpoint": `https://wri-public-data.s3.amazonaws.com/EnergyAccess/paver-outputs/${results[r[csv.id]]}`,
+					}];
+
+					const d = new dt_object({
+						model: dataset_model,
+						"data": {
+							"category_id": cid,
+							"geography_id": gid,
+							"configuration": {
+								"vectors_id": vectors.id,
+							},
+							source_files,
+						}
+					});
+					await d.create().then(r => did = r.id);
+
+					d.patch({
+						"deployment": ['staging'],
+						"processed_files": [],
+						source_files,
+					});
+
+					g.patch({
+						"configuration": {
+							"divisions": [{
+								"name": "Outline",
+								"dataset_id": did,
+							}]
+						}
+					});
+
+					// TODO: run paver on d
+				}
 			});
 	};
 };
