@@ -2,7 +2,14 @@ import {
 	circles_user,
 } from './circles.js';
 
+import {
+	email_user,
+	external_link_base,
+} from './helpers.js';
+
 import * as paver from './paver.js';
+
+window.email_user = email_user;
 
 const url = new URL(location);
 const dataset_id = url.searchParams.get('id');
@@ -21,7 +28,7 @@ const clonable_attrs = [
 export const base = 'datasets';
 
 export const model = {
-	"main": m => "&nbsp;",
+	"main": _ => "&nbsp;",
 
 	"columns": ["datatype", "category_name", "geography_name"],
 
@@ -223,7 +230,6 @@ export const model = {
 							},
 							"radius": {
 								"type": "number",
-								"hint": "points only",
 								"droppable": true,
 								"required": true,
 								"hint": "Refers to the radius size only for point features.",
@@ -236,7 +242,6 @@ export const model = {
 							},
 							"stroke-width": {
 								"type": "number",
-								"hint": "does not apply to polygons",
 								"droppable": true,
 								"required": true,
 								"hint": "The width of linear features, or borders for point. Does not apply for polygon features.",
@@ -410,12 +415,12 @@ export const model = {
 
 						for (let k in metadata)
 							metadatadetails.querySelector(`[name=${k}]`).value = metadata[k];
-					})
+					});
 			};
 
 			button.onclick = function() {
 				dt_model_search_modal('datasets', input, null);
-			}
+			};
 
 			summary.append(button);
 		},
@@ -550,7 +555,7 @@ export function geojson_summary_iframe(o) {
 	const iframe = ce('iframe', null, { width: "600", height: "600" });
 	iframe.src = geojson_summary_url(o);
 
-	const m = new modal('geojson-modal', {
+	new modal('geojson-modal', {
 		header: null,
 		content: iframe,
 		destroy: true,

@@ -2,11 +2,18 @@ import {
 	circles_user,
 } from './circles.js';
 
+import {
+	email_user,
+	external_link_base,
+} from './helpers.js';
+
 import * as paver from './paver.js';
 
 export const base = 'geographies';
 
 export const header = "Geographies";
+
+window.email_user = email_user;
 
 function envelope_validate(data, newdata) {
 	if (!maybe(newdata, 'envelope', 'length')) return true;
@@ -22,8 +29,6 @@ function envelope_validate(data, newdata) {
 };
 
 async function generate_subgeographies() {
-	const divisions = this.configuration.divisions;
-
 	const dsid = maybe(this, 'configuration', 'divisions', 1, 'dataset_id');
 	if (!dsid)
 		throw new Error("buah!");

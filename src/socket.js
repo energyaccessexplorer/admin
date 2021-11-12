@@ -2,11 +2,6 @@ export function listen(fn) {
 	const p = location.protocol === "https:" ? "wss" : "ws";
 
 	// TODO: how authenticate socket connection?
-	const o = {
-		headers: {
-			'Authorization': `Bearer ${localStorage.getItem('token')}`
-		}
-	};
 
 	const c = new WebSocket(`${p}://${location.host}${dt_paver.base}/socket`);
 

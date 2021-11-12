@@ -1,3 +1,5 @@
+/* eslint no-global-assign: "off" */
+
 dt_fetchables = {
 	"geographies": {
 		primary: 'name',
@@ -31,7 +33,7 @@ dt_fetchables = {
 				descriptor: x => `${x.name} - ${x.name_long}`,
 				value: v,
 				threshold: 2
-			}
+			};
 		}
 	},
 
@@ -49,7 +51,7 @@ dt_fetchables = {
 				descriptor: x => `${x.geography_name} - ${x.category_name} -- ${x.name} -- ${x.name_long}`,
 				value: v,
 				threshold: 2
-			}
+			};
 		}
 	},
 };

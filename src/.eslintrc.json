@@ -1,0 +1,52 @@
+{
+	"env": {
+		"browser": true,
+		"es2021": true
+	},
+	"extends": "eslint:recommended",
+	"parserOptions": {
+		"ecmaVersion": 12,
+		"sourceType": "module"
+	},
+	"rules": {
+		"indent": ["error", "tab"],
+		"linebreak-style": ["error", "unix"],
+		"quotes": "off",
+		"semi": ["error", "always"],
+		"no-cond-assign": "off",
+		"no-console": "off",
+		"no-extra-semi": "off",
+		"no-useless-escape": "off",
+		"no-mixed-spaces-and-tabs": "off",
+		"no-prototype-builtins": "off",
+		"no-unused-vars": ["warn", {
+			"varsIgnorePattern": "^_$",
+			"argsIgnorePattern": "^_$"
+		}]
+
+	},
+	"globals": {
+		"dt_flash": "readonly",
+		"dt_fetchables": "readonly",
+		"dt_navlist": "readonly",
+		"dt_config": "readonly",
+		"dt_client": "readonly",
+		"dt_paver": "readonly",
+		"dt_modal": "readonly",
+		"dt_object": "readonly",
+		"dt_modules": "readonly",
+		"dt_external_link": "readonly",
+		"dt_model_search_modal": "readonly",
+		"email_user": "readonly",
+		"external_link_base": "readonly",
+		"modal": "readonly",
+		"maybe": "readonly",
+		"or": "readonly",
+		"and": "readonly",
+		"ce": "readonly",
+		"qs": "readonly",
+		"qsa": "readonly",
+		"remote_tmpl": "readonly",
+		"jwt_decode": "readonly"
+	}
+}

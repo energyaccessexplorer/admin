@@ -1,3 +1,7 @@
+import {
+	email_user,
+} from './helpers.js';
+
 export const base = 'categories';
 
 export const header = "Categories";
@@ -368,7 +372,7 @@ export const model = {
 	"new_modal_jobs": [
 		function(_, form) {
 			const l = qs('[name="name"]', form);
-			qs('[name="name_long"]', form).addEventListener('input', function(e) {
+			qs('[name="name_long"]', form).addEventListener('input', function() {
 				l.value = this.value
 					.toLowerCase()
 					.replace(/[\ ]/g, '-')
@@ -429,6 +433,8 @@ export const collection = {
 	"order": -1
 };
 
+window.email_user = email_user;
+
 function raster_validate(data, newdata) {
 	return and(
 		raster_paver_validate(newdata),
@@ -454,8 +460,8 @@ function raster_proximity_validate(newdata) {
 	const r = newdata['raster'];
 
 	if (and(maybe(r, 'proximity'),
-					or(maybe(r, 'intervals'),
-						 maybe(r, 'paver')))) {
+	        or(maybe(r, 'intervals'),
+	           maybe(r, 'paver')))) {
 		dt_flash.push({
 			type: 'error',
 			title: "Raster configuration error",

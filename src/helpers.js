@@ -1,4 +1,4 @@
-function email_user(str) {
+export function email_user(str) {
 	if (!str || str === "") return "?";
 
 	if (!str.match('@')) return str;
@@ -6,7 +6,7 @@ function email_user(str) {
 	return str.split('@')[0];
 };
 
-function external_link_base(m) {
+export function external_link_base(m) {
 	let base;
 
 	if (or(dt_config.production.match(/localhost/),
