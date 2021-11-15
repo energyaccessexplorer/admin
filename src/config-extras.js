@@ -59,6 +59,7 @@ dt_fetchables = {
 dt_navlist = [
 	["geographies", "Geographies", "globe"],
 	["categories", "Categories", "list-nested"],
+	["users", "Users", "people-fill"],
 ];
 
 dt_paver = {

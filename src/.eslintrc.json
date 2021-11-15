@@ -47,6 +47,7 @@
 		"qs": "readonly",
 		"qsa": "readonly",
 		"remote_tmpl": "readonly",
+		"pgrest": "readonly",
 		"jwt_decode": "readonly"
 	}
 }
