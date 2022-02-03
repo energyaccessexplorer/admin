@@ -119,11 +119,9 @@ export async function routine(obj) {
 		payload.resolution = r.resolution;
 	})();
 
-	const t = await remote_tmpl(template);
-
 	const m = new modal('paver-modal', {
 		header,
-		content: t.innerHTML,
+		content: await remote_tmpl(template),
 	});
 
 	const c = m.content;
@@ -325,10 +323,8 @@ export async function subgeographies(obj, { vectors, csv }) {
 			throw new Error("you suck");
 	}
 
-	const t = await remote_tmpl("geographies/paver-subgeographies.html");
-
 	const m = new modal('paver-modal', {
-		content: t.innerHTML,
+		content: await remote_tmpl("geographies/paver-subgeographies.html"),
 	});
 
 	const c = m.content;

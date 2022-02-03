@@ -63,10 +63,10 @@ export const model = {
 			"type": "uuid",
 			"fkey": "geographies",
 			"label": "Parent Geography",
-			"constraint": "parent",
+			"constraint": "subgeographies:parent",
 			"required": false,
 			"editable": false,
-			"columns": ['*'],
+			"columns": ['id', 'name'],
 			"hint": "The name of the parent geography. This applies to adm. 1, 2, 3 divisions. For instance, for a adm.1 geography, the parent geography is the name of the country."
 		},
 
@@ -312,6 +312,9 @@ export const collection = {
 			params['parent_id'] = `eq.${parent_id}`;
 		else
 			params['adm'] = `eq.${adm ?? 0}`;
+
+		if (parent_id)
+			model['schema']['parent_id']['required'] = true;
 
 		const circles = circles_user();
 		if (circles)
