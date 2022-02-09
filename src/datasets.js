@@ -101,6 +101,7 @@ export const model = {
 						"type": "string",
 						"required": true,
 						"pattern": "^https://(.+)",
+						"bind": "storage",
 						"hint": "Enter the secure URL that corresponds to the dataset in the cloud",
 					},
 				}
@@ -539,6 +540,41 @@ export async function header() {
 		const name = (await dt_client.get('categories', { select: ['name'], id: `eq.${category_id}` }, { one: true }))['name'];
 		return `${name} - datasets`;
 	}
+};
+
+export async function init() {
+	if (!geography_id) return true;
+
+	function dump_table() {
+		const a = ce('a', ce('i', null, { class: 'bi-download', title: 'Dump Table' }));
+
+		a.onclick = _ => dt_client.get('datasets', {
+			select: [
+				"id",
+				"geography_name",
+				"name_long",
+				"name",
+				"category_name",
+				"datatype",
+				"deployment",
+				"flagged",
+				"configuration",
+				"category_overrides",
+				"source_files",
+				"processed_files",
+				"metadata",
+				"created",
+				"updated",
+			],
+			geography_id: `eq.${geography_id}`
+		}, { 'expect': "csv" }).then(r => fake_blob_download(r, `${geography_id}-dataset-dump.csv`));
+
+		qs('body main header .actions-drawer').prepend(a);
+	};
+
+	until(_ => qs('body main header .actions-drawer')).then(dump_table);
+
+	return true;
 };
 
 export function geojson_summary_url(m) {

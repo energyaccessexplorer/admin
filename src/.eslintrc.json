@@ -39,6 +39,7 @@
 		"dt_model_search_modal": "readonly",
 		"email_user": "readonly",
 		"external_link_base": "readonly",
+		"fake_blob_download": "readonly",
 		"modal": "readonly",
 		"maybe": "readonly",
 		"or": "readonly",
@@ -48,6 +49,7 @@
 		"qsa": "readonly",
 		"remote_tmpl": "readonly",
 		"pgrest": "readonly",
+		"until": "readonly",
 		"jwt_decode": "readonly"
 	}
 }
