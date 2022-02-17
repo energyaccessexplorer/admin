@@ -313,7 +313,7 @@ export async function subgeographies(obj, { vectors, csv }) {
 
 	const table = await fetch(csv.endpoint).then(r => r.text()).then(r => csvParse(r));
 	const shapes = await fetch(vectors.endpoint).then(r => r.json());
-	const cid = (await dt_client.get('categories', { 'name': 'eq.'+"outline", 'select': ['id'] }, { one: true }))['id'];
+	const cid = (await dt_client.get('categories', { 'name': "eq.outline", 'select': ['id'] }, { one: true }))['id'];
 
 	if (table.length !== shapes.features.length)
 		throw new Error("different lengths. ciao.");
@@ -359,8 +359,7 @@ export async function subgeographies(obj, { vectors, csv }) {
 					let gid, did;
 					await g.create().then(r => gid = r.id);
 
-					if (!gid)
-						throw new Error(`BU ${gid}`);
+					if (!gid) throw new Error(`BU ${gid}`);
 
 					const source_files = [{
 						"func": "vectors",
