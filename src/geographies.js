@@ -131,6 +131,11 @@ export const model = {
 					"default": false,
 				},
 
+				"exclude_sector_presets": {
+					"type": "boolean",
+					"default": false,
+				},
+
 				"introduction": {
 					"type": "text",
 					"default": null
