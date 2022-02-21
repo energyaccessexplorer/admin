@@ -1,16 +1,32 @@
-import {
-	geojson_summary_iframe
-} from './datasets.js';
+/*eslint no-unreachable: "off"*/
 
-import {csvParse} from 'https://cdn.skypack.dev/d3-dsv@3';
+import {csvParse} from '../lib/ds-dsv.js';
 
 import * as socket from './socket.js';
 
 import {
-	model as dataset_model
+	geojson_summary_iframe,
+	model as dataset_model,
 } from './datasets.js';
 
-export async function routine(obj) {
+async function pavercheck() {
+	fetch(`${dt_paver.base}/routines`, {
+		method: 'OPTIONS',
+		headers: {
+			'Authorization': `Bearer ${localStorage.getItem('token')}`
+		},
+	}).then(r => {
+		if (!r.ok) {
+			const msg = "Paver is not running... :(";
+			dt_flash.push({ 'title': msg });
+			throw new Error(msg);
+		}
+	});
+};
+
+export async function routine(obj, ui) {
+	await pavercheck();
+
 	const d = obj.data;
 
 	const payload = {
@@ -119,43 +135,27 @@ export async function routine(obj) {
 		payload.resolution = r.resolution;
 	})();
 
-	const m = new modal('paver-modal', {
-		header,
-		content: await remote_tmpl(template),
-	});
-
-	const c = m.content;
-	const f = c.querySelector('form');
-	const g = f.querySelector('button[bind=geojson]');
-
-	if (g) g.onclick = _ => geojson_summary_iframe(obj);
-
-	(async function pavercheck() {
-		fetch(`${dt_paver.base}/routines`, {
-			method: 'OPTIONS',
-			headers: {
-				'Authorization': `Bearer ${localStorage.getItem('token')}`
-			},
-		}).then(r => {
-			if (!r.ok) {
-				const msg = "Paver is not running... :(";
-
-				m.set({ "content": msg });
-				m.show();
-
-				throw new Error(msg);
-			}
+	if (ui) {
+		const m = new modal('paver-modal', {
+			header,
+			content: await remote_tmpl(template),
 		});
-	})();
 
-	const s = await fn(obj, payload, c);
+		const c = m.content;
+		const f = c.querySelector('form');
+		const g = f.querySelector('button[bind=geojson]');
 
-	f.onsubmit = function(e) {
-		e.preventDefault();
-		s();
-	};
+		if (g) g.onclick = _ => geojson_summary_iframe(obj);
 
-	m.show();
+		f.onsubmit = function(e) {
+			e.preventDefault();
+			fn(obj, payload, c)();
+		};
+
+		m.show();
+	}
+
+	return (await fn(obj, payload, ui));
 };
 
 async function submit(routine, payload, modal) {
@@ -166,7 +166,7 @@ async function submit(routine, payload, modal) {
 				"=" +
 				encodeURIComponent(payload[p]));
 
-	const infopre = modal.querySelector('#infopre');
+	const infopre = modal ? modal.querySelector('#infopre') : document.querySelector('#infopre');
 
 	socket.listen(m => infopre.innerText += "\n" + m);
 
@@ -192,12 +192,15 @@ ${msg}`;
 };
 
 async function outline(obj, payload, modal) {
-	modal.querySelector('form input[name=field]').value = maybe(obj.data, 'configuration', 'vectors_id');
+	if (modal)
+		modal.querySelector('form input[name=field]').value = maybe(obj.data, 'configuration', 'vectors_id');
 
 	return function() {
-		payload.field = modal.querySelector('form input[name=field]').value;
+		payload.field = modal ?
+			modal.querySelector('form input[name=field]').value :
+			maybe(obj.data, 'configuration', 'vectors_id');
 
-		submit('admin-boundaries', payload, modal)
+		return submit('admin-boundaries', payload, modal)
 			.then(async r => {
 				const j = await r.json();
 
@@ -305,6 +308,66 @@ async function crop_raster(obj, payload, modal) {
 	};
 };
 
+async function subgeography(r, opts ) {
+	const { results, cid, vectors, csv, obj, resolution } = opts;
+	const g = new dt_object({
+		"model": dt_modules['geographies']['model'],
+		"data": {
+			"name": r[csv.value],
+			"parent_id": obj.id,
+			"adm": obj.adm + 1,
+			"cca3": obj.cca3,
+			"resolution": parseInt(resolution),
+			"circle": obj.circle,
+			"deployment": ['staging'],
+		}
+	});
+
+	console.warn(r[csv.value], "...");
+
+	let gid, did;
+	await g.create().then(r => gid = r.id);
+
+	if (!gid) throw new Error(`BU ${gid}`);
+
+	const source_files = [{
+		"func": "vectors",
+		"endpoint": `https://wri-public-data.s3.amazonaws.com/EnergyAccess/paver-outputs/${results[r[csv.id]]}`,
+	}];
+
+	const d = new dt_object({
+		model: dataset_model,
+		"data": {
+			"category_id": cid,
+			"geography_id": gid,
+			"configuration": {
+				"vectors_id": vectors.id,
+			},
+			source_files,
+		}
+	});
+	await d.create().then(r => did = r.id);
+
+	d.patch({
+		"deployment": ['staging'],
+		"processed_files": [],
+		source_files,
+	});
+
+	g.patch({
+		"configuration": {
+			"divisions": [{
+				"name": "Outline",
+				"dataset_id": did,
+			}]
+		}
+	});
+
+	return d.fetch()
+		.then(_ => routine(d, null))
+		.then(e => e());
+};
+
 export async function subgeographies(obj, { vectors, csv }) {
 	const payload = {
 		"dataseturl": vectors.endpoint,
@@ -342,60 +405,8 @@ export async function subgeographies(obj, { vectors, csv }) {
 
 				dataset_model['base'] = 'datasets';
 
-				for (const r of table) {
-					const g = new dt_object({
-						"model": dt_modules['geographies']['model'],
-						"data": {
-							"name": r[csv.value],
-							"parent_id": obj.id,
-							"adm": obj.adm + 1,
-							"cca3": obj.cca3,
-							"resolution": parseInt(resolution),
-							"circle": obj.circle,
-							"deployment": ['staging'],
-						}
-					});
-
-					let gid, did;
-					await g.create().then(r => gid = r.id);
-
-					if (!gid) throw new Error(`BU ${gid}`);
-
-					const source_files = [{
-						"func": "vectors",
-						"endpoint": `https://wri-public-data.s3.amazonaws.com/EnergyAccess/paver-outputs/${results[r[csv.id]]}`,
-					}];
-
-					const d = new dt_object({
-						model: dataset_model,
-						"data": {
-							"category_id": cid,
-							"geography_id": gid,
-							"configuration": {
-								"vectors_id": vectors.id,
-							},
-							source_files,
-						}
-					});
-					await d.create().then(r => did = r.id);
-
-					d.patch({
-						"deployment": ['staging'],
-						"processed_files": [],
-						source_files,
-					});
-
-					g.patch({
-						"configuration": {
-							"divisions": [{
-								"name": "Outline",
-								"dataset_id": did,
-							}]
-						}
-					});
-
-					// TODO: run paver on d
-				}
+				for (const r of table)
+					await subgeography(r, { obj, results, csv, cid, vectors, resolution });
 			});
 	};
 };
