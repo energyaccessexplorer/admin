@@ -287,7 +287,7 @@ export const collection = {
 	"filters": ['name'],
 
 	"endpoint": function() {
-		const attrs = [
+		const select = [
 			'id',
 			'name',
 			'cca3',
@@ -302,10 +302,7 @@ export const collection = {
 			'updated_by',
 		];
 
-		const params = {
-			"select": attrs
-		};
-
+		const params = { select };
 		const url = new URL(location);
 		const geography_id = url.searchParams.get('id');
 		let adm = url.searchParams.get('adm');

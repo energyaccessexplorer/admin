@@ -1,5 +1,3 @@
-/*eslint no-unreachable: "off"*/
-
 import {csvParse} from '../lib/ds-dsv.js';
 
 import * as socket from './socket.js';
@@ -147,12 +145,15 @@ export async function routine(obj, ui) {
 
 		if (g) g.onclick = _ => geojson_summary_iframe(obj);
 
+		const s = await fn(obj, payload, c);
+
 		f.onsubmit = function(e) {
 			e.preventDefault();
-			fn(obj, payload, c)();
+			s();
 		};
 
 		m.show();
+		return;
 	}
 
 	return (await fn(obj, payload, ui));
@@ -308,7 +309,7 @@ async function crop_raster(obj, payload, modal) {
 	};
 };
 
-async function subgeography(r, opts ) {
+async function subgeography(r, opts) {
 	const { results, cid, vectors, csv, obj, resolution } = opts;
 	const g = new dt_object({
 		"model": dt_modules['geographies']['model'],

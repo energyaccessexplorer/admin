@@ -384,7 +384,7 @@ export const model = {
 	"edit_modal_jobs": [
 		function(object, _, modal) {
 			const p = ce('button', ce('i', null, { class: 'bi-gem', title: 'Paver' }));
-			p.onclick = _ => paver.routine(object);
+			p.onclick = _ => paver.routine(object, true);
 
 			const c = ce('button', ce('i', null, { class: 'bi-files', title: 'Clone' }));
 			c.onclick = _ => clone(object);
