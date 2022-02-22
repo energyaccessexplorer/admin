@@ -290,7 +290,6 @@ export const collection = {
 		const select = [
 			'id',
 			'name',
-			'cca3',
 			'adm',
 			'deployment',
 			'flagged',

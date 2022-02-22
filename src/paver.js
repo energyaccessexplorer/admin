@@ -317,7 +317,6 @@ async function subgeography(r, opts) {
 			"name": r[csv.value],
 			"parent_id": obj.id,
 			"adm": obj.adm + 1,
-			"cca3": obj.cca3,
 			"resolution": parseInt(resolution),
 			"circle": obj.circle,
 			"deployment": ['staging'],
