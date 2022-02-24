@@ -278,13 +278,16 @@ export const model = {
 	"parse": function(m) {
 		m.inproduction = m.deployment.indexOf("production") > -1;
 		m.instaging = m.deployment.indexOf("staging") > -1;
+		m.deployments = m.deployment.join(',');
+
 		m.ok = !m.flagged;
+
 		return m;
 	}
 };
 
 export const collection = {
-	"filters": ['name'],
+	"filters": ['name', 'deployments'],
 
 	"endpoint": function() {
 		const select = [

@@ -375,9 +375,12 @@ export const model = {
 			'polygons-boundaries',
 		].includes(m.datatype);
 
+		m.deployments = m.deployment.join(',');
+
 		m.inproduction = m.deployment.indexOf("production") > -1;
 		m.instaging = m.deployment.indexOf("staging") > -1;
 		m.ok = !m.flagged;
+
 		return m;
 	},
 
@@ -483,7 +486,7 @@ export const model = {
 };
 
 export const collection = {
-	"filters": ['name', 'name_long', 'category_name'],
+	"filters": ['name', 'deployments', 'name_long', 'category_name'],
 
 	"endpoint": function() {
 		const attrs = [
