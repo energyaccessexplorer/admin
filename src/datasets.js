@@ -16,21 +16,26 @@ const dataset_id = url.searchParams.get('id');
 const geography_id = url.searchParams.get('geography_id');
 const category_id = url.searchParams.get('category_id');
 
-const clonable_attrs = [
-	'geography_id',
-	'category_id',
-	'name_long',
-	'configuration',
-	'category_overrides',
-	'metadata'
-];
-
 export const base = 'datasets';
 
 export const model = {
 	"main": _ => "&nbsp;",
 
-	"columns": ["datatype", "category_name", "geography_name"],
+	"columns": [
+		"datatype",
+		"category_name",
+		"geography_name"
+	],
+
+	"clonable_attrs": [
+		'geography_id',
+		'category_id',
+		'name_long',
+		'configuration',
+		'category_overrides',
+		'metadata',
+		'source_files',
+	],
 
 	"schema": {
 		"category_id": {
@@ -390,7 +395,7 @@ export const model = {
 			p.onclick = _ => paver.routine(object, true);
 
 			const c = ce('button', ce('i', null, { class: 'bi-files', title: 'Clone' }));
-			c.onclick = _ => clone(object);
+			c.onclick = _ => object.clone({ name: (object.data.name || object.data.category_name) + "-clone-" + (new Date).getTime() });
 
 			const d = qs('.actions-drawer', modal.dialog);
 			d.append(c, object.data.haspaver ? p : "");
@@ -606,27 +611,6 @@ function flag(obj) {
 	data.flagged = !data.flagged;
 
 	obj.patch(data);
-};
-
-function clone() {
-	const t = arguments[0];
-
-	const data = {};
-
-	for (const k of clonable_attrs)
-		data[k] = t.data[k];
-
-	const n = (t.data.name || t.data.category_name);
-
-	data['name'] = n + "-clone-" + (new Date).getTime();
-
-	const o = new dt_object({
-		"model": model,
-		"data": data,
-		"collection": t.collection,
-	});
-
-	if (confirm(`Clone '${n}' dataset?`)) o.create();
 };
 
 function source_files_requirements(m) {
