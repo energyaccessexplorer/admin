@@ -50,6 +50,7 @@
 		"remote_tmpl": "readonly",
 		"pgrest": "readonly",
 		"until": "readonly",
+		"uuid": "readonly",
 		"jwt_decode": "readonly"
 	}
 }

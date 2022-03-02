@@ -169,9 +169,11 @@ async function submit(routine, payload, modal) {
 
 	const infopre = modal ? modal.querySelector('#infopre') : document.querySelector('#infopre');
 
-	socket.listen(m => infopre.innerText += "\n" + m);
+	const socket_id = uuid();
 
-	return fetch(`${dt_paver.base}/routines?routine=${routine}`, {
+	socket.listen(socket_id, m => infopre.innerText += "\n" + m);
+
+	return fetch(`${dt_paver.base}/routines?routine=${routine}&socket_id=${socket_id}`, {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/x-www-form-urlencoded',

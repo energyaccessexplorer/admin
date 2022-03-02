@@ -1,9 +1,7 @@
-export function listen(fn) {
+export function listen(id, fn) {
 	const p = location.protocol === "https:" ? "wss" : "ws";
 
-	// TODO: how authenticate socket connection?
-
-	const c = new WebSocket(`${p}://${location.host}${dt_paver.base}/socket`);
+	const c = new WebSocket(`${p}://${location.host}${dt_paver.base}/socket?id=${id}`);
 
 	c.addEventListener("open", _ => console.info("connected!"));
 
