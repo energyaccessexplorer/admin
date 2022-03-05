@@ -27,7 +27,7 @@
   <td bind="name"></td>
 
   <td style="text-align: center;">
-    <span bind-icon="production"
+    <span bind-icon="globe2"
           title="deployed in production"
           bind-cond="inproduction"></span>
 
@@ -37,13 +37,43 @@
   </td>
 
   <td style="text-align: center;">
-    <span bind-icon="staging"
+    <span bind-icon="lock"
           title="deployed in staging"
           bind-cond="instaging"></span>
 
     <span title="NOT deployed in staging"
           bind-icon="empty"
           bind-unless="instaging"></span>
+  </td>
+
+  <td style="text-align: center;">
+    <span bind-icon="test"
+          title="deployed in test"
+          bind-cond="intest"></span>
+
+    <span title="NOT deployed in test"
+          bind-icon="empty"
+          bind-unless="intest"></span>
+  </td>
+
+  <td style="text-align: center;">
+    <span bind-icon="bounding-box-circles"
+          title="deployed in training"
+          bind-cond="intraining"></span>
+
+    <span title="NOT deployed in training"
+          bind-icon="empty"
+          bind-unless="intraining"></span>
+  </td>
+
+  <td style="text-align: center;">
+    <span bind-icon="braces"
+          title="deployed in development"
+          bind-cond="indevelopment"></span>
+
+    <span title="NOT deployed in development"
+          bind-icon="empty"
+          bind-unless="indevelopment"></span>
   </td>
 
   <td>

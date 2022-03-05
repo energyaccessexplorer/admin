@@ -83,7 +83,7 @@ export const model = {
 			"hint": "Select the environments where the geography will be deployed",
 			"schema": {
 				"type": "string",
-				"options": ["staging", "production"],
+				"options": ["test", "staging", "production", "training", "development"],
 				"required": true
 			}
 		},
@@ -278,6 +278,10 @@ export const model = {
 	"parse": function(m) {
 		m.inproduction = m.deployment.indexOf("production") > -1;
 		m.instaging = m.deployment.indexOf("staging") > -1;
+		m.intest = m.deployment.indexOf("test") > -1;
+		m.intraining = m.deployment.indexOf("training") > -1;
+		m.indevelopment = m.deployment.indexOf("development") > -1;
+
 		m.deployments = m.deployment.join(',');
 
 		m.ok = !m.flagged;
