@@ -3,9 +3,9 @@ export function listen(id, fn) {
 
 	const c = new WebSocket(`${p}://${location.host}${dt_paver.base}/socket?id=${id}`);
 
-	c.addEventListener("open", _ => console.info("connected!"));
+	c.addEventListener("open", e => console.log("WebSocket Connected", e));
 
-	c.addEventListener("close", e => console.log(`WebSocket Disconnected code: ${e.code}, reason: ${e.reason}`, e));
+	c.addEventListener("close", e => console.log(`WebSocket Disconnected`, e));
 
 	c.addEventListener("message", e => {
 		if (typeof fn === 'function') fn(e.data);

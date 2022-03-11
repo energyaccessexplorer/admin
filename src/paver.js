@@ -1,4 +1,4 @@
-import {csvParse} from '../lib/ds-dsv.js';
+import { csvParse } from '../lib/ds-dsv.js';
 
 import { listen as socket_listen } from './socket.js';
 
@@ -313,6 +313,7 @@ async function crop_raster(obj, payload, modal) {
 
 async function subgeography(r, opts) {
 	const { results, cid, vectors, csv, obj, resolution } = opts;
+
 	const g = new dt_object({
 		"model": dt_modules['geographies']['model'],
 		"data": {
@@ -324,8 +325,6 @@ async function subgeography(r, opts) {
 			"deployment": ['staging'],
 		}
 	});
-
-	console.warn(r[csv.value], "...");
 
 	let gid, did;
 	await g.create().then(r => gid = r.id);
