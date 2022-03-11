@@ -11,4 +11,6 @@ export function listen(id, fn) {
 		if (typeof fn === 'function') fn(e.data);
 		console.log(e.data);
 	});
+
+	return new Promise(r => c.addEventListener("open", _ => r()));
 };

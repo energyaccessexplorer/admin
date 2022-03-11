@@ -1,6 +1,6 @@
 import {csvParse} from '../lib/ds-dsv.js';
 
-import * as socket from './socket.js';
+import { listen as socket_listen } from './socket.js';
 
 import {
 	geojson_summary_iframe,
@@ -171,7 +171,7 @@ async function submit(routine, payload, modal) {
 
 	const socket_id = uuid();
 
-	socket.listen(socket_id, m => infopre.innerText += "\n" + m);
+	await socket_listen(socket_id, m => infopre.innerText += "\n" + m);
 
 	return fetch(`${dt_paver.base}/routines?routine=${routine}&socket_id=${socket_id}`, {
 		method: 'POST',
