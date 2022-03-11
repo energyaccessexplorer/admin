@@ -207,7 +207,7 @@ async function outline(obj, payload, modal) {
 			.then(async r => {
 				const j = await r.json();
 
-				dt_client.patch('datasets', { "id": `eq.${obj.data.id}` }, {
+				const d = dt_client.patch('datasets', { "id": `eq.${obj.data.id}` }, {
 					payload: {
 						"processed_files": [{
 							"func": 'vectors',
@@ -226,6 +226,8 @@ async function outline(obj, payload, modal) {
 						"envelope": [Left, Bottom, Right, Top]
 					}
 				});
+
+				return d;
 			});
 	};
 };
@@ -236,11 +238,11 @@ async function admin_boundaries(obj, payload, modal) {
 	return function() {
 		payload.field = modal.querySelector('form input[name=field]').value;
 
-		submit('admin-boundaries', payload, modal)
+		return submit('admin-boundaries', payload, modal)
 			.then(async r => {
 				const j = await r.json();
 
-				dt_client.patch('datasets', { "id": `eq.${obj.data.id}` }, {
+				return dt_client.patch('datasets', { "id": `eq.${obj.data.id}` }, {
 					payload: {
 						"processed_files": [{
 							"func": 'vectors',
@@ -274,7 +276,7 @@ async function clip_proximity(obj, payload, modal) {
 	modal.querySelector('form input[name=fields]').value = payload.fields;
 
 	return function() {
-		submit('clip-proximity', payload, modal)
+		return submit('clip-proximity', payload, modal)
 			.then(async r => {
 				const j = await r.json();
 
@@ -295,7 +297,7 @@ async function clip_proximity(obj, payload, modal) {
 
 async function crop_raster(obj, payload, modal) {
 	return function() {
-		submit('crop-raster', payload, modal)
+		return submit('crop-raster', payload, modal)
 			.then(async r => {
 				const j = await r.json();
 
