@@ -48,6 +48,19 @@ async function generate_subgeographies() {
 	});
 };
 
+function external_link(object, form) {
+	dt_external_link(object, form, m => `${external_link_base(m)}/a/?id=${m.id}&inputs=boundaries`);
+};
+
+function subgeographies_button(object, _, modal) {
+	if (!and(!object.data.has_subgeographies, maybe(object.data, 'configuration', 'divisions', 1))) return;
+
+	const p = ce('button', ce('i', null, { class: 'bi-filter', title: 'Subgeographies' }));
+	p.onclick = _ => generate_subgeographies.call(object.data);
+
+	qs('.actions-drawer', modal.dialog).append(p);
+};
+
 export const model = {
 	"main": "name",
 
@@ -259,20 +272,8 @@ export const model = {
 	},
 
 	"edit_modal_jobs": [
-		function(object, form) {
-			dt_external_link(object, form, m => `${external_link_base(m)}/a/?id=${m.id}&inputs=boundaries`);
-		},
-		function(object, _, modal) {
-			const p = ce('button', ce('i', null, { class: 'bi-filter', title: 'Subgeographies' }));
-			p.onclick = _ => generate_subgeographies.call(object.data);
-
-			const d = qs('.actions-drawer', modal.dialog);
-
-			const s = and(!object.data.has_subgeographies,
-			              maybe(object.data, 'configuration', 'divisions', 1));
-
-			if (s) d.append(p);
-		},
+		external_link,
+		subgeographies_button,
 	],
 
 	"parse": function(m) {
