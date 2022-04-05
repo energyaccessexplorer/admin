@@ -9,6 +9,10 @@ import {
 
 import * as paver from './paver.js';
 
+import {
+	model as datasets_model,
+} from './datasets.js';
+
 export const base = 'geographies';
 
 export const header = "Geographies";
@@ -48,6 +52,42 @@ async function generate_subgeographies() {
 	});
 };
 
+function inherit_datasets() {
+	dt_client.get('datasets', {
+		"select": "*,category_name",
+		"geography_id": 'eq.' + this.data.parent_id,
+		"category_name": 'not.in.(indicator,timeline-indicator,boundaries,admin-tiers,outline)',
+		"datatype": 'not.in.(raster-mutant)',
+	}).then(async datasets => {
+		const content = await remote_tmpl("geographies/paver-inherit-datasets.html");
+
+		const m = new modal('paver-modal', {
+			content,
+		});
+
+		m.show();
+
+		for (const d of datasets) {
+			const o = new dt_object({
+				"model": datasets_model,
+				"data": d,
+			});
+
+			const n = await o.clone({
+				"deployment": ['staging'],
+				"processed_files": [],
+				"geography_id": this.data.id,
+				"source_files": d.source_files,
+				"name": d.name,
+			});
+
+			await n.fetch();
+
+			await (await paver.routine(n, { "pre": content.querySelector('pre') }))();
+		}
+	});
+};
+
 function external_link(object, form) {
 	dt_external_link(object, form, m => `${external_link_base(m)}/a/?id=${m.id}&inputs=boundaries`);
 };
@@ -57,6 +97,15 @@ function subgeographies_button(object, _, edit_modal) {
 
 	const p = ce('button', ce('i', null, { class: 'bi-filter', title: 'Subgeographies' }));
 	p.onclick = _ => generate_subgeographies.call(object.data);
+
+	qs('.actions-drawer', edit_modal.dialog).append(p);
+};
+
+function inherit_button(object, _, edit_modal) {
+	if (!object.data.parent_id) return;
+
+	const p = ce('button', ce('i', null, { class: 'bi-box-arrow-in-up-right', title: 'Inherit' }));
+	p.onclick = _ => inherit_datasets.call(object);
 
 	qs('.actions-drawer', edit_modal.dialog).append(p);
 };
@@ -274,6 +323,7 @@ export const model = {
 	"edit_modal_jobs": [
 		external_link,
 		subgeographies_button,
+		inherit_button,
 	],
 
 	"parse": function(m) {
