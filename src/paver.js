@@ -103,10 +103,13 @@ export async function routine(obj, ui) {
 			return;
 		}
 
-		const refs = await dt_client.get('datasets', {
-			"id": `eq.${rid}`,
-			"select": ["processed_files"],
-		}, { one: true });
+		const refs = await dt_client.get(
+			'datasets',
+			{
+				"id": `eq.${rid}`,
+				"select": ["processed_files"],
+			},
+			{ one: true });
 
 		payload.referenceurl = maybe(refs.processed_files.find(x => x.func === 'vectors'), 'endpoint');
 		payload.baseurl = maybe(refs.processed_files.find(x => x.func === 'raster'), 'endpoint');
@@ -171,7 +174,9 @@ async function submit(routine, payload, modal) {
 
 	const socket_id = uuid();
 
-	await socket_listen(socket_id, m => infopre.innerText += "\n" + m);
+	await socket_listen(socket_id, m => {
+		if (infopre) infopre.innerText += "\n" + m;
+	});
 
 	return fetch(`${dt_paver.base}/routines?routine=${routine}&socket_id=${socket_id}`, {
 		method: 'POST',
@@ -207,8 +212,10 @@ async function outline(obj, payload, modal) {
 			.then(async r => {
 				const j = await r.json();
 
-				const d = dt_client.patch('datasets', { "id": `eq.${obj.data.id}` }, {
-					payload: {
+				const d = dt_client.patch(
+					'datasets',
+					{ "id": `eq.${obj.data.id}` },
+					{	"payload": {
 						"processed_files": [{
 							"func": 'vectors',
 							"endpoint": `https://wri-public-data.s3.amazonaws.com/EnergyAccess/paver-outputs/${j.vectors}`,
@@ -216,8 +223,8 @@ async function outline(obj, payload, modal) {
 							"func": 'raster',
 							"endpoint": `https://wri-public-data.s3.amazonaws.com/EnergyAccess/paver-outputs/${j.raster}`,
 						}]
-					}
-				});
+					} }
+				);
 
 				const {Left, Bottom, Right, Top} = j.info.bounds;
 
@@ -242,8 +249,10 @@ async function admin_boundaries(obj, payload, modal) {
 			.then(async r => {
 				const j = await r.json();
 
-				return dt_client.patch('datasets', { "id": `eq.${obj.data.id}` }, {
-					payload: {
+				return dt_client.patch(
+					'datasets',
+					{ "id": `eq.${obj.data.id}` },
+					{ "payload": {
 						"processed_files": [{
 							"func": 'vectors',
 							"endpoint": `https://wri-public-data.s3.amazonaws.com/EnergyAccess/paver-outputs/${j.vectors}`,
@@ -252,7 +261,7 @@ async function admin_boundaries(obj, payload, modal) {
 							"endpoint": `https://wri-public-data.s3.amazonaws.com/EnergyAccess/paver-outputs/${j.raster}`,
 						}]
 					}
-				});
+					});
 			});
 	};
 };
@@ -280,8 +289,10 @@ async function clip_proximity(obj, payload, modal) {
 			.then(async r => {
 				const j = await r.json();
 
-				dt_client.patch('datasets', { "id": `eq.${obj.data.id}` }, {
-					payload: {
+				dt_client.patch(
+					'datasets',
+					{ "id": `eq.${obj.data.id}` },
+					{ "payload": {
 						"processed_files": [{
 							"func": 'vectors',
 							"endpoint": `https://wri-public-data.s3.amazonaws.com/EnergyAccess/paver-outputs/${j.vectors}`,
@@ -289,8 +300,8 @@ async function clip_proximity(obj, payload, modal) {
 							"func": 'raster',
 							"endpoint": `https://wri-public-data.s3.amazonaws.com/EnergyAccess/paver-outputs/${j.raster}`,
 						}]
-					}
-				});
+					} }
+				);
 			});
 	};
 };

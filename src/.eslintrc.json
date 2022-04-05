@@ -37,6 +37,7 @@
 		"dt_modules": "readonly",
 		"dt_external_link": "readonly",
 		"dt_model_search_modal": "readonly",
+		"dt_edit_update": "readonly",
 		"email_user": "readonly",
 		"external_link_base": "readonly",
 		"fake_blob_download": "readonly",

@@ -21,6 +21,8 @@ export const base = 'datasets';
 export const model = {
 	"main": _ => "&nbsp;",
 
+	"base": base,
+
 	"columns": [
 		"datatype",
 		"category_name",
@@ -592,8 +594,8 @@ export async function init() {
 export function geojson_summary_url(m) {
 	const u = new URL(dt_config.production + "/d");
 
-	u.searchParams.set('id', m.data.geography_id);
-	u.searchParams.set('dataset_id', m.data.id);
+	u.searchParams.set('id', m.geography_id);
+	u.searchParams.set('dataset_id', m.id);
 	u.searchParams.set('fn', 'geojson_summary');
 
 	return u;
