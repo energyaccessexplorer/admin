@@ -22,7 +22,7 @@ async function pavercheck() {
 	});
 };
 
-export async function routine(obj, ui) {
+export async function routine(obj, { edit_modal, pre }) {
 	await pavercheck();
 
 	const d = obj.data;
@@ -136,33 +136,59 @@ export async function routine(obj, ui) {
 		payload.resolution = r.resolution;
 	})();
 
-	if (ui) {
-		const m = new modal('paver-modal', {
-			header,
-			content: await remote_tmpl(template),
+	if (!edit_modal)
+		return (await fn(obj, payload, { pre }));
+
+	const paver_modal = new modal('paver-modal', {
+		header,
+		content: await remote_tmpl(template),
+	});
+
+	const c = paver_modal.content;
+	const f = c.querySelector('form');
+	const g = f.querySelector('button[bind=geojson]');
+
+	if (g) g.onclick = _ => geojson_summary_iframe(obj);
+
+	const s = await fn(obj, payload, { paver_modal });
+
+	f.onsubmit = function(e) {
+		e.preventDefault();
+
+		s().then(_r => {
+			const r = _r[0];
+
+			const form = qs('form', edit_modal.content);
+
+			const changes = [];
+
+			for (let k in r) {
+				const d = typeof obj.data[k];
+
+				switch (d) {
+				case 'object': {
+					if (JSON.stringify(obj.data[k]) !== JSON.stringify(r[k]))
+						changes.push(k);
+					break;
+				}
+
+				default: {
+					if (obj.data[k] !== r[k])
+						changes.push(k);
+					break;
+				}
+				}
+			}
+
+			obj.fetch()
+				.then(_ => dt_edit_update(form, changes, obj));
 		});
+	};
 
-		const c = m.content;
-		const f = c.querySelector('form');
-		const g = f.querySelector('button[bind=geojson]');
-
-		if (g) g.onclick = _ => geojson_summary_iframe(obj);
-
-		const s = await fn(obj, payload, c);
-
-		f.onsubmit = function(e) {
-			e.preventDefault();
-			s();
-		};
-
-		m.show();
-		return;
-	}
-
-	return (await fn(obj, payload, ui));
+	paver_modal.show();
 };
 
-async function submit(routine, payload, modal) {
+async function submit(routine, payload, { paver_modal, pre }) {
 	const body = [];
 	for (const p in payload)
 		body.push(
@@ -170,7 +196,7 @@ async function submit(routine, payload, modal) {
 				"=" +
 				encodeURIComponent(payload[p]));
 
-	const infopre = modal ? modal.querySelector('#infopre') : document.querySelector('#infopre');
+	const infopre = pre || (paver_modal || document).querySelector('#infopre');
 
 	const socket_id = uuid();
 
@@ -188,6 +214,12 @@ async function submit(routine, payload, modal) {
 	}).then(async r => {
 		if (!r.ok) {
 			const msg = await r.text();
+
+			if (!infopre) {
+				console.error(msg);
+				return;
+			}
+
 			infopre.innerText += `
 
 ${r.status} - ${r.statusText}
@@ -199,16 +231,16 @@ ${msg}`;
 	});
 };
 
-async function outline(obj, payload, modal) {
-	if (modal)
-		modal.querySelector('form input[name=field]').value = maybe(obj.data, 'configuration', 'vectors_id');
+async function outline(obj, payload, { paver_modal }) {
+	if (paver_modal)
+		paver_modal.querySelector('form input[name=field]').value = maybe(obj.data, 'configuration', 'vectors_id');
 
 	return function() {
-		payload.field = modal ?
-			modal.querySelector('form input[name=field]').value :
+		payload.field = paver_modal ?
+			paver_modal.querySelector('form input[name=field]').value :
 			maybe(obj.data, 'configuration', 'vectors_id');
 
-		return submit('admin-boundaries', payload, modal)
+		return submit('admin-boundaries', payload, { paver_modal })
 			.then(async r => {
 				const j = await r.json();
 
@@ -239,13 +271,13 @@ async function outline(obj, payload, modal) {
 	};
 };
 
-async function admin_boundaries(obj, payload, modal) {
-	modal.querySelector('form input[name=field]').value = maybe(obj.data, 'configuration', 'vectors_id');
+async function admin_boundaries(obj, payload, { paver_modal }) {
+	paver_modal.querySelector('form input[name=field]').value = maybe(obj.data, 'configuration', 'vectors_id');
 
 	return function() {
-		payload.field = modal.querySelector('form input[name=field]').value;
+		payload.field = paver_modal.querySelector('form input[name=field]').value;
 
-		return submit('admin-boundaries', payload, modal)
+		return submit('admin-boundaries', payload, { paver_modal })
 			.then(async r => {
 				const j = await r.json();
 
@@ -266,7 +298,7 @@ async function admin_boundaries(obj, payload, modal) {
 	};
 };
 
-async function clip_proximity(obj, payload, modal) {
+async function clip_proximity(obj, payload, { paver_modal }) {
 	let f;
 	if (f = maybe(obj.data, 'configuration', 'vectors_id'))
 		payload.fields = payload.fields.push('vectors_id');
@@ -282,14 +314,15 @@ async function clip_proximity(obj, payload, modal) {
 
 	payload.fields = Array.from(new Set(payload.fields)).sort();
 
-	modal.querySelector('form input[name=fields]').value = payload.fields;
+	if (paver_modal)
+		paver_modal.querySelector('form input[name=fields]').value = payload.fields;
 
 	return function() {
-		return submit('clip-proximity', payload, modal)
+		return submit('clip-proximity', payload, { paver_modal })
 			.then(async r => {
 				const j = await r.json();
 
-				dt_client.patch(
+				return dt_client.patch(
 					'datasets',
 					{ "id": `eq.${obj.data.id}` },
 					{ "payload": {
@@ -306,13 +339,13 @@ async function clip_proximity(obj, payload, modal) {
 	};
 };
 
-async function crop_raster(obj, payload, modal) {
+async function crop_raster(obj, payload, { paver_modal }) {
 	return function() {
-		return submit('crop-raster', payload, modal)
+		return submit('crop-raster', payload, { paver_modal })
 			.then(async r => {
 				const j = await r.json();
 
-				dt_client.patch('datasets', { "id": `eq.${obj.data.id}` }, {
+				return dt_client.patch('datasets', { "id": `eq.${obj.data.id}` }, {
 					payload: {
 						"processed_files": [{
 							"func": 'raster',
@@ -324,9 +357,7 @@ async function crop_raster(obj, payload, modal) {
 	};
 };
 
-async function subgeography(r, opts) {
-	const { results, cid, vectors, csv, obj, resolution } = opts;
-
+async function subgeography(r, { results, cid, vectors, csv, obj, resolution }) {
 	const g = new dt_object({
 		"model": dt_modules['geographies']['model'],
 		"data": {
@@ -378,7 +409,7 @@ async function subgeography(r, opts) {
 	});
 
 	return d.fetch()
-		.then(_ => routine(d, null))
+		.then(_ => routine(d))
 		.then(e => e());
 };
 
@@ -400,22 +431,22 @@ export async function subgeographies(obj, { vectors, csv }) {
 			throw new Error("you suck");
 	}
 
-	const m = new modal('paver-modal', {
+	const paver_modal = new modal('paver-modal', {
 		content: await remote_tmpl("geographies/paver-subgeographies.html"),
 	});
 
-	const c = m.content;
+	const c = paver_modal.content;
 	const f = c.querySelector('form');
 
-	m.show();
+	paver_modal.show();
 
 	f.onsubmit = e => {
 		e.preventDefault();
 
-		submit('subgeographies', payload, m.content)
+		submit('subgeographies', payload, { paver_modal })
 			.then(async r => r.json())
 			.then(async results => {
-				const resolution = payload.field = m.content.querySelector('form input[name=resolution]').value;
+				const resolution = payload.field = paver_modal.content.querySelector('form input[name=resolution]').value;
 
 				dataset_model['base'] = 'datasets';
 

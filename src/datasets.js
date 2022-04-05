@@ -7,7 +7,9 @@ import {
 	external_link_base,
 } from './helpers.js';
 
-import * as paver from './paver.js';
+import {
+	routine as paver_routine
+} from './paver.js';
 
 window.email_user = email_user;
 
@@ -396,14 +398,14 @@ export const model = {
 	},
 
 	"edit_modal_jobs": [
-		function(object, _, modal) {
+		function(object, form, edit_modal) {
 			const p = ce('button', ce('i', null, { class: 'bi-gem', title: 'Paver' }));
-			p.onclick = _ => paver.routine(object, true);
+			p.onclick = _ => paver_routine(object, { edit_modal });
 
 			const c = ce('button', ce('i', null, { class: 'bi-files', title: 'Clone' }));
 			c.onclick = _ => object.clone({ name: (object.data.name || object.data.category_name) + "-clone-" + (new Date).getTime() });
 
-			const d = qs('.actions-drawer', modal.dialog);
+			const d = qs('.actions-drawer', edit_modal.dialog);
 			d.append(c, object.data.haspaver ? p : "");
 		},
 		function(object, form) {
