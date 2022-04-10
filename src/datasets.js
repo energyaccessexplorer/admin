@@ -145,6 +145,7 @@ export const model = {
 			"type": "object",
 			"label": "Configuration",
 			"nullable": true,
+			"validate": configuration_attributes_validate,
 			"schema": {
 				"divisions_tier": {
 					"type": "number",
@@ -398,6 +399,18 @@ export const model = {
 	},
 
 	"edit_modal_jobs": [
+		async function(object) {
+			if (!["points", "lines", "polygons"].includes(object.data.datatype)) return;
+
+			const s = object.data.source_files.find(f => f.func === 'vectors')['endpoint'];
+			const p = object.data.processed_files.find(f => f.func === 'vectors')['endpoint'];
+
+			fetch(s).then(r => r.json())
+				.then(r => object.data._selectable_attributes = Object.keys(r.features[0]['properties']));
+
+			fetch(p).then(r => r.json())
+				.then(r => object.data._selected_attributes = Object.keys(r.features[0]['properties']));
+		},
 		function(object, form, edit_modal) {
 			const p = ce('button', ce('i', null, { class: 'bi-gem', title: 'Paver' }));
 			p.onclick = _ => paver_routine(object, { edit_modal });
@@ -680,4 +693,45 @@ function source_files_validate(data, newdata) {
 	}
 
 	return ok;
+};
+
+function configuration_attributes_validate(data, newdata) {
+	const config = newdata.configuration;
+	const selected = data._selected_attributes;
+
+	function err(p, n) {
+		dt_flash.push({
+			type: 'error',
+			title: `Configuration -> ${p}`,
+			message: `'${n}' attribute does not belong.
+
+Available values are '${selected}'`
+		});
+	};
+
+	if (config.attributes_map)
+		for (const n of config.attributes_map.map(a => a.dataset)) {
+			if (!selected.includes(n)) {
+				err("Attributes Map", n);
+				return false;
+			}
+		}
+
+	if (config.properties_search)
+		for (const n of config.properties_search) {
+			if (!selected.includes(n)) {
+				err("Properties Search", n);
+				return false;
+			}
+		}
+
+	if (config.features_specs)
+		for (const n of config.features_specs.map(a => a.key)) {
+			if (!selected.includes(n)) {
+				err("Features Specs", n);
+				return false;
+			}
+		}
+
+	return true;
 };

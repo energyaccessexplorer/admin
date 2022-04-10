@@ -22,6 +22,26 @@ async function pavercheck() {
 	});
 };
 
+function select_attributes(obj, selected, input) {
+	const arr = obj.data._selectable_attributes.map(a => {
+		const o = ce('option', a, { "value": a });
+		if (selected.includes(a)) o.setAttribute('selected', '');
+
+		return o;
+	});
+
+	const s = ce('select', arr, { "multiple": "", "name": "attrs" });
+
+	s.style = `
+width: 200px;
+height: 10rem;
+`;
+
+	s.onchange = _ => input.value = Array.from(s.selectedOptions).map(o => o.value).join(',');
+
+	return ce('div', s, { "class": "input-group" });
+};
+
 export async function routine(obj, { edit_modal, pre }) {
 	await pavercheck();
 
@@ -325,8 +345,12 @@ async function clip_proximity(obj, payload, { paver_modal }) {
 
 	payload.fields = Array.from(new Set(payload.fields)).sort();
 
-	if (paver_modal)
-		paver_modal.content.querySelector('form input[name=fields]').value = payload.fields;
+	if (paver_modal) {
+		const input = paver_modal.content.querySelector('form input[name=fields]');
+
+		paver_modal.content.querySelector('form').append(select_attributes(obj, payload.fields, input));
+		input.value = payload.fields;
+	}
 
 	return function() {
 		return submit('clip-proximity', payload, { paver_modal })
