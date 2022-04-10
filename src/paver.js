@@ -139,14 +139,24 @@ export async function routine(obj, { edit_modal, pre }) {
 	if (!edit_modal)
 		return (await fn(obj, payload, { pre }));
 
+	const id = "form-" + uuid();
+	const footer = `
+<div class="input-group">
+  <button type="submit" form=${id}>Pave it!</button>
+</div>`;
+
 	const paver_modal = new modal('paver-modal', {
 		header,
 		content: await remote_tmpl(template),
+		footer,
 	});
 
 	const c = paver_modal.content;
 	const f = c.querySelector('form');
 	const g = f.querySelector('button[bind=geojson]');
+
+	qs('form', c).id = id;
+	c.append(ce('pre', null, { "id": "infopre" }));
 
 	if (g) g.onclick = _ => geojson_summary_iframe(obj);
 
