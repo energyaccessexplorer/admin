@@ -234,11 +234,11 @@ ${msg}`;
 
 async function outline(obj, payload, { paver_modal }) {
 	if (paver_modal)
-		paver_modal.querySelector('form input[name=field]').value = maybe(obj.data, 'configuration', 'vectors_id');
+		paver_modal.content.querySelector('form input[name=field]').value = maybe(obj.data, 'configuration', 'vectors_id');
 
 	return function() {
 		payload.field = paver_modal ?
-			paver_modal.querySelector('form input[name=field]').value :
+			paver_modal.content.querySelector('form input[name=field]').value :
 			maybe(obj.data, 'configuration', 'vectors_id');
 
 		return submit('admin-boundaries', payload, { paver_modal })
@@ -273,10 +273,10 @@ async function outline(obj, payload, { paver_modal }) {
 };
 
 async function admin_boundaries(obj, payload, { paver_modal }) {
-	paver_modal.querySelector('form input[name=field]').value = maybe(obj.data, 'configuration', 'vectors_id');
+	paver_modal.content.querySelector('form input[name=field]').value = maybe(obj.data, 'configuration', 'vectors_id');
 
 	return function() {
-		payload.field = paver_modal.querySelector('form input[name=field]').value;
+		payload.field = paver_modal.content.querySelector('form input[name=field]').value;
 
 		return submit('admin-boundaries', payload, { paver_modal })
 			.then(async r => {
@@ -316,7 +316,7 @@ async function clip_proximity(obj, payload, { paver_modal }) {
 	payload.fields = Array.from(new Set(payload.fields)).sort();
 
 	if (paver_modal)
-		paver_modal.querySelector('form input[name=fields]').value = payload.fields;
+		paver_modal.content.querySelector('form input[name=fields]').value = payload.fields;
 
 	return function() {
 		return submit('clip-proximity', payload, { paver_modal })
