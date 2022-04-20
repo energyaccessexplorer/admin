@@ -30,7 +30,6 @@
 		"dt_navlist": "readonly",
 		"dt_config": "readonly",
 		"dt_paver": "readonly",
-		"dt_modal": "readonly",
 		"dt_object": "readonly",
 		"dt_modules": "readonly",
 		"dt_external_link": "readonly",

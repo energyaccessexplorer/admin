@@ -468,6 +468,12 @@ export const model = {
 
 				select.append(ce('option', "", { disabled: '', selected: '' }));
 
+				const m = new modal({
+					header: "Select a segment from the category configuration",
+					content: select,
+					destroy: true
+				});
+
 				select.onchange = async function() {
 					const k = this.value;
 
@@ -490,16 +496,13 @@ export const model = {
 
 					ta.value = JSON.stringify(co, null, 2);
 
-					dt_modal.hide();
+					m.hide();
 				};
 
 				for (let k of ['analysis', 'controls', 'domain', 'domain_init', 'metadata', 'raster', 'vectors'])
 					select.append(ce('option', k));
 
-				dt_modal.set({
-					header: "Select a segment from the category configuration",
-					content: select
-				}).show();
+				m.show();
 			};
 
 			button.onclick = function() {
@@ -620,7 +623,7 @@ export function geojson_summary_iframe(o) {
 	const iframe = ce('iframe', null, { width: "600", height: "600" });
 	iframe.src = geojson_summary_url(o);
 
-	new modal('geojson-modal', {
+	new modal({
 		header: null,
 		content: iframe,
 		destroy: true,

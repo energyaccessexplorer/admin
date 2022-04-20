@@ -61,7 +61,7 @@ function inherit_datasets() {
 	}).then(async datasets => {
 		const content = await remote_tmpl("geographies/paver-inherit-datasets.html");
 
-		const m = new modal('paver-modal', {
+		const m = new modal({
 			content,
 		});
 

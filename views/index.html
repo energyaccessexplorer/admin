@@ -8,10 +8,15 @@
 
     <script type="module">
       import pgrest from 'https://chestnut.vision/dist/duck-tape/lib/pgrest.js';
+      import modal from 'https://chestnut.vision/dist/duck-tape/lib/modal.js';
       import flash from 'https://chestnut.vision/dist/duck-tape/lib/flash.js';
+      import bubblemessage from 'https://chestnut.vision/dist/duck-tape/lib/bubblemessage.js';
 
       window.pgrest = pgrest;
+      window.modal = modal;
       window.flash = flash;
+      window.bubblemessage = bubblemessage;
+
       const s = document.createElement('script');
       s.src = dt_config.src;
       s.onload = _ => dt_main();

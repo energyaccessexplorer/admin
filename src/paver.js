@@ -165,7 +165,7 @@ export async function routine(obj, { edit_modal, pre }) {
   <button type="submit" form=${id}>Pave it!</button>
 </div>`;
 
-	const paver_modal = new modal('paver-modal', {
+	const paver_modal = new modal({
 		header,
 		content: await remote_tmpl(template),
 		footer,
@@ -466,7 +466,7 @@ export async function subgeographies(obj, { vectors, csv }) {
 			throw new Error("you suck");
 	}
 
-	const paver_modal = new modal('paver-modal', {
+	const paver_modal = new modal({
 		content: await remote_tmpl("geographies/paver-subgeographies.html"),
 	});
 
