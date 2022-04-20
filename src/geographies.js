@@ -37,7 +37,7 @@ async function generate_subgeographies() {
 	if (!dsid)
 		throw new Error("buah!");
 
-	const div1 = await dt_client.get('datasets', { id: 'eq.' + dsid }, { one: true });
+	const div1 = await API.get('datasets', { id: 'eq.' + dsid }, { one: true });
 
 	paver.subgeographies(this, {
 		"csv": {
@@ -53,7 +53,7 @@ async function generate_subgeographies() {
 };
 
 function inherit_datasets() {
-	dt_client.get('datasets', {
+	API.get('datasets', {
 		"select": "*,category_name",
 		"geography_id": 'eq.' + this.data.parent_id,
 		"category_name": 'not.in.(indicator,timeline-indicator,boundaries,admin-tiers,outline)',

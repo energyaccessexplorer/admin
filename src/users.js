@@ -5,7 +5,7 @@ const claims = jwt_decode(localStorage.getItem('token'));
 if (!['leader', 'master','root'].includes(claims['role']))
 	qs(`nav#dt-nav a[href="${dt_config.base}/?model=users"]`).remove();
 
-dt_client = new pgrest(dt_config.auth_server + "/admin/api", dt_flash);
+API = new pgrest(dt_config.auth_server + "/admin/api", FLASH);
 
 const url = new URL(location);
 url.searchParams.set('world', 'ea');

@@ -16,7 +16,7 @@ async function pavercheck() {
 	}).then(r => {
 		if (!r.ok) {
 			const msg = "Paver is not running... :(";
-			dt_flash.push({ 'title': msg });
+			FLASH.push({ 'title': msg });
 			throw new Error(msg);
 		}
 	});
@@ -111,7 +111,7 @@ export async function routine(obj, { edit_modal, pre }) {
 			return;
 		}
 
-		const r = await dt_client.get('geographies', {
+		const r = await API.get('geographies', {
 			"id": `eq.${payload.geographyid}`,
 			"select": ["configuration", "resolution"],
 		}, { one: true });
@@ -123,7 +123,7 @@ export async function routine(obj, { edit_modal, pre }) {
 			return;
 		}
 
-		const refs = await dt_client.get(
+		const refs = await API.get(
 			'datasets',
 			{
 				"id": `eq.${rid}`,
@@ -134,7 +134,7 @@ export async function routine(obj, { edit_modal, pre }) {
 		payload.referenceurl = maybe(refs.processed_files.find(x => x.func === 'vectors'), 'endpoint');
 		payload.baseurl = maybe(refs.processed_files.find(x => x.func === 'raster'), 'endpoint');
 
-		const cat = await dt_client.get('categories', {
+		const cat = await API.get('categories', {
 			"id": `eq.${obj.data.category_id}`,
 			"select": ["raster"],
 		}, { one: true });
@@ -142,7 +142,7 @@ export async function routine(obj, { edit_modal, pre }) {
 		if (and(d.datatype === 'raster', !cat.raster.paver)) {
 			const msg = `'${d.category_name}' category raster->paver configuration is not setup!`;
 
-			dt_flash.push({
+			FLASH.push({
 				type: 'error',
 				title: "Configuration error",
 				message: msg,
@@ -275,7 +275,7 @@ async function outline(obj, payload, { paver_modal }) {
 			.then(async r => {
 				const j = await r.json();
 
-				const d = dt_client.patch(
+				const d = API.patch(
 					'datasets',
 					{ "id": `eq.${obj.data.id}` },
 					{	"payload": {
@@ -291,7 +291,7 @@ async function outline(obj, payload, { paver_modal }) {
 
 				const {Left, Bottom, Right, Top} = j.info.bounds;
 
-				dt_client.patch('geographies', { "id": `eq.${obj.data.geography_id}` }, {
+				API.patch('geographies', { "id": `eq.${obj.data.geography_id}` }, {
 					payload: {
 						"envelope": [Left, Bottom, Right, Top]
 					}
@@ -312,7 +312,7 @@ async function admin_boundaries(obj, payload, { paver_modal }) {
 			.then(async r => {
 				const j = await r.json();
 
-				return dt_client.patch(
+				return API.patch(
 					'datasets',
 					{ "id": `eq.${obj.data.id}` },
 					{ "payload": {
@@ -357,7 +357,7 @@ async function clip_proximity(obj, payload, { paver_modal }) {
 			.then(async r => {
 				const j = await r.json();
 
-				return dt_client.patch(
+				return API.patch(
 					'datasets',
 					{ "id": `eq.${obj.data.id}` },
 					{ "payload": {
@@ -380,7 +380,7 @@ async function crop_raster(obj, payload, { paver_modal }) {
 			.then(async r => {
 				const j = await r.json();
 
-				return dt_client.patch('datasets', { "id": `eq.${obj.data.id}` }, {
+				return API.patch('datasets', { "id": `eq.${obj.data.id}` }, {
 					payload: {
 						"processed_files": [{
 							"func": 'raster',
@@ -456,7 +456,7 @@ export async function subgeographies(obj, { vectors, csv }) {
 
 	const table = await fetch(csv.endpoint).then(r => r.text()).then(r => csvParse(r));
 	const shapes = await fetch(vectors.endpoint).then(r => r.json());
-	const cid = (await dt_client.get('categories', { 'name': "eq.outline", 'select': ['id'] }, { one: true }))['id'];
+	const cid = (await API.get('categories', { 'name': "eq.outline", 'select': ['id'] }, { one: true }))['id'];
 
 	if (table.length !== shapes.features.length)
 		throw new Error("different lengths. ciao.");

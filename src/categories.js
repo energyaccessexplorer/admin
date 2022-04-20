@@ -445,7 +445,7 @@ function raster_validate(data, newdata) {
 function raster_paver_validate(newdata) {
 	if (and(maybe(newdata, 'raster', 'paver'),
 	        or(newdata['vectors'], newdata['csv']))) {
-		dt_flash.push({
+		FLASH.push({
 			type: 'error',
 			title: "Paver configuration error",
 			message: "Only pure raster categories require a paver->raster configuration",
@@ -462,7 +462,7 @@ function raster_proximity_validate(newdata) {
 	if (and(maybe(r, 'proximity'),
 	        or(maybe(r, 'intervals'),
 	           maybe(r, 'paver')))) {
-		dt_flash.push({
+		FLASH.push({
 			type: 'error',
 			title: "Raster configuration error",
 			message: "If raster->proximity is set to 'true', no other raster configuration should be set",
@@ -480,7 +480,7 @@ function mutant_validate(data, newdata) {
 	           newdata['vectors'],
 	           newdata['csv']))) {
 
-		dt_flash.push({
+		FLASH.push({
 			type: 'error',
 			title: "Mutant configuration error",
 			message: "If mutant is set to 'true', no other (raster,csv,vectors) configuration should be set",

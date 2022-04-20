@@ -480,7 +480,7 @@ export const model = {
 					try {
 						co = JSON.parse(ta.value);
 					} catch (e) {
-						dt_flash.push({
+						FLASH.push({
 							type: "warn",
 							message: "Failed to parse JSON from configuration overrides. Using an empty object.",
 						});
@@ -563,10 +563,10 @@ export const collection = {
 
 export async function header() {
 	if (geography_id) {
-		const name = (await dt_client.get('geographies', { select: ['name'], id: `eq.${geography_id}` }, { one: true }))['name'];
+		const name = (await API.get('geographies', { select: ['name'], id: `eq.${geography_id}` }, { one: true }))['name'];
 		return `${name} - datasets`;
 	} else if (category_id) {
-		const name = (await dt_client.get('categories', { select: ['name'], id: `eq.${category_id}` }, { one: true }))['name'];
+		const name = (await API.get('categories', { select: ['name'], id: `eq.${category_id}` }, { one: true }))['name'];
 		return `${name} - datasets`;
 	}
 };
@@ -577,7 +577,7 @@ export async function init() {
 	function dump_table() {
 		const a = ce('a', ce('i', null, { class: 'bi-download', title: 'Dump Table' }));
 
-		a.onclick = _ => dt_client.get('datasets', {
+		a.onclick = _ => API.get('datasets', {
 			select: [
 				"id",
 				"geography_name",
@@ -684,7 +684,7 @@ function source_files_validate(data, newdata) {
 		if (existing.indexOf(r) < 0) {
 			ok = false;
 
-			dt_flash.push({
+			FLASH.push({
 				type: 'error',
 				title: `Source Files are incomplete`,
 				message: `'${r}' element is missing.`
@@ -702,7 +702,7 @@ function configuration_attributes_validate(data, newdata) {
 	if (!config) return true;
 
 	function err(p, n) {
-		dt_flash.push({
+		FLASH.push({
 			type: 'error',
 			title: `Configuration -> ${p}`,
 			message: `'${n}' attribute does not belong.

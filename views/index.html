@@ -7,6 +7,11 @@
     <script src="/config.js"></script>
 
     <script type="module">
+      import pgrest from 'https://chestnut.vision/dist/duck-tape/lib/pgrest.js';
+      import flash from 'https://chestnut.vision/dist/duck-tape/lib/flash.js';
+
+      window.pgrest = pgrest;
+      window.flash = flash;
       const s = document.createElement('script');
       s.src = dt_config.src;
       s.onload = _ => dt_main();

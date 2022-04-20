@@ -26,11 +26,9 @@
 
 	},
 	"globals": {
-		"dt_flash": "readonly",
 		"dt_fetchables": "readonly",
 		"dt_navlist": "readonly",
 		"dt_config": "readonly",
-		"dt_client": "readonly",
 		"dt_paver": "readonly",
 		"dt_modal": "readonly",
 		"dt_object": "readonly",
@@ -52,6 +50,9 @@
 		"pgrest": "readonly",
 		"until": "readonly",
 		"uuid": "readonly",
-		"jwt_decode": "readonly"
+		"jwt_decode": "readonly",
+
+		"FLASH": "readonly",
+		"API": "readonly"
 	}
 }
