@@ -389,7 +389,9 @@ export const collection = {
 	"parse": model.parse,
 };
 
-function flag(obj) {
+async function flag(obj) {
+	await obj.fetch();
+
 	const data = Object.assign({}, obj.data);
 	data.flagged = !data.flagged;
 

@@ -556,7 +556,7 @@ export const collection = {
 	},
 
 	"rowevents": {
-		"td[bind=name]": ["dblclick", flag],
+		'[bind="name"]': ["dblclick", flag],
 	},
 
 	"parse": model.parse,
@@ -630,7 +630,9 @@ export function geojson_summary_iframe(o) {
 	}).show();
 };
 
-function flag(obj) {
+async function flag(obj) {
+	await obj.fetch();
+
 	const data = Object.assign({}, obj.data);
 	data.flagged = !data.flagged;
 

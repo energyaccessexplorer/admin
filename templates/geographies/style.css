@@ -1,3 +1,7 @@
+td {
+  white-space: nowrap;
+}
+
 td:nth-of-type(5),
 td:nth-of-type(6),
 td:nth-of-type(7),
