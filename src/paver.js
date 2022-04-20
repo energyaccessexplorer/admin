@@ -444,7 +444,7 @@ async function subgeography(r, { results, cid, vectors, csv, obj, resolution }) 
 	});
 
 	return d.fetch()
-		.then(_ => routine(d))
+		.then(_ => routine(d, {}))
 		.then(e => e());
 };
 

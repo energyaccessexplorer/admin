@@ -699,6 +699,8 @@ function configuration_attributes_validate(data, newdata) {
 	const config = newdata.configuration;
 	const selected = data._selected_attributes;
 
+	if (!config) return true;
+
 	function err(p, n) {
 		dt_flash.push({
 			type: 'error',
