@@ -435,6 +435,8 @@ export const collection = {
 
 window.email_user = email_user;
 
+const FLASH = dt.FLASH;
+
 function raster_validate(data, newdata) {
 	return and(
 		raster_paver_validate(newdata),

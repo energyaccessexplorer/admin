@@ -26,17 +26,11 @@
 
 	},
 	"globals": {
-		"dt_fetchables": "readonly",
-		"dt_navlist": "readonly",
-		"dt_config": "readonly",
-		"dt_paver": "readonly",
-		"dt_object": "readonly",
-		"dt_modules": "readonly",
-		"dt_external_link": "readonly",
-		"dt_model_search_modal": "readonly",
-		"dt_edit_update": "readonly",
+		"dt": "readonly",
+
 		"email_user": "readonly",
 		"external_link_base": "readonly",
+
 		"fake_blob_download": "readonly",
 		"modal": "readonly",
 		"maybe": "readonly",
@@ -49,9 +43,6 @@
 		"pgrest": "readonly",
 		"until": "readonly",
 		"uuid": "readonly",
-		"jwt_decode": "readonly",
-
-		"FLASH": "readonly",
-		"API": "readonly"
+		"jwt_decode": "readonly"
 	}
 }

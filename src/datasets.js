@@ -1,3 +1,5 @@
+import modal from '../lib/modal.js';
+
 import {
 	circles_user,
 } from './circles.js';
@@ -12,6 +14,9 @@ import {
 } from './paver.js';
 
 window.email_user = email_user;
+
+const FLASH = dt.FLASH;
+const API = dt.API;
 
 const url = new URL(location);
 const dataset_id = url.searchParams.get('id');
@@ -366,7 +371,7 @@ export const model = {
 	"show": function(o) {
 		const m = o.data;
 
-		const u = new URL(dt_config.production + "/d");
+		const u = new URL(dt.config.production + "/d");
 		u.searchParams.set('id', m.geography_id);
 		u.searchParams.set('dataset_id', m.id);
 
@@ -422,7 +427,7 @@ export const model = {
 			d.append(c, object.data.haspaver ? p : "");
 		},
 		function(object, form) {
-			dt_external_link(object, form, m => `${external_link_base(m)}/a/?id=${m.geography_id}&inputs=${m.name}`);
+			dt.external_link(object, form, m => `${external_link_base(m)}/a/?id=${m.geography_id}&inputs=${m.name}`);
 		},
 		function(_, form) {
 			const metadatadetails = form.querySelector('details[name="metadata"]');
@@ -437,7 +442,7 @@ export const model = {
 			const input = document.createElement('input');
 			input.type = 'hidden';
 			input.onchange = function() {
-				fetch(dt_config.api + `/datasets?select=metadata&id=eq.${this.value}`)
+				fetch(dt.config.api + `/datasets?select=metadata&id=eq.${this.value}`)
 					.then(r => r.json())
 					.then(r => {
 						let metadata;
@@ -449,7 +454,7 @@ export const model = {
 			};
 
 			button.onclick = function() {
-				dt_model_search_modal('datasets', input, null);
+				dt.model_search_modal('datasets', input, null);
 			};
 
 			summary.append(button);
@@ -477,7 +482,7 @@ export const model = {
 				select.onchange = async function() {
 					const k = this.value;
 
-					const p = await fetch(dt_config.api + `/categories?id=eq.${object.data.category_id}`)
+					const p = await fetch(dt.config.api + `/categories?id=eq.${object.data.category_id}`)
 						.then(r => r.json())
 						.then(r => r[0][k]);
 
@@ -610,7 +615,7 @@ export async function init() {
 };
 
 export function geojson_summary_url(m) {
-	const u = new URL(dt_config.production + "/d");
+	const u = new URL(dt.config.production + "/d");
 
 	u.searchParams.set('id', m.geography_id);
 	u.searchParams.set('dataset_id', m.id);

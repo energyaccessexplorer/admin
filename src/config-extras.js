@@ -1,6 +1,6 @@
-/* eslint no-global-assign: "off" */
+/* eslint no-undef: "off" */
 
-dt_fetchables = {
+export const fetchables = {
 	"geographies": {
 		primary: 'name',
 		placeholder: "name",
@@ -56,12 +56,8 @@ dt_fetchables = {
 	},
 };
 
-dt_navlist = [
+export const navlist = [
 	["geographies", "Geographies", "globe"],
 	["categories", "Categories", "list-nested"],
 	["users", "Users", "people-fill"],
 ];
-
-dt_paver = {
-	base: "/paver",
-};

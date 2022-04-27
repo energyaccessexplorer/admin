@@ -1,11 +1,9 @@
-/* eslint no-global-assign: "off" */
+dt.API.base = dt.config.auth_server + "/admin/api";
 
 const claims = jwt_decode(localStorage.getItem('token'));
 
 if (!['leader', 'master','root'].includes(claims['role']))
-	qs(`nav#dt-nav a[href="${dt_config.base}/?model=users"]`).remove();
-
-API = new pgrest(dt_config.auth_server + "/admin/api", FLASH);
+	qs(`nav#dt-nav a[href="${dt.config.base}/?model=users"]`).remove();
 
 const url = new URL(location);
 url.searchParams.set('world', 'ea');

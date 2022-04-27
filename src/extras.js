@@ -9,12 +9,12 @@ export function email_user(str) {
 export function external_link_base(m) {
 	let base;
 
-	if (or(dt_config.production.match(/localhost/),
+	if (or(dt.config.production.match(/localhost/),
 	       m.deployment.includes('production')))
-		base = dt_config.production;
+		base = dt.config.production;
 
-	else if (dt_config.production.match(/www/))
-		base = dt_config.production.replace('www', 'staging');
+	else if (dt.config.production.match(/www/))
+		base = dt.config.production.replace('www', 'staging');
 
 	return base;
 };

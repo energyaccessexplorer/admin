@@ -1,3 +1,5 @@
+import modal from '../lib/modal.js';
+
 import {
 	circles_user,
 } from './circles.js';
@@ -12,6 +14,8 @@ import * as paver from './paver.js';
 import {
 	model as datasets_model,
 } from './datasets.js';
+
+const API = dt.API;
 
 export const base = 'geographies';
 
@@ -68,7 +72,7 @@ function inherit_datasets() {
 		m.show();
 
 		for (const d of datasets) {
-			const o = new dt_object({
+			const o = new dt.object({
 				"model": datasets_model,
 				"data": d,
 			});
@@ -89,7 +93,7 @@ function inherit_datasets() {
 };
 
 function external_link(object, form) {
-	dt_external_link(object, form, m => `${external_link_base(m)}/a/?id=${m.id}&inputs=boundaries`);
+	dt.external_link(object, form, m => `${external_link_base(m)}/a/?id=${m.id}&inputs=boundaries`);
 };
 
 function subgeographies_button(object, _, edit_modal) {

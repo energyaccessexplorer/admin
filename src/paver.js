@@ -1,14 +1,27 @@
-import { csvParse } from '../lib/ds-dsv.js';
+import {
+	csvParse,
+} from '../lib/ds-dsv.js';
 
-import { listen as socket_listen } from './socket.js';
+import modal from '../lib/modal.js';
+
+import {
+	listen as socket_listen,
+} from './socket.js';
 
 import {
 	geojson_summary_iframe,
 	model as dataset_model,
 } from './datasets.js';
 
+const paver = { base: "/paver" };
+
+const FLASH = dt.FLASH;
+const API = dt.API;
+
+export default paver;
+
 async function pavercheck() {
-	fetch(`${dt_paver.base}/routines`, {
+	fetch(`${paver.base}/routines`, {
 		method: 'OPTIONS',
 		headers: {
 			'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -211,7 +224,7 @@ export async function routine(obj, { edit_modal, pre }) {
 			}
 
 			obj.fetch()
-				.then(_ => dt_edit_update(form, changes, obj));
+				.then(_ => dt.edit_update(form, changes, obj));
 		});
 	};
 
@@ -235,7 +248,7 @@ async function submit(routine, payload, { paver_modal, pre }) {
 		if (infopre) infopre.innerText += "\n" + m;
 	});
 
-	return fetch(`${dt_paver.base}/routines?routine=${routine}&socket_id=${socket_id}`, {
+	return fetch(`${paver.base}/routines?routine=${routine}&socket_id=${socket_id}`, {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/x-www-form-urlencoded',
@@ -393,8 +406,8 @@ async function crop_raster(obj, payload, { paver_modal }) {
 };
 
 async function subgeography(r, { results, cid, vectors, csv, obj, resolution }) {
-	const g = new dt_object({
-		"model": dt_modules['geographies']['model'],
+	const g = new dt.object({
+		"model": dt.modules['geographies']['model'],
 		"data": {
 			"name": r[csv.value],
 			"parent_id": obj.id,
@@ -415,7 +428,7 @@ async function subgeography(r, { results, cid, vectors, csv, obj, resolution }) 
 		"endpoint": `https://wri-public-data.s3.amazonaws.com/EnergyAccess/paver-outputs/${results[r[csv.id]]}`,
 	}];
 
-	const d = new dt_object({
+	const d = new dt.object({
 		model: dataset_model,
 		"data": {
 			"category_id": cid,
