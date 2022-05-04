@@ -437,6 +437,16 @@ window.email_user = email_user;
 
 const FLASH = dt.FLASH;
 
+function err(title, message) {
+	FLASH.clear();
+
+	FLASH.push({
+		type: 'error',
+		title,
+		message,
+	});
+};
+
 function raster_validate(data, newdata) {
 	return and(
 		raster_paver_validate(newdata),
@@ -447,11 +457,11 @@ function raster_validate(data, newdata) {
 function raster_paver_validate(newdata) {
 	if (and(maybe(newdata, 'raster', 'paver'),
 	        or(newdata['vectors'], newdata['csv']))) {
-		FLASH.push({
-			type: 'error',
-			title: "Paver configuration error",
-			message: "Only pure raster categories require a paver->raster configuration",
-		});
+		err(
+			"Paver configuration error",
+			"Only pure raster categories require a paver->raster configuration",
+		);
+
 		return false;
 	}
 
@@ -464,11 +474,10 @@ function raster_proximity_validate(newdata) {
 	if (and(maybe(r, 'proximity'),
 	        or(maybe(r, 'intervals'),
 	           maybe(r, 'paver')))) {
-		FLASH.push({
-			type: 'error',
-			title: "Raster configuration error",
-			message: "If raster->proximity is set to 'true', no other raster configuration should be set",
-		});
+		err(
+			"Raster configuration error",
+			"If raster->proximity is set to 'true', no other raster configuration should be set",
+		);
 
 		return false;
 	}
@@ -481,12 +490,10 @@ function mutant_validate(data, newdata) {
 	        or(newdata['raster'],
 	           newdata['vectors'],
 	           newdata['csv']))) {
-
-		FLASH.push({
-			type: 'error',
-			title: "Mutant configuration error",
-			message: "If mutant is set to 'true', no other (raster,csv,vectors) configuration should be set",
-		});
+		err(
+			"Mutant configuration error",
+			"If mutant is set to 'true', no other (raster,csv,vectors) configuration should be set",
+		);
 
 		return false;
 	}

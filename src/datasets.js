@@ -155,8 +155,8 @@ export const model = {
 				"divisions_tier": {
 					"type": "number",
 					"nullable": true,
-					"needs": m => m.category_name.match(/indicator/),
-					"hint": "The national/subnational administrative level that corresponds with the CSV data. 0 = National",
+					"needs": m => (m.category_name.match(/indicator/) || m.datatype.match(/polygons-boundaries/)),
+					"hint": "Subdivision level corresponds to the CSV data. 0 = Entire geography.",
 				},
 
 				"vectors_id": {
@@ -711,7 +711,9 @@ function configuration_attributes_validate(data, newdata) {
 
 	if (!config) return true;
 
-	function err(p, n) {
+	function attrerr(p, n) {
+		FLASH.clear();
+
 		FLASH.push({
 			type: 'error',
 			title: `Configuration -> ${p}`,
@@ -724,7 +726,7 @@ Available values are '${selected}'`
 	if (config.attributes_map)
 		for (const n of config.attributes_map.map(a => a.dataset)) {
 			if (!selected.includes(n)) {
-				err("Attributes Map", n);
+				attrerr("Attributes Map", n);
 				return false;
 			}
 		}
@@ -732,7 +734,7 @@ Available values are '${selected}'`
 	if (config.properties_search)
 		for (const n of config.properties_search) {
 			if (!selected.includes(n)) {
-				err("Properties Search", n);
+				attrerr("Properties Search", n);
 				return false;
 			}
 		}
@@ -740,7 +742,7 @@ Available values are '${selected}'`
 	if (config.features_specs)
 		for (const n of config.features_specs.map(a => a.key)) {
 			if (!selected.includes(n)) {
-				err("Features Specs", n);
+				attrerr("Features Specs", n);
 				return false;
 			}
 		}
