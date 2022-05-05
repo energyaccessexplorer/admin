@@ -723,6 +723,31 @@ Available values are '${selected}'`
 		});
 	};
 
+	function tiererr(m) {
+		FLASH.clear();
+
+		FLASH.push({
+			type: 'error',
+			title: `Configuration -> divisions_tier`,
+			message: m,
+		});
+	};
+
+	const dt = config.divisions_tier;
+	const t = or(
+		data.category_name.match(/indicator/),
+		data.datatype.match(/polygons-boundaries/)
+	);
+
+	if (and(!t, typeof dt === 'number')) {
+		tiererr("Value should be empty for non-indicator and non-boundaries datasets.");
+		return false;
+	}
+	else if (and(t, typeof dt !== 'number')) {
+		tiererr("Indicator and boundaries datasets require this attribute.");
+		return false;
+	}
+
 	if (config.attributes_map)
 		for (const n of config.attributes_map.map(a => a.dataset)) {
 			if (!selected.includes(n)) {
