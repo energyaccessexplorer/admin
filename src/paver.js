@@ -116,12 +116,12 @@ export async function routine(obj, { edit_modal, pre }) {
 
 	await obj.fetch();
 
-	await (async function payload_fill() {
+	const ok = await (async function payload_fill() {
 		payload.dataseturl = maybe(d.source_files.find(x => x.func === datasets_func), 'endpoint');
 
 		if (!payload.dataseturl) {
 			alert(`Could not get endpoint for the ${datasets_func} source file. Check that...`);
-			return;
+			return false;
 		}
 
 		const r = await API.get('geographies', {
@@ -133,7 +133,7 @@ export async function routine(obj, { edit_modal, pre }) {
 
 		if (!rid) {
 			alert("The geography -> configuration -> division -> 0 is not setup properly.");
-			return;
+			return false;
 		}
 
 		const refs = await API.get(
@@ -161,13 +161,22 @@ export async function routine(obj, { edit_modal, pre }) {
 				message: msg,
 			});
 
-			throw new Error(msg);
+			console.error(msg);
+
+			return false;
 		}
 
 		payload.config = JSON.stringify(cat.raster.paver);
 
 		payload.resolution = r.resolution;
+
+		return true;
 	})();
+
+	if (!ok) {
+		console.warn(fn.name, "failed to fullfill payload", d, payload);
+		return;
+	}
 
 	if (!edit_modal)
 		return (await fn(obj, payload, { pre }));
