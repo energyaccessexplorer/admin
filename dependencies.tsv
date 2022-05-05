@@ -1,1 +1,6 @@
 ds-dsv.js	https://cdn.skypack.dev/-/d3-dsv@v3.0.1-u1xCRjaLJc0qqv1Z5ERe/dist=es2019,mode=imports/optimized/d3-dsv.js
+flash.js	https://git.263.nu/f/web-toolbelt/raw/branch/trunk/flash.js
+modal.js	https://git.263.nu/f/web-toolbelt/raw/branch/trunk/modal.js
+pgrest.js	https://git.263.nu/f/web-toolbelt/raw/branch/trunk/pgrest.js
+helpers.js	https://git.263.nu/f/web-toolbelt/raw/branch/trunk/helpers.js
+bubblemessage.js	https://git.263.nu/f/web-toolbelt/raw/branch/trunk/bubblemessage.js
