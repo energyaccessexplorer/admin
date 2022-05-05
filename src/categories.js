@@ -447,7 +447,7 @@ function err(title, message) {
 	});
 };
 
-function raster_validate(data, newdata) {
+function raster_validate(newdata) {
 	return and(
 		raster_paver_validate(newdata),
 		raster_proximity_validate(newdata),
@@ -485,7 +485,7 @@ function raster_proximity_validate(newdata) {
 	return true;
 };
 
-function mutant_validate(data, newdata) {
+function mutant_validate(newdata) {
 	if (and(newdata['mutant'],
 	        or(newdata['raster'],
 	           newdata['vectors'],

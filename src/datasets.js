@@ -683,7 +683,7 @@ function source_files_requirements(m) {
 	return n;
 };
 
-function source_files_validate(data, newdata) {
+function source_files_validate(newdata, data) {
 	const reqs = source_files_requirements(data);
 
 	const existing = newdata['source_files'].map(s => s.func);
@@ -705,7 +705,7 @@ function source_files_validate(data, newdata) {
 	return ok;
 };
 
-function configuration_attributes_validate(data, newdata) {
+function configuration_attributes_validate(newdata, data) {
 	const config = newdata.configuration;
 	const selected = data._selected_attributes;
 

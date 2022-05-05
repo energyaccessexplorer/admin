@@ -23,7 +23,7 @@ export const header = "Geographies";
 
 window.email_user = email_user;
 
-function envelope_validate(data, newdata) {
+function envelope_validate(newdata) {
 	if (!maybe(newdata, 'envelope', 'length')) return true;
 
 	const e = newdata['envelope'];
