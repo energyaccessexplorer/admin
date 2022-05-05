@@ -63,6 +63,7 @@ export const model = {
 			"type": "object",
 			"collapsed": false,
 			"nullable": true,
+			"validate": domain_init_validate,
 			"schema": {
 				"min": {
 					"type": "number",
@@ -168,6 +169,7 @@ export const model = {
 			"label": "Vectors configuration",
 			"nullable": true,
 			"appendable": true,
+			"validate": vectors_validate,
 			"schema": {
 				"shape_type": {
 					"type": "select",
@@ -447,10 +449,67 @@ function err(title, message) {
 	});
 };
 
+function within(i,d) {
+	if (Array.isArray(i))
+		i = { "min": i[0], "max": i[i.length-1]};
+
+	if (Array.isArray(d))
+		d = { "min": d[0], "max": d[d.length-1]};
+
+	return or(
+		and(d['min'] < d['max'], and(i['min'] >= d['min'], i['max'] <= d['max'])),
+		and(d['min'] > d['max'], and(i['min'] <= d['min'], i['max'] >= d['max'])),
+	);
+};
+
+function domain_init_validate(newdata, data) {
+	return and(
+		domain_init_containment_validate(newdata, data),
+		domain_init_slope_validate(newdata, data),
+	);
+}
+
+function domain_init_slope_validate(newdata) {
+	const d = newdata['domain'];
+	const i = newdata['domain_init'];
+
+	if (!i) return true;
+
+	if (or(
+		and(d['min'] < d['max'], i['min'] < i['max']),
+		and(d['min'] > d['max'], i['min'] > i['max']),
+	)) return true;
+
+	err(
+		"Paver configuration error",
+		"Domain and domain init must be both strictly decreasing or both strictly increasing",
+	);
+
+	return false;
+};
+
+function domain_init_containment_validate(newdata) {
+	const d = newdata['domain'];
+	const i = newdata['domain_init'];
+
+	if (!i) return true;
+
+	if (within(i,d)) return true;
+
+	err(
+		"Paver configuration error",
+		"Domain init values must be within domain values",
+	);
+
+	return false;
+};
+
 function raster_validate(newdata) {
 	return and(
 		raster_paver_validate(newdata),
 		raster_proximity_validate(newdata),
+		raster_intervals_validate(newdata),
+		raster_colorstops_validate(newdata),
 	);
 };
 
@@ -483,6 +542,100 @@ function raster_proximity_validate(newdata) {
 	}
 
 	return true;
+};
+
+function raster_intervals_validate(newdata) {
+	const r = newdata['raster']['intervals'];
+
+	if (!r) return true;
+
+	if (!or(
+		r.every((v,i,a) => !i || a[i-1] > v),
+		r.every((v,i,a) => !i || a[i-1] < v),
+	)) {
+		err(
+			"Raster configuration error",
+			"Raster->invervals should be strictly increasing or strictly decreasing",
+		);
+
+		return false;
+	}
+
+	if (!within(r, newdata['domain'])) {
+		err(
+			"Raster configuration error",
+			"Raster->invervals first and last values should be within the domain",
+		);
+
+		return false;
+	}
+
+	return true;
+};
+
+function raster_colorstops_validate(newdata) {
+	if (newdata.raster) return true;
+
+	const r = newdata['colorstops'];
+	const i = maybe(newdata, 'raster', 'intervals');
+
+	if (r && !i) return true;
+
+	const diff = i.length - r.length;
+
+	if (and(-1 < diff, diff < 3)) return true;
+
+	err(
+		"Raster configuration error",
+		"Colorstops length must be greater or equal to the raster->intervals length and differ by less that 2",
+	);
+
+	return false;
+};
+
+function vectors_validate(newdata) {
+	return and(
+		vectors_shape_type_requirements_validate(newdata)
+	);
+};
+
+function vectors_shape_type_requirements_validate(newdata) {
+	const v = newdata['vectors'];
+	const t = v['shape_type'];
+
+	const base = ['shape_type', 'opacity', 'stroke'];
+	let n, m;
+
+	switch (t) {
+	case "points":
+		n = ['radius', 'fill'];
+		m = "Vectors of shape type 'points' must include radius and fill";
+		break;
+
+	case "polygons":
+		n = ['fill'];
+		m = "Vectors of shape type 'polygons' must include fill";
+		break;
+
+	case "lines":
+		n = ['stroke-width'];
+		m = "Vectors of shape type 'lines' must include stroke and stroke-width";
+		break;
+
+	default:
+		n = [];
+		m = null;
+		break;
+	}
+
+	n = base.concat(n);
+
+	const keys = Object.keys(v);
+	if (n.every(x => keys.includes(x))) return true;
+
+	err("Vectors configuration error", m);
+
+	return false;
 };
 
 function mutant_validate(newdata) {
