@@ -71,7 +71,12 @@ function inherit_datasets() {
 
 		m.show();
 
+		const errors = [];
+
 		for (const d of datasets) {
+			const infopre = content.querySelector('pre') || document.querySelector('pre');
+			infopre.innerText = "";
+
 			const o = new dt.object({
 				"model": datasets_model,
 				"data": d,
@@ -87,8 +92,27 @@ function inherit_datasets() {
 
 			await n.fetch();
 
-			await (await paver.routine(n, { "pre": content.querySelector('pre') }))();
+			const t = await paver.routine(n, { "pre": infopre });
+
+			if (typeof t !== 'function') {
+				errors.push(Object.assign(t,n));
+				continue;
+			}
+
+			const x = await t();
+			if (x.error) errors.push(Object.assign(x,n));
 		}
+
+		for (const e of errors)
+			dt.FLASH.push({
+				type: "error",
+				title: maybe(e, 'data', 'category_name'),
+				message: "Routine: " + maybe(e, 'routine') + " - " + maybe(e, 'error'),
+			});
+
+		dt.FLASH.push({ type: "error", title: "Inheritance errors" });
+
+		console.error(errors);
 	});
 };
 

@@ -174,8 +174,11 @@ export async function routine(obj, { edit_modal, pre }) {
 	})();
 
 	if (!ok) {
-		console.warn(fn.name, "failed to fullfill payload", d, payload);
-		return;
+		return {
+			error: "Failed. Looks like a configuration error.",
+			routine: fn.name,
+			payload,
+		};
 	}
 
 	if (!edit_modal)
@@ -278,6 +281,12 @@ async function submit(routine, payload, { paver_modal, pre }) {
 ${r.status} - ${r.statusText}
 
 ${msg}`;
+
+			return {
+				error: msg,
+				routine,
+				payload,
+			};
 		}
 
 		return r;
@@ -377,6 +386,8 @@ async function clip_proximity(obj, payload, { paver_modal }) {
 	return function() {
 		return submit('clip-proximity', payload, { paver_modal })
 			.then(async r => {
+				if (r.error) return r;
+
 				const j = await r.json();
 
 				return API.patch(
