@@ -174,6 +174,8 @@ export async function routine(obj, { edit_modal, pre }) {
 	})();
 
 	if (!ok) {
+		flag(obj);
+
 		return {
 			error: "Failed. Looks like a configuration error.",
 			routine: fn.name,
@@ -243,6 +245,14 @@ export async function routine(obj, { edit_modal, pre }) {
 	paver_modal.show();
 };
 
+function flag(obj) {
+	API.patch(
+		'datasets',
+		{ "id": `eq.${obj.data.id}` },
+		{ "payload": { 'flagged': true } }
+	);
+};
+
 async function submit(routine, payload, { paver_modal, pre }) {
 	const body = [];
 
@@ -304,6 +314,11 @@ async function outline(obj, payload, { paver_modal }) {
 
 		return submit('admin-boundaries', payload, { paver_modal })
 			.then(async r => {
+				if (r.error) {
+					flag(obj);
+					return r;
+				}
+
 				const j = await r.json();
 
 				const d = API.patch(
@@ -341,6 +356,11 @@ async function admin_boundaries(obj, payload, { paver_modal }) {
 
 		return submit('admin-boundaries', payload, { paver_modal })
 			.then(async r => {
+				if (r.error) {
+					flag(obj);
+					return r;
+				}
+
 				const j = await r.json();
 
 				return API.patch(
@@ -386,7 +406,10 @@ async function clip_proximity(obj, payload, { paver_modal }) {
 	return function() {
 		return submit('clip-proximity', payload, { paver_modal })
 			.then(async r => {
-				if (r.error) return r;
+				if (r.error) {
+					flag(obj);
+					return r;
+				}
 
 				const j = await r.json();
 
@@ -411,6 +434,11 @@ async function crop_raster(obj, payload, { paver_modal }) {
 	return function() {
 		return submit('crop-raster', payload, { paver_modal })
 			.then(async r => {
+				if (r.error) {
+					flag(obj);
+					return r;
+				}
+
 				const j = await r.json();
 
 				return API.patch('datasets', { "id": `eq.${obj.data.id}` }, {

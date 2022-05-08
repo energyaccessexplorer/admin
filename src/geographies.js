@@ -110,7 +110,11 @@ function inherit_datasets() {
 				message: "Routine: " + maybe(e, 'routine') + " - " + maybe(e, 'error'),
 			});
 
-		dt.FLASH.push({ type: "error", title: "Inheritance errors" });
+		dt.FLASH.push({
+			"type": "error",
+			"title": "Inheritance errors",
+			"message": "The following datasets were created and flagged.",
+		});
 
 		console.error(errors);
 	});
