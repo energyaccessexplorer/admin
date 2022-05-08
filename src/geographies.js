@@ -41,27 +41,27 @@ async function generate_subgeographies() {
 	if (!dsid)
 		throw new Error("buah!");
 
-	const div1 = await API.get('datasets', { id: 'eq.' + dsid }, { one: true });
+	const div1 = await API.get('datasets', { "id": 'eq.' + dsid }, { "one": true });
 
 	paver.subgeographies(this, {
 		"csv": {
-			"id": maybe(div1, 'configuration', 'csv_columns', 'id'),
-			"value": maybe(div1, 'configuration', 'csv_columns', 'value'),
+			"id":       maybe(div1, 'configuration', 'csv_columns', 'id'),
+			"value":    maybe(div1, 'configuration', 'csv_columns', 'value'),
 			"endpoint": div1.source_files.find(f => f.func === 'csv').endpoint,
 		},
 		"vectors": {
-			"id": maybe(div1, 'configuration', 'vectors_id'),
+			"id":       maybe(div1, 'configuration', 'vectors_id'),
 			"endpoint": div1.source_files.find(f => f.func === 'vectors').endpoint,
-		}
+		},
 	});
 };
 
 function inherit_datasets() {
 	API.get('datasets', {
-		"select": "*,category_name",
-		"geography_id": 'eq.' + this.data.parent_id,
+		"select":        "*,category_name",
+		"geography_id":  'eq.' + this.data.parent_id,
 		"category_name": 'not.in.(indicator,timeline-indicator,boundaries,admin-tiers,outline)',
-		"datatype": 'not.in.(raster-mutant)',
+		"datatype":      'not.in.(raster-mutant)',
 	}).then(async datasets => {
 		const content = await remote_tmpl("geographies/paver-inherit-datasets.html");
 
@@ -79,15 +79,15 @@ function inherit_datasets() {
 
 			const o = new dt.object({
 				"model": datasets_model,
-				"data": d,
+				"data":  d,
 			});
 
 			const n = await o.clone({
-				"deployment": ['staging'],
+				"deployment":      ['staging'],
 				"processed_files": [],
-				"geography_id": this.data.id,
-				"source_files": d.source_files,
-				"name": d.name,
+				"geography_id":    this.data.id,
+				"source_files":    d.source_files,
+				"name":            d.name,
 			});
 
 			await n.fetch();
@@ -105,14 +105,14 @@ function inherit_datasets() {
 
 		for (const e of errors)
 			dt.FLASH.push({
-				type: "error",
-				title: maybe(e, 'data', 'category_name'),
-				message: "Routine: " + maybe(e, 'routine') + " - " + maybe(e, 'error'),
+				"type":    "error",
+				"title":   maybe(e, 'data', 'category_name'),
+				"message": "Routine: " + maybe(e, 'routine') + " - " + maybe(e, 'error'),
 			});
 
 		dt.FLASH.push({
-			"type": "error",
-			"title": "Inheritance errors",
+			"type":    "error",
+			"title":   "Inheritance errors",
 			"message": "The following datasets were created and flagged.",
 		});
 
@@ -127,7 +127,7 @@ function external_link(object, form) {
 function subgeographies_button(object, _, edit_modal) {
 	if (!and(!object.data.has_subgeographies, maybe(object.data, 'configuration', 'divisions', 1))) return;
 
-	const p = ce('button', ce('i', null, { class: 'bi-filter', title: 'Subgeographies' }));
+	const p = ce('button', ce('i', null, { "class": 'bi-filter', "title": 'Subgeographies' }));
 	p.onclick = _ => generate_subgeographies.call(object.data);
 
 	qs('.actions-drawer', edit_modal.dialog).append(p);
@@ -136,7 +136,7 @@ function subgeographies_button(object, _, edit_modal) {
 function inherit_button(object, _, edit_modal) {
 	if (!object.data.parent_id) return;
 
-	const p = ce('button', ce('i', null, { class: 'bi-box-arrow-in-up-right', title: 'Inherit' }));
+	const p = ce('button', ce('i', null, { "class": 'bi-box-arrow-in-up-right', "title": 'Inherit' }));
 	p.onclick = _ => inherit_datasets.call(object);
 
 	qs('.actions-drawer', edit_modal.dialog).append(p);
@@ -147,58 +147,58 @@ export const model = {
 
 	"schema": {
 		"name": {
-			"type": "string",
+			"type":     "string",
 			"required": true,
-			"label": "Geography Name",
-			"hint": "The short name of the geography.",
+			"label":    "Geography Name",
+			"hint":     "The short name of the geography.",
 		},
 
 		"parent_id": {
-			"type": "uuid",
-			"fkey": "geographies",
-			"label": "Parent Geography",
+			"type":       "uuid",
+			"fkey":       "geographies",
+			"label":      "Parent Geography",
 			"constraint": "subgeographies:parent",
-			"required": false,
-			"editable": false,
-			"columns": ['id', 'name'],
-			"hint": "The name of the parent geography. This applies to adm. 1, 2, 3 divisions. For instance, for a adm.1 geography, the parent geography is the name of the country."
+			"required":   false,
+			"editable":   false,
+			"columns":    ['id', 'name'],
+			"hint":       "The name of the parent geography. This applies to adm. 1, 2, 3 divisions. For instance, for a adm.1 geography, the parent geography is the name of the country.",
 		},
 
 		"adm": {
-			"type": "number",
+			"type":     "number",
 			"required": true,
 			"editable": false,
-			"label": "Adm. Level",
-			"hint": "Indicates the level of an administrative boundary",
+			"label":    "Adm. Level",
+			"hint":     "Indicates the level of an administrative boundary",
 		},
 
 		"deployment": {
-			"type": "array",
-			"hint": "Select the environments where the geography will be deployed",
+			"type":   "array",
+			"hint":   "Select the environments where the geography will be deployed",
 			"schema": {
-				"type": "string",
-				"options": ["test", "staging", "production", "training", "development"],
-				"required": true
-			}
+				"type":     "string",
+				"options":  ["test", "staging", "production", "training", "development"],
+				"required": true,
+			},
 		},
 
 		"envelope": {
-			"type": "array",
+			"type":     "array",
 			"validate": envelope_validate,
-			"hint": "Geography extent coordinates (4 coordinates values)",
-			"schema": {
-				"type": "number",
-				"step": "any",
+			"hint":     "Geography extent coordinates (4 coordinates values)",
+			"schema":   {
+				"type":     "number",
+				"step":     "any",
 				"editable": false,
-				"required": true
-			}
+				"required": true,
+			},
 		},
 
 		"resolution": {
-			"type": "number",
+			"type":     "number",
 			"required": true,
 			"editable": false,
-			"hint": "Raster resolution in meters",
+			"hint":     "Raster resolution in meters",
 		},
 
 		"flagged": {
@@ -207,74 +207,74 @@ export const model = {
 		},
 
 		"circle": {
-			"type": "string",
-			"label": "Circle",
-			"pattern": "^[a-z][a-z0-9\-]+$",
-			"default": "public",
+			"type":     "string",
+			"label":    "Circle",
+			"pattern":  "^[a-z][a-z0-9\-]+$",
+			"default":  "public",
 			"required": true,
 		},
 
 		"configuration": {
-			"type": "object",
-			"label": "Configuration",
+			"type":      "object",
+			"label":     "Configuration",
 			"collapsed": false,
-			"nullable": true,
-			"schema": {
+			"nullable":  true,
+			"schema":    {
 				"timeline": {
-					"type": "boolean",
+					"type":    "boolean",
 					"default": false,
 				},
 
 				"exclude_sector_presets": {
-					"type": "boolean",
+					"type":    "boolean",
 					"default": false,
 				},
 
 				"introduction": {
-					"type": "text",
-					"default": null
+					"type":    "text",
+					"default": null,
 				},
 
 				"divisions": {
-					"type": "array",
-					"nullable": false,
-					"sortable": true,
+					"type":      "array",
+					"nullable":  false,
+					"sortable":  true,
 					"collapsed": false,
-					"hint": "The national/subnational administrative level that corresponds with the geography boundaries.",
-					"schema": {
-						"type": "object",
+					"hint":      "The national/subnational administrative level that corresponds with the geography boundaries.",
+					"schema":    {
+						"type":   "object",
 						"schema": {
 							"name": {
-								"type": "string",
+								"type":     "string",
 								"required": true,
-								"hint": "Provinces/Territories/States? County/Municipality?",
+								"hint":     "Provinces/Territories/States? County/Municipality?",
 							},
 							"dataset_id": {
-								"type": "uuid",
+								"type":     "uuid",
 								"nullable": true,
-								"fkey": "datasets",
-								"hint": "Outline or Admin boundaries dataset id",
-							}
-						}
-					}
+								"fkey":     "datasets",
+								"hint":     "Outline or Admin boundaries dataset id",
+							},
+						},
+					},
 				},
 
 				"timeline_dates": {
-					"type": "array",
+					"type":     "array",
 					"nullable": true,
-					"needs": m => maybe(m.configuration, 'timeline'),
-					"hint": "Configuration of dates for historical timeline component (optional)",
-					"schema": {
-						"type": "date",
-						"required": true
-					}
+					"needs":    m => maybe(m.configuration, 'timeline'),
+					"hint":     "Configuration of dates for historical timeline component (optional)",
+					"schema":   {
+						"type":     "date",
+						"required": true,
+					},
 				},
 
 				"flag": {
-					"type": "object",
+					"type":     "object",
 					"nullable": true,
-					"needs": m => m.adm === 0,
-					"schema": {
+					"needs":    m => m.adm === 0,
+					"schema":   {
 						"x": {
 							"type": "number",
 						},
@@ -288,67 +288,67 @@ export const model = {
 							"type": "number",
 						},
 						"aspect-ratio": {
-							"type": "string",
+							"type":    "string",
 							"default": "none",
-							"options": ["none", "xMaxYMax", "xMaxYMid", "xMaxYMin", "xMidYMax", "xMidYMid", "xMidYMin", "xMinYMax", "xMinYMid", "xMinYMin", ]
+							"options": ["none", "xMaxYMax", "xMaxYMid", "xMaxYMin", "xMidYMax", "xMidYMid", "xMidYMin", "xMinYMax", "xMinYMid", "xMinYMin" ],
 						},
-					}
+					},
 				},
 
 				"sort_branches": {
-					"type": "array",
+					"type":     "array",
 					"nullable": false,
-					"hint": "Configuration of dataset branches within the geography",
-					"schema": {
-						"type": "string",
+					"hint":     "Configuration of dataset branches within the geography",
+					"schema":   {
+						"type":     "string",
 						"required": true,
-					}
+					},
 				},
 
 				"sort_subbranches": {
-					"type": "array",
+					"type":     "array",
 					"nullable": false,
-					"hint": "Configuration of dataset sub-branches within the geography",
-					"schema": {
-						"type": "string",
+					"hint":     "Configuration of dataset sub-branches within the geography",
+					"schema":   {
+						"type":     "string",
 						"required": true,
-					}
+					},
 				},
 
 				"sort_datasets": { // TODO: should come from dataset's name (or category_name)
-					"type": "array",
+					"type":     "array",
 					"nullable": false,
-					"hint": "Configuration of dataset order within the geography",
-					"schema": {
-						"type": "string",
+					"hint":     "Configuration of dataset order within the geography",
+					"schema":   {
+						"type":     "string",
 						"required": true,
-					}
+					},
 				},
-			}
+			},
 		},
 
 		"updated": {
-			"type": "string",
-			"label": "Last update",
-			"editable": false
+			"type":     "string",
+			"label":    "Last update",
+			"editable": false,
 		},
 
 		"updated_by": {
-			"type": "string",
-			"label": "Last update by",
-			"editable": false
+			"type":     "string",
+			"label":    "Last update by",
+			"editable": false,
 		},
 
 		"created": {
-			"type": "string",
-			"label": "Created",
-			"editable": false
+			"type":     "string",
+			"label":    "Created",
+			"editable": false,
 		},
 
 		"created_by": {
-			"type": "string",
-			"label": "Created by",
-			"editable": false
+			"type":     "string",
+			"label":    "Created by",
+			"editable": false,
 		},
 	},
 
@@ -370,7 +370,7 @@ export const model = {
 		m.ok = !m.flagged;
 
 		return m;
-	}
+	},
 };
 
 export const collection = {

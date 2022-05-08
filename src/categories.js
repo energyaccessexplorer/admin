@@ -11,112 +11,112 @@ export const model = {
 
 	"schema": {
 		"name_long": {
-			"type": "string",
-			"label": "Long Name",
-			"required": true
+			"type":     "string",
+			"label":    "Long Name",
+			"required": true,
 		},
 
 		"name": {
-			"type": "string",
-			"label": "Name",
+			"type":     "string",
+			"label":    "Name",
 			"editable": false,
 			"required": true,
-			"pattern": "^[a-z][a-z0-9\-]+$"
+			"pattern":  "^[a-z][a-z0-9\-]+$",
 		},
 
 		"unit": {
-			"type": "string",
-			"label": "Unit"
+			"type":  "string",
+			"label": "Unit",
 		},
 
 		"mutant": {
-			"type": "boolean",
-			"default": false,
+			"type":     "boolean",
+			"default":  false,
 			"validate": mutant_validate,
 		},
 
 		"description": {
-			"type": "text",
+			"type":     "text",
 			"nullable": true,
-			"label": "Description",
-			"hint": "Description of the category and its use",
+			"label":    "Description",
+			"hint":     "Description of the category and its use",
 		},
 
 		"domain": {
-			"type": "object",
+			"type":     "object",
 			"nullable": true,
-			"schema": {
+			"schema":   {
 				"min": {
-					"type": "number",
+					"type":     "number",
 					"required": true,
-					"hint": "minimum category value",
+					"hint":     "minimum category value",
 				},
 				"max": {
-					"type": "number",
+					"type":     "number",
 					"required": true,
-					"hint": "maximum category value",
-				}
-			}
+					"hint":     "maximum category value",
+				},
+			},
 		},
 
 		"domain_init": {
-			"type": "object",
+			"type":      "object",
 			"collapsed": false,
-			"nullable": true,
-			"validate": domain_init_validate,
-			"schema": {
+			"nullable":  true,
+			"validate":  domain_init_validate,
+			"schema":    {
 				"min": {
-					"type": "number",
+					"type":     "number",
 					"required": true,
-					"hint": "Preset minimum initialization value (optional)",
+					"hint":     "Preset minimum initialization value (optional)",
 				},
 				"max": {
-					"type": "number",
+					"type":     "number",
 					"required": true,
-					"hint": "Preset maximum initialization value (optional)"
-				}
-			}
+					"hint":     "Preset maximum initialization value (optional)",
+				},
+			},
 		},
 
 		"colorstops": {
-			"type": "array",
+			"type":     "array",
 			"nullable": true,
 			"sortable": true,
-			"hint": "Configuration of colorstops. Left first (top). Right last (bottom)",
-			"schema": {
+			"hint":     "Configuration of colorstops. Left first (top). Right last (bottom)",
+			"schema":   {
 				"type": "colour",
-			}
+			},
 		},
 
 		"raster": {
-			"type": "object",
-			"label": "Raster configuration",
+			"type":     "object",
+			"label":    "Raster configuration",
 			"nullable": true,
 			"validate": raster_validate,
-			"schema": {
+			"schema":   {
 				"proximity": {
-					"type": "boolean",
+					"type":    "boolean",
 					"default": true,
 				},
 				"intervals": {
-					"type": "array",
+					"type":     "array",
 					"nullable": true,
 					"sortable": true,
-					"hint": "Configuration of intervals for a TIFF file",
-					"schema": {
-						"type": "number",
-						"required": true
-					}
+					"hint":     "Configuration of intervals for a TIFF file",
+					"schema":   {
+						"type":     "number",
+						"required": true,
+					},
 				},
 				"paver": {
-					"type": "object",
+					"type":     "object",
 					"nullable": true,
-					"schema": {
+					"schema":   {
 						"resample": {
-							"type": "select",
+							"type":     "select",
 							"required": true,
-							"hint": "Resample setting for PAVER processing",
-							"options": [
+							"hint":     "Resample setting for PAVER processing",
+							"options":  [
 								"average",
 								"sum",
 								"near",
@@ -135,10 +135,10 @@ export const model = {
 							"default": "average",
 						},
 						"numbertype": {
-							"type": "select",
+							"type":     "select",
 							"required": true,
-							"hint": "Number type setting for PAVER processing",
-							"options": [
+							"hint":     "Number type setting for PAVER processing",
+							"options":  [
 								"Byte",
 								"UInt16",
 								"Int16",
@@ -151,223 +151,223 @@ export const model = {
 								"CFloat32",
 								"CFloat64",
 							],
-							"default": "Int16"
+							"default": "Int16",
 						},
 						"nodata": {
-							"type": "number",
+							"type":     "number",
 							"required": true,
-							"default": -1,
-							"hint": "No data values setting for PAVER processing",
-						}
-					}
+							"default":  -1,
+							"hint":     "No data values setting for PAVER processing",
+						},
+					},
 				},
-			}
+			},
 		},
 
 		"vectors": {
-			"type": "object",
-			"label": "Vectors configuration",
-			"nullable": true,
+			"type":       "object",
+			"label":      "Vectors configuration",
+			"nullable":   true,
 			"appendable": true,
-			"validate": vectors_validate,
-			"schema": {
+			"validate":   vectors_validate,
+			"schema":     {
 				"shape_type": {
-					"type": "select",
+					"type":     "select",
 					"required": true,
-					"options": ["points", "polygons", "lines"],
-					"hint": "GeoJSON file shape type",
+					"options":  ["points", "polygons", "lines"],
+					"hint":     "GeoJSON file shape type",
 				},
 				"opacity": {
-					"type": "number",
-					"step": 0.01,
-					"default": 1,
+					"type":     "number",
+					"step":     0.01,
+					"default":  1,
 					"nullable": true,
-					"hint": "Applies to polygons and points",
+					"hint":     "Applies to polygons and points",
 				},
 				"stroke": {
-					"type": "colour",
+					"type":     "colour",
 					"nullable": true,
-					"hint": "Refers to the border color for point and polygon features, and to the line color for linear features.",
+					"hint":     "Refers to the border color for point and polygon features, and to the line color for linear features.",
 				},
 				"stroke-width": {
-					"type": "number",
-					"nullable": false,
+					"type":      "number",
+					"nullable":  false,
 					"droppable": true,
-					"default": 1,
-					"hint": "The width of linear features, or borders for point. Does not apply for polygon features.",
+					"default":   1,
+					"hint":      "The width of linear features, or borders for point. Does not apply for polygon features.",
 				},
 				"fill": {
-					"type": "colour",
-					"nullable": true,
+					"type":      "colour",
+					"nullable":  true,
 					"droppable": true,
-					"hint": "Applies to polygons and points",
+					"hint":      "Applies to polygons and points",
 				},
 				"radius": {
-					"label": "radius",
-					"type": "number",
+					"label":     "radius",
+					"type":      "number",
 					"droppable": true,
-					"nullable": false,
-					"hint": "Refers to the radius size only for point features.",
+					"nullable":  false,
+					"hint":      "Refers to the radius size only for point features.",
 				},
 				"dasharray": {
-					"type": "string",
-					"nullable": true,
+					"type":      "string",
+					"nullable":  true,
 					"droppable": true,
-					"hint": "Lines only",
-					"needs": m => maybe(m.vectors, 'shape_type') === "lines",
+					"hint":      "Lines only",
+					"needs":     m => maybe(m.vectors, 'shape_type') === "lines",
 				},
-			}
+			},
 		},
 
 		"csv": {
-			"type": "object",
-			"label": "CSV configuration",
+			"type":     "object",
+			"label":    "CSV configuration",
 			"nullable": true,
-			"schema": {
+			"schema":   {
 				"enabled": {
 					"type": "boolean",
 					"hint": "If enabled category includes a CSV file",
-				}
-			}
+				},
+			},
 		},
 
 		"analysis": {
-			"type": "object",
-			"label": "Analysis configuration",
+			"type":     "object",
+			"label":    "Analysis configuration",
 			"nullable": true,
-			"schema": {
+			"schema":   {
 				"index": {
-					"type": "select",
+					"type":     "select",
 					"required": true,
-					"label": "index",
-					"options": ['', "ani", "eai", "demand", "supply"],
-					"default": '',
-					"hint": "Analysis index of the category",
+					"label":    "index",
+					"options":  ['', "ani", "eai", "demand", "supply"],
+					"default":  '',
+					"hint":     "Analysis index of the category",
 				},
 
 				"weight": {
-					"type": "number",
-					"default": 2,
-					"min": 1,
-					"max": 5,
+					"type":     "number",
+					"default":  2,
+					"min":      1,
+					"max":      5,
 					"nullable": false,
-					"hint": "Level of importance of the dataset in analysis",
+					"hint":     "Level of importance of the dataset in analysis",
 				},
 
 				"intervals": {
-					"type": "array",
+					"type":     "array",
 					"nullable": true,
 					"sortable": true,
-					"schema": {
-						"type": "number",
+					"schema":   {
+						"type":     "number",
 						"required": true,
-					}
+					},
 				},
 
 				"indexes": {
-					"type": "array",
+					"type":      "array",
 					"collapsed": false,
-					"schema": {
-						"type": "object",
+					"schema":    {
+						"type":      "object",
 						"collapsed": false,
-						"nullable": false,
-						"schema": {
+						"nullable":  false,
+						"schema":    {
 							"index": {
-								"type": "string",
+								"type":     "string",
 								"required": true,
-								"options": ["eai", "ani", "supply", "demand"],
-								"hint": "Other analysis indexes that apply",
+								"options":  ["eai", "ani", "supply", "demand"],
+								"hint":     "Other analysis indexes that apply",
 							},
 							"invert": {
-								"type": "boolean",
+								"type":    "boolean",
 								"default": false,
-								"hint": "If a higher value of the select category, imply a lower value for the index, then enable \"invert\". For instance",
+								"hint":    "If a higher value of the select category, imply a lower value for the index, then enable \"invert\". For instance",
 							},
 							"scale": {
-								"type": "select",
-								"label": "functionality",
+								"type":    "select",
+								"label":   "functionality",
 								"default": null,
 								"options": ["", "linear", "key-delta", "exclusion-buffer", "inclusion-buffer", "intervals"],
-								"hint": "Functionality of index according to data type and preference",
-							}
-						}
-					}
-				}
-			}
+								"hint":    "Functionality of index according to data type and preference",
+							},
+						},
+					},
+				},
+			},
 		},
 
 		"timeline": {
-			"type": "object",
-			"label": "Timeline configuration",
+			"type":     "object",
+			"label":    "Timeline configuration",
 			"nullable": true,
-			"schema": {
+			"schema":   {
 				"enabled": {
-					"type": "boolean",
+					"type":    "boolean",
 					"default": true,
-					"hint": "For data with historical timeline component (optional)",
+					"hint":    "For data with historical timeline component (optional)",
 				},
-			}
+			},
 		},
 
 		"controls": {
-			"type": "object",
+			"type":     "object",
 			"nullable": true,
-			"schema": {
+			"schema":   {
 				"range": {
-					"type": "select",
+					"type":    "select",
 					"options": ["", "single", "double"],
 					"default": "double",
-					"hint": "Configuration of scroll range type",
+					"hint":    "Configuration of scroll range type",
 				},
 				"range_steps": {
-					"type": "number",
+					"type":     "number",
 					"nullable": true,
-					"default": 0,
-					"hint": "Configuration of scroll range steps (optional)",
+					"default":  0,
+					"hint":     "Configuration of scroll range steps (optional)",
 				},
 				"range_label": {
 					"type": "string",
 					"hint": "Configuration of scroll range label",
 				},
 				"weight": {
-					"type": "boolean",
+					"type":    "boolean",
 					"default": true,
 				},
 				"path": {
-					"type": "array",
+					"type":      "array",
 					"collapsed": false,
-					"hint": "Branch and Subbranch of the category",
-					"schema": {
-						"type": "string",
-						"pattern": "^[a-z][a-z0-9\-]+$",
+					"hint":      "Branch and Subbranch of the category",
+					"schema":    {
+						"type":     "string",
+						"pattern":  "^[a-z][a-z0-9\-]+$",
 						"required": true,
-					}
-				}
-			}
+					},
+				},
+			},
 		},
 
 		"created": {
-			"type": "string",
-			"label": "Created",
-			"editable": false
+			"type":     "string",
+			"label":    "Created",
+			"editable": false,
 		},
 
 		"created_by": {
-			"type": "string",
-			"label": "Created by",
-			"editable": false
+			"type":     "string",
+			"label":    "Created by",
+			"editable": false,
 		},
 
 		"updated": {
-			"type": "string",
-			"label": "Last update",
-			"editable": false
+			"type":     "string",
+			"label":    "Last update",
+			"editable": false,
 		},
 
 		"updated_by": {
-			"type": "string",
-			"label": "Last update by",
-			"editable": false
+			"type":     "string",
+			"label":    "Last update by",
+			"editable": false,
 		},
 	},
 
@@ -380,8 +380,8 @@ export const model = {
 					.replace(/[\ ]/g, '-')
 					.replace(/[\.\,]/g, '');
 			});
-		}
-	]
+		},
+	],
 };
 
 export const collection = {
@@ -408,7 +408,7 @@ export const collection = {
 
 		const params = {
 			"select": attrs,
-			"order": 'name_long.asc'
+			"order":  'name_long.asc',
 		};
 
 		const url = new URL(location);
@@ -432,7 +432,7 @@ export const collection = {
 
 	"sort_by": 'dscount',
 
-	"order": -1
+	"order": -1,
 };
 
 window.email_user = email_user;
@@ -443,7 +443,7 @@ function err(title, message) {
 	FLASH.clear();
 
 	FLASH.push({
-		type: 'error',
+		"type": 'error',
 		title,
 		message,
 	});
@@ -595,7 +595,7 @@ function raster_colorstops_validate(newdata) {
 
 function vectors_validate(newdata) {
 	return and(
-		vectors_shape_type_requirements_validate(newdata)
+		vectors_shape_type_requirements_validate(newdata),
 	);
 };
 

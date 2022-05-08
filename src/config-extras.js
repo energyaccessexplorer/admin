@@ -2,57 +2,57 @@
 
 export const fetchables = {
 	"geographies": {
-		"primary": 'name',
+		"primary":     'name',
 		"placeholder": "name",
-		"options": function(v) {
+		"options":     function(v) {
 			return {
 				"table": 'geographies',
 				"query": {
 					"select": ['id', 'name'],
-					"name": `ilike.*${v}*`
+					"name":   `ilike.*${v}*`,
 				},
-				"input": x => x['id'],
+				"input":      x => x['id'],
 				"descriptor": x => x['name'],
-				"value": v,
-				"threshold": 2
+				"value":      v,
+				"threshold":  2,
 			};
-		}
+		},
 	},
 
 	"categories": {
-		"primary": 'id',
+		"primary":     'id',
 		"placeholder": "name",
-		"options": function(v) {
+		"options":     function(v) {
 			return {
 				"table": 'categories',
 				"query": {
 					"select": ['id', 'name', 'name_long', 'unit'],
-					"name": `ilike.*${v}*`
+					"name":   `ilike.*${v}*`,
 				},
-				"input": x => x['id'],
+				"input":      x => x['id'],
 				"descriptor": x => `${x.name} - ${x.name_long}`,
-				"value": v,
-				"threshold": 2
+				"value":      v,
+				"threshold":  2,
 			};
-		}
+		},
 	},
 
 	"datasets": {
-		"primary": 'id',
+		"primary":     'id',
 		"placeholder": "category_name",
-		"options": function(v) {
+		"options":     function(v) {
 			return {
 				"table": 'datasets',
 				"query": {
-					"select": ['id', 'name', 'name_long', 'geography_name', 'category_name', 'category_id'],
-					"category_name": `ilike.*${v}*`
+					"select":        ['id', 'name', 'name_long', 'geography_name', 'category_name', 'category_id'],
+					"category_name": `ilike.*${v}*`,
 				},
-				"input": x => x['id'],
+				"input":      x => x['id'],
 				"descriptor": x => `${x.geography_name} - ${x.category_name} -- ${x.name} -- ${x.name_long}`,
-				"value": v,
-				"threshold": 2
+				"value":      v,
+				"threshold":  2,
 			};
-		}
+		},
 	},
 };
 

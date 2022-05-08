@@ -13,7 +13,7 @@ import {
 	model as dataset_model,
 } from './datasets.js';
 
-const paver = { base: "/paver" };
+const paver = { "base": "/paver" };
 
 const FLASH = dt.FLASH;
 const API = dt.API;
@@ -22,14 +22,14 @@ export default paver;
 
 async function pavercheck() {
 	fetch(`${paver.base}/routines`, {
-		method: 'OPTIONS',
-		headers: {
-			'Authorization': `Bearer ${localStorage.getItem('token')}`
+		"method":  'OPTIONS',
+		"headers": {
+			"Authorization": `Bearer ${localStorage.getItem('token')}`,
 		},
 	}).then(r => {
 		if (!r.ok) {
 			const msg = "Paver is not running... :(";
-			FLASH.push({ 'title': msg });
+			FLASH.push({ "title": msg });
 			throw new Error(msg);
 		}
 	});
@@ -61,14 +61,14 @@ export async function routine(obj, { edit_modal, pre }) {
 	const d = obj.data;
 
 	const payload = {
-		geographyid: d.geography_id,
-		datasetid: d.id,
-		dataseturl: null,
-		baseurl: null,
-		field: null,
-		fields: [],
-		config: null,
-		resolution: null,
+		"geographyid": d.geography_id,
+		"datasetid":   d.id,
+		"dataseturl":  null,
+		"baseurl":     null,
+		"field":       null,
+		"fields":      [],
+		"config":      null,
+		"resolution":  null,
 	};
 
 	let fn;
@@ -125,9 +125,9 @@ export async function routine(obj, { edit_modal, pre }) {
 		}
 
 		const r = await API.get('geographies', {
-			"id": `eq.${payload.geographyid}`,
+			"id":     `eq.${payload.geographyid}`,
 			"select": ["configuration", "resolution"],
-		}, { one: true });
+		}, { "one": true });
 
 		const rid = maybe(r, 'configuration', 'divisions', 0, 'dataset_id');
 
@@ -139,26 +139,26 @@ export async function routine(obj, { edit_modal, pre }) {
 		const refs = await API.get(
 			'datasets',
 			{
-				"id": `eq.${rid}`,
+				"id":     `eq.${rid}`,
 				"select": ["processed_files"],
 			},
-			{ one: true });
+			{ "one": true });
 
 		payload.referenceurl = maybe(refs.processed_files.find(x => x.func === 'vectors'), 'endpoint');
 		payload.baseurl = maybe(refs.processed_files.find(x => x.func === 'raster'), 'endpoint');
 
 		const cat = await API.get('categories', {
-			"id": `eq.${obj.data.category_id}`,
+			"id":     `eq.${obj.data.category_id}`,
 			"select": ["raster"],
-		}, { one: true });
+		}, { "one": true });
 
 		if (and(d.datatype === 'raster', !cat.raster.paver)) {
 			const msg = `'${d.category_name}' category raster->paver configuration is not setup!`;
 
 			FLASH.push({
-				type: 'error',
-				title: "Configuration error",
-				message: msg,
+				"type":    'error',
+				"title":   "Configuration error",
+				"message": msg,
 			});
 
 			console.error(msg);
@@ -177,8 +177,8 @@ export async function routine(obj, { edit_modal, pre }) {
 		flag(obj);
 
 		return {
-			error: "Failed. Looks like a configuration error.",
-			routine: fn.name,
+			"error":   "Failed. Looks like a configuration error.",
+			"routine": fn.name,
 			payload,
 		};
 	}
@@ -194,7 +194,7 @@ export async function routine(obj, { edit_modal, pre }) {
 
 	const paver_modal = new modal({
 		header,
-		content: await remote_tmpl(template),
+		"content": await remote_tmpl(template),
 		footer,
 	});
 
@@ -249,7 +249,7 @@ function flag(obj) {
 	API.patch(
 		'datasets',
 		{ "id": `eq.${obj.data.id}` },
-		{ "payload": { 'flagged': true } }
+		{ "payload": { "flagged": true } },
 	);
 };
 
@@ -271,12 +271,12 @@ async function submit(routine, payload, { paver_modal, pre }) {
 	});
 
 	return fetch(`${paver.base}/routines?routine=${routine}&socket_id=${socket_id}`, {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/x-www-form-urlencoded',
-			'Authorization': `Bearer ${localStorage.getItem('token')}`
+		"method":  'POST',
+		"headers": {
+			"Content-Type":  'application/x-www-form-urlencoded',
+			"Authorization": `Bearer ${localStorage.getItem('token')}`,
 		},
-		body: body.join("&"),
+		"body": body.join("&"),
 	}).then(async r => {
 		if (!r.ok) {
 			const msg = await r.text();
@@ -293,7 +293,7 @@ ${r.status} - ${r.statusText}
 ${msg}`;
 
 			return {
-				error: msg,
+				"error": msg,
 				routine,
 				payload,
 			};
@@ -326,21 +326,21 @@ async function outline(obj, payload, { paver_modal }) {
 					{ "id": `eq.${obj.data.id}` },
 					{	"payload": {
 						"processed_files": [{
-							"func": 'vectors',
+							"func":     'vectors',
 							"endpoint": `https://wri-public-data.s3.amazonaws.com/EnergyAccess/paver-outputs/${j.vectors}`,
 						}, {
-							"func": 'raster',
+							"func":     'raster',
 							"endpoint": `https://wri-public-data.s3.amazonaws.com/EnergyAccess/paver-outputs/${j.raster}`,
-						}]
-					} }
+						}],
+					} },
 				);
 
 				const {Left, Bottom, Right, Top} = j.info.bounds;
 
 				API.patch('geographies', { "id": `eq.${obj.data.geography_id}` }, {
-					payload: {
-						"envelope": [Left, Bottom, Right, Top]
-					}
+					"payload": {
+						"envelope": [Left, Bottom, Right, Top],
+					},
 				});
 
 				return d;
@@ -368,13 +368,13 @@ async function admin_boundaries(obj, payload, { paver_modal }) {
 					{ "id": `eq.${obj.data.id}` },
 					{ "payload": {
 						"processed_files": [{
-							"func": 'vectors',
+							"func":     'vectors',
 							"endpoint": `https://wri-public-data.s3.amazonaws.com/EnergyAccess/paver-outputs/${j.vectors}`,
 						}, {
-							"func": 'raster',
+							"func":     'raster',
 							"endpoint": `https://wri-public-data.s3.amazonaws.com/EnergyAccess/paver-outputs/${j.raster}`,
-						}]
-					}
+						}],
+					},
 					});
 			});
 	};
@@ -418,13 +418,13 @@ async function clip_proximity(obj, payload, { paver_modal }) {
 					{ "id": `eq.${obj.data.id}` },
 					{ "payload": {
 						"processed_files": [{
-							"func": 'vectors',
+							"func":     'vectors',
 							"endpoint": `https://wri-public-data.s3.amazonaws.com/EnergyAccess/paver-outputs/${j.vectors}`,
 						}, {
-							"func": 'raster',
+							"func":     'raster',
 							"endpoint": `https://wri-public-data.s3.amazonaws.com/EnergyAccess/paver-outputs/${j.raster}`,
-						}]
-					} }
+						}],
+					} },
 				);
 			});
 	};
@@ -442,12 +442,12 @@ async function crop_raster(obj, payload, { paver_modal }) {
 				const j = await r.json();
 
 				return API.patch('datasets', { "id": `eq.${obj.data.id}` }, {
-					payload: {
+					"payload": {
 						"processed_files": [{
-							"func": 'raster',
+							"func":     'raster',
 							"endpoint": `https://wri-public-data.s3.amazonaws.com/EnergyAccess/paver-outputs/${j.raster}`,
-						}]
-					}
+						}],
+					},
 				});
 			});
 	};
@@ -456,14 +456,14 @@ async function crop_raster(obj, payload, { paver_modal }) {
 async function subgeography(r, { results, cid, vectors, csv, obj, resolution }) {
 	const g = new dt.object({
 		"model": dt.modules['geographies']['model'],
-		"data": {
-			"name": r[csv.value],
-			"parent_id": obj.id,
-			"adm": obj.adm + 1,
+		"data":  {
+			"name":       r[csv.value],
+			"parent_id":  obj.id,
+			"adm":        obj.adm + 1,
 			"resolution": parseInt(resolution),
-			"circle": obj.circle,
+			"circle":     obj.circle,
 			"deployment": ['staging'],
-		}
+		},
 	});
 
 	let gid, did;
@@ -472,25 +472,25 @@ async function subgeography(r, { results, cid, vectors, csv, obj, resolution }) 
 	if (!gid) throw new Error(`BU ${gid}`);
 
 	const source_files = [{
-		"func": "vectors",
+		"func":     "vectors",
 		"endpoint": `https://wri-public-data.s3.amazonaws.com/EnergyAccess/paver-outputs/${results[r[csv.id]]}`,
 	}];
 
 	const d = new dt.object({
-		model: dataset_model,
-		"data": {
-			"category_id": cid,
-			"geography_id": gid,
+		"model": dataset_model,
+		"data":  {
+			"category_id":   cid,
+			"geography_id":  gid,
 			"configuration": {
 				"vectors_id": vectors.id,
 			},
 			source_files,
-		}
+		},
 	});
 	await d.create().then(r => did = r.id);
 
 	d.patch({
-		"deployment": ['staging'],
+		"deployment":      ['staging'],
 		"processed_files": [],
 		source_files,
 	});
@@ -498,10 +498,10 @@ async function subgeography(r, { results, cid, vectors, csv, obj, resolution }) 
 	g.patch({
 		"configuration": {
 			"divisions": [{
-				"name": "Outline",
+				"name":       "Outline",
 				"dataset_id": did,
-			}]
-		}
+			}],
+		},
 	});
 
 	return d.fetch()
@@ -512,12 +512,12 @@ async function subgeography(r, { results, cid, vectors, csv, obj, resolution }) 
 export async function subgeographies(obj, { vectors, csv }) {
 	const payload = {
 		"dataseturl": vectors.endpoint,
-		"idcolumn": vectors.id,
+		"idcolumn":   vectors.id,
 	};
 
 	const table = await fetch(csv.endpoint).then(r => r.text()).then(r => csvParse(r));
 	const shapes = await fetch(vectors.endpoint).then(r => r.json());
-	const cid = (await API.get('categories', { 'name': "eq.outline", 'select': ['id'] }, { one: true }))['id'];
+	const cid = (await API.get('categories', { "name": "eq.outline", 'select': ['id'] }, { "one": true }))['id'];
 
 	if (table.length !== shapes.features.length)
 		throw new Error("different lengths. ciao.");
@@ -528,7 +528,7 @@ export async function subgeographies(obj, { vectors, csv }) {
 	}
 
 	const paver_modal = new modal({
-		content: await remote_tmpl("geographies/paver-subgeographies.html"),
+		"content": await remote_tmpl("geographies/paver-subgeographies.html"),
 	});
 
 	const c = paver_modal.content;

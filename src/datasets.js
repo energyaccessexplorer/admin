@@ -10,7 +10,7 @@ import {
 } from './extras.js';
 
 import {
-	routine as paver_routine
+	routine as paver_routine,
 } from './paver.js';
 
 window.email_user = email_user;
@@ -33,7 +33,7 @@ export const model = {
 	"columns": [
 		"datatype",
 		"category_name",
-		"geography_name"
+		"geography_name",
 	],
 
 	"clonable_attrs": [
@@ -48,37 +48,37 @@ export const model = {
 
 	"schema": {
 		"category_id": {
-			"type": "uuid",
-			"fkey": "categories",
+			"type":       "uuid",
+			"fkey":       "categories",
 			"constraint": "category",
-			"required": true,
-			"label": "Category",
-			"show": m => `<strong>${m.category_name}</strong>`,
-			"columns": ['*']
+			"required":   true,
+			"label":      "Category",
+			"show":       m => `<strong>${m.category_name}</strong>`,
+			"columns":    ['*'],
 		},
 
 		"geography_id": {
-			"type": "uuid",
-			"fkey": "geographies",
+			"type":       "uuid",
+			"fkey":       "geographies",
 			"constraint": "geography",
-			"required": true,
-			"editable": false,
-			"label": "Geography",
-			"show": m => `<strong>${m.geography_name}</strong>`,
-			"columns": ['*']
+			"required":   true,
+			"editable":   false,
+			"label":      "Geography",
+			"show":       m => `<strong>${m.geography_name}</strong>`,
+			"columns":    ['*'],
 		},
 
 		"name": {
-			"type": "string",
-			"label": "Name",
-			"pattern": "^[a-z][a-z0-9\-]+$",
-			"placeholder": "leave blank to inherit from category"
+			"type":        "string",
+			"label":       "Name",
+			"pattern":     "^[a-z][a-z0-9\-]+$",
+			"placeholder": "leave blank to inherit from category",
 		},
 
 		"name_long": {
-			"type": "string",
-			"label": "Name Long",
-			"placeholder": "leave blank to inherit from category"
+			"type":        "string",
+			"label":       "Name Long",
+			"placeholder": "leave blank to inherit from category",
 		},
 
 		"flagged": {
@@ -87,284 +87,284 @@ export const model = {
 		},
 
 		"deployment": {
-			"type": "array",
+			"type":   "array",
 			"unique": true,
-			"hint": "Select the environment(s) where the dataset will be deployed.",
+			"hint":   "Select the environment(s) where the dataset will be deployed.",
 			"schema": {
-				"type": "string",
-				"options": ["test", "staging", "production", "training", "development"],
-				"required": true
-			}
+				"type":     "string",
+				"options":  ["test", "staging", "production", "training", "development"],
+				"required": true,
+			},
 		},
 
 		"source_files": {
-			"type": "array",
+			"type":     "array",
 			"nullable": false,
 			"validate": source_files_validate,
-			"schema": {
-				"type": "object",
+			"schema":   {
+				"type":   "object",
 				"schema": {
 					"func": {
-						"type": "select",
+						"type":     "select",
 						"required": true,
-						"options": ["vectors", "raster", "csv"],
-						"hint": "Select the type of dataset: vector, raster, or csv",
+						"options":  ["vectors", "raster", "csv"],
+						"hint":     "Select the type of dataset: vector, raster, or csv",
 					},
 
 					"endpoint": {
-						"type": "string",
+						"type":     "string",
 						"required": true,
-						"pattern": "^https://(.+)",
-						"bind": "storage",
-						"hint": "Enter the secure URL that corresponds to the dataset in the cloud",
+						"pattern":  "^https://(.+)",
+						"bind":     "storage",
+						"hint":     "Enter the secure URL that corresponds to the dataset in the cloud",
 					},
-				}
-			}
+				},
+			},
 		},
 
 		"processed_files": {
-			"type": "array",
+			"type":     "array",
 			"nullable": false,
-			"hint": "These fields will generate automatically with PAVER",
-			"schema": {
-				"type": "object",
+			"hint":     "These fields will generate automatically with PAVER",
+			"schema":   {
+				"type":   "object",
 				"schema": {
 					"func": {
-						"type": "string",
+						"type":     "string",
 						"required": true,
 						"editable": false,
-						"options": ["vectors", "raster", "csv"]
+						"options":  ["vectors", "raster", "csv"],
 					},
 
 					"endpoint": {
-						"type": "string",
+						"type":     "string",
 						"required": true,
 						"editable": false,
-						"pattern": "^https://(.+)"
+						"pattern":  "^https://(.+)",
 					},
-				}
-			}
+				},
+			},
 		},
 
 		"configuration": {
-			"type": "object",
-			"label": "Configuration",
+			"type":     "object",
+			"label":    "Configuration",
 			"nullable": true,
 			"validate": configuration_attributes_validate,
-			"schema": {
+			"schema":   {
 				"divisions_tier": {
-					"type": "number",
+					"type":     "number",
 					"nullable": true,
-					"needs": m => (m.category_name.match(/indicator/) || m.datatype.match(/polygons-boundaries/)),
-					"hint": "Subdivision level corresponds to the CSV data. 0 = Entire geography.",
+					"needs":    m => (m.category_name.match(/indicator/) || m.datatype.match(/polygons-boundaries/)),
+					"hint":     "Subdivision level corresponds to the CSV data. 0 = Entire geography.",
 				},
 
 				"vectors_id": {
-					"hint": "IDs for geographic features in linked GeoJSON file. This corresponds to the csv_columns->id value below.",
-					"type": "string",
+					"hint":  "IDs for geographic features in linked GeoJSON file. This corresponds to the csv_columns->id value below.",
+					"type":  "string",
 					"needs": m => m.category_name.match(/boundaries/),
 				},
 
 				"csv_columns": {
-					"type": "object",
+					"type":     "object",
 					"nullable": true,
-					"hint": "CSV file configuration",
-					"schema": {
+					"hint":     "CSV file configuration",
+					"schema":   {
 						"id": {
-							"type": "string",
+							"type":     "string",
 							"required": true,
-							"hint": "Column header containing IDs for geographic divisions in linked CSV file. This corresponds to the vectors_id value above.",
+							"hint":     "Column header containing IDs for geographic divisions in linked CSV file. This corresponds to the vectors_id value above.",
 						},
 
 						"value": {
-							"type": "string",
+							"type":     "string",
 							"nullable": true,
 							// TODO: "needs" to be 'boundaries' ds
-							"hint": "Column header containing numerical values for indicator in linked CSV file. Percentages should be formatted as decimal numbers (i.e. 25% should be 25.0)",
-						}
-					}
+							"hint":     "Column header containing numerical values for indicator in linked CSV file. Percentages should be formatted as decimal numbers (i.e. 25% should be 25.0)",
+						},
+					},
 				},
 
 				"attributes_map": {
-					"type": "array",
+					"type":     "array",
 					"nullable": true,
-					"hint": "GeoJSON file attributes configuration",
-					"schema": {
-						"type": "object",
+					"hint":     "GeoJSON file attributes configuration",
+					"schema":   {
+						"type":     "object",
 						"nullable": false,
-						"schema": {
+						"schema":   {
 							"target": {
-								"type": "string",
+								"type":     "string",
 								"required": true,
-								"hint": "Display name for feature attributes in EAE",
+								"hint":     "Display name for feature attributes in EAE",
 							},
 							"dataset": {
-								"type": "string",
+								"type":     "string",
 								"required": true,
-								"hint": "Column header for feature attributes in linked GeoJSON file",
-							}
-						}
-					}
+								"hint":     "Column header for feature attributes in linked GeoJSON file",
+							},
+						},
+					},
 				},
 
 				"properties_search": {
-					"type": "array",
+					"type":     "array",
 					"nullable": true,
-					"hint": "GeoJSON file properties search configuration",
-					"schema": {
-						"type": "string",
+					"hint":     "GeoJSON file properties search configuration",
+					"schema":   {
+						"type":     "string",
 						"required": true,
-						"hint": "Column header containing attributes to make searchable in EAE",
-					}
+						"hint":     "Column header containing attributes to make searchable in EAE",
+					},
 				},
 
 				"features_specs": {
-					"type": "array",
+					"type":     "array",
 					"nullable": true,
 					"callback": function(details) {
-						const button = ce('button', "see GEOJSON summary", { style: "float: right;", type: "button" });
+						const button = ce('button', "see GEOJSON summary", { "style": "float: right;", "type": "button" });
 
 						button.onclick = _ => geojson_summary_iframe(this);
 
 						details.querySelector(':scope > summary').append(button);
 					},
-					"hint": "GeoJSON file features visual configuration",
+					"hint":   "GeoJSON file features visual configuration",
 					"schema": {
-						"type": "object",
-						"nullable": false,
+						"type":       "object",
+						"nullable":   false,
 						"appendable": true,
-						"schema": {
+						"schema":     {
 							"key": {
-								"type": "string",
+								"type":     "string",
 								"required": true,
-								"hint": "Key refers to the column header corresponding to the desired display attribute in the linked GeoJSONfile.",
+								"hint":     "Key refers to the column header corresponding to the desired display attribute in the linked GeoJSONfile.",
 							},
 							"match": {
-								"type": "regexp",
+								"type":     "regexp",
 								"required": true,
-								"hint": "Match refers to the corresponding value under the desired attribute column in the linked GeoJSON file.",
+								"hint":     "Match refers to the corresponding value under the desired attribute column in the linked GeoJSON file.",
 							},
 							"radius": {
-								"type": "number",
+								"type":      "number",
 								"droppable": true,
-								"required": true,
-								"hint": "Refers to the radius size only for point features.",
+								"required":  true,
+								"hint":      "Refers to the radius size only for point features.",
 							},
 							"stroke": {
-								"type": "colour",
+								"type":      "colour",
 								"droppable": true,
-								"required": true,
-								"hint": "Refers to the border color for point and polygon features, and to the line color for linear features.",
+								"required":  true,
+								"hint":      "Refers to the border color for point and polygon features, and to the line color for linear features.",
 							},
 							"stroke-width": {
-								"type": "number",
+								"type":      "number",
 								"droppable": true,
-								"required": true,
-								"hint": "The width of linear features, or borders for point. Does not apply for polygon features.",
-							}
-						}
-					}
+								"required":  true,
+								"hint":      "The width of linear features, or borders for point. Does not apply for polygon features.",
+							},
+						},
+					},
 				},
 
 				"mutant_targets": {
-					"type": "array",
+					"type":     "array",
 					"nullable": true,
-					"schema": {
+					"schema":   {
 						"type": "string",
-					}
-				}
-			}
+					},
+				},
+			},
 		},
 
 		"category_overrides": {
-			"type": "json",
-			"label": "Category Overrides",
+			"type":     "json",
+			"label":    "Category Overrides",
 			"nullable": true,
-			"hint": "Category overrides enable users to override category-level settings to customize dataset configuration for a specific geography. To override a category-level setting, import the GeoJSON section of interest, and enter the values to modify.",
+			"hint":     "Category overrides enable users to override category-level settings to customize dataset configuration for a specific geography. To override a category-level setting, import the GeoJSON section of interest, and enter the values to modify.",
 		},
 
 		"metadata": {
-			"type": "object",
+			"type":   "object",
 			"schema": {
 				"description": {
-					"type": "text",
+					"type":     "text",
 					"nullable": true,
-					"hint": "Description of the dataset, methodology, and its sources",
+					"hint":     "Description of the dataset, methodology, and its sources",
 				},
 
 				"suggested_citation": {
-					"type": "text",
+					"type":     "text",
 					"nullable": true,
-					"hint": "Suggested citation of dataset. Includes \"Available from [original link]. Accessed through Energy Access Explorer, [date]. www.energyaccessexplorer.org.\"",
+					"hint":     "Suggested citation of dataset. Includes \"Available from [original link]. Accessed through Energy Access Explorer, [date]. www.energyaccessexplorer.org.\"",
 				},
 
 				"cautions": {
-					"type": "text",
+					"type":     "text",
 					"nullable": true,
-					"hint": "Description of any limitations or cautions in the use of the dataset",
+					"hint":     "Description of any limitations or cautions in the use of the dataset",
 				},
 
 				"spatial_resolution": {
-					"type": "string",
+					"type":     "string",
 					"nullable": true,
-					"hint": "Dataset resolution (e.g. 1 km2 , sub-national, etc.)",
+					"hint":     "Dataset resolution (e.g. 1 km2 , sub-national, etc.)",
 				},
 
 				"download_original_url": {
-					"type": "string",
+					"type":     "string",
 					"nullable": true,
-					"hint": "Online link to original dataset (optional)",
+					"hint":     "Online link to original dataset (optional)",
 				},
 
 				"learn_more_url": {
-					"type": "string",
+					"type":     "string",
 					"nullable": true,
-					"hint": "Online link to original dataset methodology",
+					"hint":     "Online link to original dataset methodology",
 				},
 
 				"license": {
-					"type": "text",
+					"type":     "text",
 					"nullable": true,
-					"hint": "Dataset license for attribution requirements",
+					"hint":     "Dataset license for attribution requirements",
 				},
 
 				"sources": {
-					"type": "text",
+					"type":     "text",
 					"nullable": true,
-					"hint": "Dataset sources"
+					"hint":     "Dataset sources",
 				},
 
 				"content_date": {
-					"type": "string",
-					"pattern": "^[0-9]{4}(-[0-9]{4})?$",
+					"type":     "string",
+					"pattern":  "^[0-9]{4}(-[0-9]{4})?$",
 					"nullable": true,
-					"hint": "Date of the dataset content",
-				}
-			}
+					"hint":     "Date of the dataset content",
+				},
+			},
 		},
 
 		"created": {
-			"type": "string",
-			"label": "Created",
-			"editable": false
+			"type":     "string",
+			"label":    "Created",
+			"editable": false,
 		},
 
 		"created_by": {
-			"type": "string",
-			"label": "Created by",
-			"editable": false
+			"type":     "string",
+			"label":    "Created by",
+			"editable": false,
 		},
 
 		"updated": {
-			"type": "string",
-			"label": "Last update",
-			"editable": false
+			"type":     "string",
+			"label":    "Last update",
+			"editable": false,
 		},
 
 		"updated_by": {
-			"type": "string",
-			"label": "Last update by",
-			"editable": false
+			"type":     "string",
+			"label":    "Last update by",
+			"editable": false,
 		},
 	},
 
@@ -375,10 +375,10 @@ export const model = {
 		u.searchParams.set('id', m.geography_id);
 		u.searchParams.set('dataset_id', m.id);
 
-		const iframe = ce('iframe', null, { width: "600", height: "600" });
+		const iframe = ce('iframe', null, { "width": "600", "height": "600" });
 		iframe.src = u;
 
-		return { content: iframe, header: null };
+		return { "content": iframe, "header": null };
 	},
 
 	"parse": function(m) {
@@ -417,11 +417,11 @@ export const model = {
 				.then(r => object.data._selected_attributes = Object.keys(r.features[0]['properties']));
 		},
 		function(object, form, edit_modal) {
-			const p = ce('button', ce('i', null, { class: 'bi-gem', title: 'Paver' }));
+			const p = ce('button', ce('i', null, { "class": 'bi-gem', "title": 'Paver' }));
 			p.onclick = _ => paver_routine(object, { edit_modal });
 
-			const c = ce('button', ce('i', null, { class: 'bi-files', title: 'Clone' }));
-			c.onclick = _ => object.clone({ name: (object.data.name || object.data.category_name) + "-clone-" + (new Date).getTime() });
+			const c = ce('button', ce('i', null, { "class": 'bi-files', "title": 'Clone' }));
+			c.onclick = _ => object.clone({ "name": (object.data.name || object.data.category_name) + "-clone-" + (new Date).getTime() });
 
 			const d = qs('.actions-drawer', edit_modal.dialog);
 			d.append(c, object.data.haspaver ? p : "");
@@ -471,12 +471,12 @@ export const model = {
 			function selectkey() {
 				const select = ce('select');
 
-				select.append(ce('option', "", { disabled: '', selected: '' }));
+				select.append(ce('option', "", { "disabled": '', "selected": '' }));
 
 				const m = new modal({
-					header: "Select a segment from the category configuration",
-					content: select,
-					destroy: true
+					"header":  "Select a segment from the category configuration",
+					"content": select,
+					"destroy": true,
 				});
 
 				select.onchange = async function() {
@@ -492,8 +492,8 @@ export const model = {
 						co = JSON.parse(ta.value);
 					} catch (e) {
 						FLASH.push({
-							type: "warn",
-							message: "Failed to parse JSON from configuration overrides. Using an empty object.",
+							"type":    "warn",
+							"message": "Failed to parse JSON from configuration overrides. Using an empty object.",
 						});
 						co = {};
 					}
@@ -566,15 +566,15 @@ export const collection = {
 
 	"parse": model.parse,
 
-	"order": -1
+	"order": -1,
 };
 
 export async function header() {
 	if (geography_id) {
-		const name = (await API.get('geographies', { select: ['name'], id: `eq.${geography_id}` }, { one: true }))['name'];
+		const name = (await API.get('geographies', { "select": ['name'], "id": `eq.${geography_id}` }, { "one": true }))['name'];
 		return `${name} - datasets`;
 	} else if (category_id) {
-		const name = (await API.get('categories', { select: ['name'], id: `eq.${category_id}` }, { one: true }))['name'];
+		const name = (await API.get('categories', { "select": ['name'], "id": `eq.${category_id}` }, { "one": true }))['name'];
 		return `${name} - datasets`;
 	}
 };
@@ -583,10 +583,10 @@ export async function init() {
 	if (!geography_id) return true;
 
 	function dump_table() {
-		const a = ce('a', ce('i', null, { class: 'bi-download', title: 'Dump Table' }));
+		const a = ce('a', ce('i', null, { "class": 'bi-download', "title": 'Dump Table' }));
 
 		a.onclick = _ => API.get('datasets', {
-			select: [
+			"select": [
 				"id",
 				"geography_name",
 				"name_long",
@@ -603,8 +603,8 @@ export async function init() {
 				"created",
 				"updated",
 			],
-			geography_id: `eq.${geography_id}`
-		}, { 'expect': "csv" }).then(r => fake_blob_download(r, `${geography_id}-dataset-dump.csv`));
+			"geography_id": `eq.${geography_id}`,
+		}, { "expect": "csv" }).then(r => fake_blob_download(r, `${geography_id}-dataset-dump.csv`));
 
 		qs('body main header .actions-drawer').prepend(a);
 	};
@@ -625,13 +625,13 @@ export function geojson_summary_url(m) {
 };
 
 export function geojson_summary_iframe(o) {
-	const iframe = ce('iframe', null, { width: "600", height: "600" });
+	const iframe = ce('iframe', null, { "width": "600", "height": "600" });
 	iframe.src = geojson_summary_url(o);
 
 	new modal({
-		header: null,
-		content: iframe,
-		destroy: true,
+		"header":  null,
+		"content": iframe,
+		"destroy": true,
 	}).show();
 };
 
@@ -695,9 +695,9 @@ function source_files_validate(newdata, data) {
 			ok = false;
 
 			FLASH.push({
-				type: 'error',
-				title: `Source Files are incomplete`,
-				message: `'${r}' element is missing.`
+				"type":    'error',
+				"title":   `Source Files are incomplete`,
+				"message": `'${r}' element is missing.`,
 			});
 		}
 	}
@@ -715,11 +715,11 @@ function configuration_attributes_validate(newdata, data) {
 		FLASH.clear();
 
 		FLASH.push({
-			type: 'error',
-			title: `Configuration -> ${p}`,
-			message: `'${n}' attribute does not belong.
+			"type":    'error',
+			"title":   `Configuration -> ${p}`,
+			"message": `'${n}' attribute does not belong.
 
-Available values are '${selected}'`
+Available values are '${selected}'`,
 		});
 	};
 
@@ -727,16 +727,16 @@ Available values are '${selected}'`
 		FLASH.clear();
 
 		FLASH.push({
-			type: 'error',
-			title: `Configuration -> divisions_tier`,
-			message: m,
+			"type":    'error',
+			"title":   `Configuration -> divisions_tier`,
+			"message": m,
 		});
 	};
 
 	const dt = config.divisions_tier;
 	const t = or(
 		data.category_name.match(/indicator/),
-		data.datatype.match(/polygons-boundaries/)
+		data.datatype.match(/polygons-boundaries/),
 	);
 
 	if (and(!t, typeof dt === 'number')) {
