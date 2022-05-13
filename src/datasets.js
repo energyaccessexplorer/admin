@@ -155,6 +155,7 @@ export const model = {
 				"divisions_tier": {
 					"type":     "number",
 					"nullable": true,
+					"default":  null,
 					"needs":    m => (m.category_name.match(/indicator/) || m.datatype.match(/polygons-boundaries/)),
 					"hint":     "Subdivision level corresponds to the CSV data. 0 = Entire geography.",
 				},
@@ -407,13 +408,14 @@ export const model = {
 		async function(object) {
 			if (!["points", "lines", "polygons"].includes(object.data.datatype)) return;
 
-			const s = object.data.source_files.find(f => f.func === 'vectors')['endpoint'];
-			const p = object.data.processed_files.find(f => f.func === 'vectors')['endpoint'];
+			const s = maybe(object.data.source_files?.find(f => f.func === 'vectors'), 'endpoint');
 
-			fetch(s).then(r => r.json())
+			if (s) fetch(s).then(r => r.json())
 				.then(r => object.data._selectable_attributes = Object.keys(r.features[0]['properties']));
 
-			fetch(p).then(r => r.json())
+			const p = maybe(object.data.processed_files?.find(f => f.func === 'vectors'), 'endpoint');
+
+			if (p) fetch(p).then(r => r.json())
 				.then(r => object.data._selected_attributes = Object.keys(r.features[0]['properties']));
 		},
 		function(object, form, edit_modal) {

@@ -152,7 +152,7 @@ export async function routine(obj, { edit_modal, pre }) {
 			"select": ["raster"],
 		}, { "one": true });
 
-		if (and(d.datatype === 'raster', !cat.raster.paver)) {
+		if (and(d.datatype === 'raster', !maybe(cat, 'raster', 'paver'))) {
 			const msg = `'${d.category_name}' category raster->paver configuration is not setup!`;
 
 			FLASH.push({

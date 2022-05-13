@@ -504,13 +504,38 @@ function domain_init_containment_validate(newdata) {
 	return false;
 };
 
-function raster_validate(newdata) {
+function raster_validate() {
 	return and(
-		raster_paver_validate(newdata),
-		raster_proximity_validate(newdata),
-		raster_intervals_validate(newdata),
-		raster_colorstops_validate(newdata),
+		raster_exists_validate(...arguments),
+		raster_paver_validate(...arguments),
+		raster_proximity_validate(...arguments),
+		raster_intervals_validate(...arguments),
+		raster_colorstops_validate(...arguments),
 	);
+};
+
+function raster_exists_validate(newdata, data) {
+	const r = newdata['raster'];
+	const t = data.datatype;
+	const x = or(t.match(/-timeline$/), ['mutant', 'table'].includes(t));
+
+	if (and(r,x)) {
+		err(
+			"Configuration error",
+			`${t} categories should not have raster configuration`,
+		);
+
+		return false;
+	} else if (and(!r, !x)) {
+		err(
+			"Configuration error",
+			`${t} categories require a raster configuration`,
+		);
+
+		return false;
+	}
+
+	return true;
 };
 
 function raster_paver_validate(newdata) {
@@ -545,8 +570,7 @@ function raster_proximity_validate(newdata) {
 };
 
 function raster_intervals_validate(newdata) {
-	const r = newdata['raster']['intervals'];
-
+	const r = maybe(newdata, 'raster', 'intervals');
 	if (!r) return true;
 
 	if (!or(
@@ -574,11 +598,10 @@ function raster_intervals_validate(newdata) {
 };
 
 function raster_colorstops_validate(newdata) {
-	if (newdata.raster) return true;
-
 	const r = newdata['colorstops'];
 	const i = maybe(newdata, 'raster', 'intervals');
 
+	if (!r) return true;
 	if (r && !i) return true;
 
 	const diff = i.length - r.length;
@@ -601,6 +624,8 @@ function vectors_validate(newdata) {
 
 function vectors_shape_type_requirements_validate(newdata) {
 	const v = newdata['vectors'];
+	if (!v) return true;
+
 	const t = v['shape_type'];
 
 	const base = ['shape_type', 'opacity', 'stroke'];
