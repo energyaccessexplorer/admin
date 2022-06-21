@@ -1,7 +1,7 @@
 <tr bind-attr="class"
     bind-value="ok"
     bind-not="disabled">
-  <td style="text-align: center;">
+  <td>
     <a bind-attr="href"
        bind-value="id"
        bind-format="/?model=geographies&parent_id={0}"
@@ -11,7 +11,7 @@
     </a>
   </td>
 
-  <td style="text-align: right;">
+  <td>
     <a bind-attr="href"
        bind-value="id"
        bind-format="/?model=datasets&geography_id={0}"
@@ -26,7 +26,7 @@
 
   <td bind="name"></td>
 
-  <td style="text-align: center;">
+  <td>
     <span bind-icon="globe2"
           title="deployed in production"
           bind-cond="inproduction"></span>
@@ -36,7 +36,7 @@
           bind-unless="inproduction"></span>
   </td>
 
-  <td style="text-align: center;">
+  <td>
     <span bind-icon="lock"
           title="deployed in staging"
           bind-cond="instaging"></span>
@@ -46,7 +46,7 @@
           bind-unless="instaging"></span>
   </td>
 
-  <td style="text-align: center;">
+  <td>
     <span bind-icon="test"
           title="deployed in test"
           bind-cond="intest"></span>
@@ -56,7 +56,7 @@
           bind-unless="intest"></span>
   </td>
 
-  <td style="text-align: center;">
+  <td>
     <span bind-icon="bounding-box-circles"
           title="deployed in training"
           bind-cond="intraining"></span>
@@ -66,7 +66,7 @@
           bind-unless="intraining"></span>
   </td>
 
-  <td style="text-align: center;">
+  <td>
     <span bind-icon="braces"
           title="deployed in development"
           bind-cond="indevelopment"></span>
