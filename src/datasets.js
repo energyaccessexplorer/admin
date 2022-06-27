@@ -25,6 +25,8 @@ const category_id = url.searchParams.get('category_id');
 
 export const base = 'datasets';
 
+const deployment_options = ['production', 'staging', 'training', 'test', 'dev'];
+
 export const model = {
 	"main": _ => "&nbsp;",
 
@@ -92,7 +94,7 @@ export const model = {
 			"hint":   "Select the environment(s) where the dataset will be deployed.",
 			"schema": {
 				"type":     "string",
-				"options":  ["test", "staging", "production", "training", "development"],
+				"options":  deployment_options,
 				"required": true,
 			},
 		},
@@ -397,7 +399,7 @@ export const model = {
 		m.instaging = m.deployment.indexOf("staging") > -1;
 		m.intest = m.deployment.indexOf("test") > -1;
 		m.intraining = m.deployment.indexOf("training") > -1;
-		m.indevelopment = m.deployment.indexOf("development") > -1;
+		m.indev = m.deployment.indexOf("dev") > -1;
 
 		m.ok = !m.flagged;
 
@@ -523,6 +525,10 @@ export const model = {
 
 export const collection = {
 	"filters": ['name', 'deployments', 'name_long', 'category_name'],
+
+	"switches": {
+		"deployment": deployment_options,
+	},
 
 	"endpoint": function() {
 		const attrs = [

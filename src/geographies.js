@@ -21,6 +21,8 @@ export const base = 'geographies';
 
 export const header = "Geographies";
 
+const deployment_options = ['production', 'staging', 'training', 'test', 'dev'];
+
 window.email_user = email_user;
 
 function envelope_validate(newdata) {
@@ -177,7 +179,7 @@ export const model = {
 			"hint":   "Select the environments where the geography will be deployed",
 			"schema": {
 				"type":     "string",
-				"options":  ["test", "staging", "production", "training", "development"],
+				"options":  deployment_options,
 				"required": true,
 			},
 		},
@@ -363,7 +365,7 @@ export const model = {
 		m.instaging = m.deployment.indexOf("staging") > -1;
 		m.intest = m.deployment.indexOf("test") > -1;
 		m.intraining = m.deployment.indexOf("training") > -1;
-		m.indevelopment = m.deployment.indexOf("development") > -1;
+		m.indev = m.deployment.indexOf("dev") > -1;
 
 		m.deployments = m.deployment.join(',');
 
@@ -374,7 +376,11 @@ export const model = {
 };
 
 export const collection = {
-	"filters": ['name', 'deployments'],
+	"filters": ['name'],
+
+	"switches": {
+		"deployment": deployment_options,
+	},
 
 	"endpoint": function() {
 		const select = [
