@@ -756,6 +756,12 @@ Available values are '${selected}'`,
 		return false;
 	}
 
+	if (config.vectors_id)
+		if (!selected.includes(config.vectors_id)) {
+			attrerr("Vectors ID", config.vectors_id);
+			return false;
+		}
+
 	if (config.attributes_map)
 		for (const n of config.attributes_map.map(a => a.dataset)) {
 			if (!selected.includes(n)) {
