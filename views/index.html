@@ -15,7 +15,35 @@
 
     <link rel="shortcut icon" type="image/png" href="/images/favicon.png"/>
 
+    <link rel="stylesheet" href="https://www.energyaccessexplorer.org/stylesheets/style.css">
+    <link rel="stylesheet" href="https://www.energyaccessexplorer.org/stylesheets/nav.css">
+
     <style>
+      :root {
+        --a-foreground: var(--the-green) !important;
+        --nav-background: var(--the-green) !important;
+        --nav-a-foreground: var(--the-white) !important;
+      }
+
+      body {
+        font-family: without-serif, sans-serif !important;
+        display: initial !important;
+      }
+
+      body > main header {
+    	width: 100% !important;
+    	max-width: 100% !important;
+        position: relative;
+      }
+
+      nav #navigation-links {
+        justify-content: right !important;
+      }
+
+      .actions-drawer {
+        position: absolute !important;
+      }
+
       [bind-value="created"],
       [bind-value="updated"],
       [bind-value="created_by"],
@@ -34,4 +62,47 @@
   </head>
 
   <body></body>
+
+  <script>
+    const nav_html = `
+      <input id="toggle" class="no-desktop" type="checkbox">
+
+      <label for="toggle" class="no-desktop">
+        <svg style="width:24px;height:24px" viewBox="0 0 24 14">
+          <path d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z"></path>
+        </svg>
+      </label>
+
+      <a id="energy-access-link" href="/">
+        Energy Access Explorer
+      </a>
+
+      <div id="navigation-links">
+        <a href="/?model=geographies" class="toggleable">
+          Geographies
+        </a>
+
+        <a href="/?model=categories" class="toggleable">
+          Categories
+        </a>
+
+        <a href="/?model=users" class="toggleable">
+          Users
+        </a>
+      </div>`;
+
+    const nav = document.createElement('nav');
+    nav.innerHTML = nav_html;
+
+    let i;
+
+    i = setInterval(function() {
+      const dtnav = document.querySelector('nav#dt-nav');
+      if (!dtnav) return;
+
+      dtnav.remove();
+      document.body.prepend(nav);
+      clearInterval(i);
+    }, 10);
+  </script>
 </html>
