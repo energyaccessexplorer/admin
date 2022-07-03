@@ -158,14 +158,16 @@ export const model = {
 					"type":     "number",
 					"nullable": true,
 					"default":  null,
-					"needs":    m => (m.category_name.match(/indicator/) || m.datatype.match(/polygons-boundaries/)),
+					"required": true,
+					"enabled":  m => m.datatype.match(/polygons-(fixed|timeline)/),
 					"hint":     "Subdivision level corresponds to the CSV data. 0 = Entire geography.",
 				},
 
 				"vectors_id": {
-					"hint":  "IDs for geographic features in linked GeoJSON file. This corresponds to the csv_columns->id value below.",
-					"type":  "string",
-					"needs": m => m.category_name.match(/boundaries/),
+					"hint":     "IDs for geographic features in linked GeoJSON file. This corresponds to the csv_columns->id value below.",
+					"type":     "string",
+					"required": true,
+					"enabled":  m => m.datatype.match(/polygons-boundaries/),
 				},
 
 				"csv_columns": {
@@ -182,7 +184,6 @@ export const model = {
 						"value": {
 							"type":     "string",
 							"nullable": true,
-							// TODO: "needs" to be 'boundaries' ds
 							"hint":     "Column header containing numerical values for indicator in linked CSV file. Percentages should be formatted as decimal numbers (i.e. 25% should be 25.0)",
 						},
 					},
@@ -408,17 +409,28 @@ export const model = {
 
 	"edit_modal_jobs": [
 		async function(object) {
-			if (!["points", "lines", "polygons"].includes(object.data.datatype)) return;
+			if (![
+				"lines",
+				"points",
+				"polygons",
+				"polygons-boundaries",
+				"polygons-fixed",
+			].includes(object.data.datatype)) return;
 
 			const s = maybe(object.data.source_files?.find(f => f.func === 'vectors'), 'endpoint');
 
 			if (s) fetch(s).then(r => r.json())
 				.then(r => object.data._selectable_attributes = Object.keys(r.features[0]['properties']));
 
-			const p = maybe(object.data.processed_files?.find(f => f.func === 'vectors'), 'endpoint');
+			const v = maybe(object.data.processed_files?.find(f => f.func === 'vectors'), 'endpoint');
 
-			if (p) fetch(p).then(r => r.json())
+			if (v) fetch(v).then(r => r.json())
 				.then(r => object.data._selected_attributes = Object.keys(r.features[0]['properties']));
+
+			const c = maybe(object.data.source_files?.find(f => f.func === 'csv'), 'endpoint');
+
+			if (c) fetch(c).then(r => r.text())
+				.then(r => object.data._selected_columns = r.split(/(\r\n|\n)/)[0].split(','));
 		},
 		function(object, form, edit_modal) {
 			const p = ce('button', ce('i', null, { "class": 'bi-gem', "title": 'Paver' }));
@@ -674,15 +686,12 @@ function source_files_requirements(m) {
 		break;
 
 	case 'table':
+	case 'polygons-fixed':
+	case 'polygons-timeline':
 		n = ['csv'];
 		break;
 
 	case 'raster-mutant':
-	case 'polygons-fixed':
-	case 'polygons-timeline':
-		n = [];
-		break;
-
 	default:
 		n = [];
 		break;
@@ -705,7 +714,7 @@ function source_files_validate(newdata, data) {
 			FLASH.push({
 				"type":    'error',
 				"title":   `Source Files are incomplete`,
-				"message": `'${r}' element is missing.`,
+				"message": `A '${r}' item is missing.`,
 			});
 		}
 	}
@@ -719,6 +728,12 @@ function configuration_attributes_validate(newdata, data) {
 
 	if (!config) return true;
 
+	const fb = data.datatype.match(/polygons-(fixed|boundaries)/);
+
+	const m = data.datatype.match(/mutant-/);
+
+	const f = data.datatype === 'polygons-fixed';
+
 	function attrerr(p, n) {
 		FLASH.clear();
 
@@ -727,64 +742,100 @@ function configuration_attributes_validate(newdata, data) {
 			"title":   `Configuration -> ${p}`,
 			"message": `'${n}' attribute does not belong.
 
-Available values are '${selected}'`,
+Available values are: ${selected.join(', ')}`,
 		});
+
+		return false;
 	};
 
-	function tiererr(m) {
+	function colerr(p, n) {
 		FLASH.clear();
 
 		FLASH.push({
 			"type":    'error',
-			"title":   `Configuration -> divisions_tier`,
-			"message": m,
+			"title":   `Configuration -> ${p}`,
+			"message": `'${n}' attribute does not belong.
+
+Available values are: ${data._selected_columns.join(', ')}`,
 		});
+
+		return false;
 	};
 
-	const dt = config.divisions_tier;
-	const t = or(
-		data.category_name.match(/indicator/),
-		data.datatype.match(/polygons-boundaries/),
-	);
+	function unnerr(p) {
+		FLASH.clear();
 
-	if (and(!t, typeof dt === 'number')) {
-		tiererr("Value should be empty for non-indicator and non-boundaries datasets.");
+		FLASH.push({
+			"type":    'error',
+			"title":   `Configuration -> ${p}`,
+			"message": `Unnecessary attribute.
+
+Just delete it. `,
+		});
+
 		return false;
-	}
-	else if (and(t, typeof dt !== 'number')) {
-		tiererr("Indicator and boundaries datasets require this attribute.");
+	};
+
+	function reqerr(p) {
+		FLASH.clear();
+
+		FLASH.push({
+			"type":    'error',
+			"title":   `Configuration -> ${p}`,
+			"message": `Attribute is required.`,
+		});
+
 		return false;
+	};
+
+	if (config.vectors_id) {
+		if (!selected.includes(config.vectors_id))
+			return attrerr("vectors_id", config.vectors_id);
 	}
 
-	if (config.vectors_id)
-		if (!selected.includes(config.vectors_id)) {
-			attrerr("Vectors ID", config.vectors_id);
-			return false;
+	if (config.csv_columns) {
+		if (!fb) return unnerr("csv_columns");
+
+		for (const n in config.csv_columns) {
+			const k = config.csv_columns[n];
+
+			if (!data._selected_columns.includes(k))
+				return colerr("csv_columns", k);
 		}
+	}
+	else if (f) reqerr("csv_columns");
 
-	if (config.attributes_map)
+	if (config.attributes_map) {
+		if (fb) return unnerr("attributes_map");
+
 		for (const n of config.attributes_map.map(a => a.dataset)) {
-			if (!selected.includes(n)) {
-				attrerr("Attributes Map", n);
-				return false;
-			}
+			if (!selected.includes(n))
+				return attrerr("attributes_map", n);
 		}
+	}
 
-	if (config.properties_search)
+	if (config.properties_search) {
+		if (fb) return unnerr("properties_search");
+
 		for (const n of config.properties_search) {
-			if (!selected.includes(n)) {
-				attrerr("Properties Search", n);
-				return false;
-			}
+			if (!selected.includes(n))
+				return attrerr("properties_search", n);
 		}
+	}
 
-	if (config.features_specs)
+	if (config.features_specs) {
+		if (fb) return unnerr("features_specs");
+
 		for (const n of config.features_specs.map(a => a.key)) {
-			if (!selected.includes(n)) {
-				attrerr("Features Specs", n);
-				return false;
-			}
+			if (!selected.includes(n))
+				return attrerr("features_specs", n);
 		}
+	}
+
+	if (config.mutant_targets) {
+		if (!data.datatype.match(/-mutant/)) return unnerr("mutant_targets");
+	}
+	else if (m) reqerr("mutant_targets");
 
 	return true;
 };

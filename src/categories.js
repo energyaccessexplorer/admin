@@ -214,7 +214,7 @@ export const model = {
 					"nullable":  true,
 					"droppable": true,
 					"hint":      "Lines only",
-					"needs":     m => maybe(m.vectors, 'shape_type') === "lines",
+					"enabled":   m => maybe(m.vectors, 'shape_type') === "lines",
 				},
 			},
 		},

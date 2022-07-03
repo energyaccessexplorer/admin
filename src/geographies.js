@@ -264,7 +264,7 @@ export const model = {
 				"timeline_dates": {
 					"type":     "array",
 					"nullable": true,
-					"needs":    m => maybe(m.configuration, 'timeline'),
+					"enabled":  m => maybe(m.configuration, 'timeline'),
 					"hint":     "Configuration of dates for historical timeline component (optional)",
 					"schema":   {
 						"type":     "date",
@@ -275,7 +275,7 @@ export const model = {
 				"flag": {
 					"type":     "object",
 					"nullable": true,
-					"needs":    m => m.adm === 0,
+					"enabled":  m => m.adm === 0,
 					"schema":   {
 						"x": {
 							"type": "number",
