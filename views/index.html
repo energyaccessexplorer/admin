@@ -85,20 +85,23 @@
         <a href="/?model=categories" class="toggleable">
           Categories
         </a>
-
-        <a href="/?model=users" class="toggleable">
-          Users
-        </a>
       </div>`;
 
     const nav = document.createElement('nav');
     nav.innerHTML = nav_html;
 
     let i;
-
     i = setInterval(function() {
       const dtnav = document.querySelector('nav#dt-nav');
       if (!dtnav) return;
+
+      const r = jwt_decode(localStorage['token']).role;
+      if (['leader', 'master', 'root'].includes(r)) {
+        qs('#navigation-links', nav).append(ce('a', "Users", {
+          "href": "/?model=users",
+          "class": "toggleable",
+        }));
+      }
 
       dtnav.remove();
       document.body.prepend(nav);
