@@ -266,6 +266,12 @@ export const model = {
 								"required":  true,
 								"hint":      "The width of linear features, or borders for point. Does not apply for polygon features.",
 							},
+							"dasharray": {
+								"type":      "string",
+								"droppable": true,
+								"required":  true,
+								"pattern":   "^[0-9]([0-9\ ]*[0-9])?$",
+							},
 						},
 					},
 				},

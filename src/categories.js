@@ -214,6 +214,7 @@ export const model = {
 					"nullable":  true,
 					"droppable": true,
 					"hint":      "Lines only",
+					"pattern":   "^[0-9]([0-9\ ]*[0-9])?$",
 					"enabled":   m => maybe(m.vectors, 'shape_type') === "lines",
 				},
 			},
