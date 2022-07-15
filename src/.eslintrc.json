@@ -8,6 +8,7 @@
 		"ecmaVersion": 12,
 		"sourceType": "module"
 	},
+	"ignorePatterns": [],
 	"rules": {
 		"comma-dangle": ["error", "always-multiline"],
 		"indent": ["error", "tab"],

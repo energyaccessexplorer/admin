@@ -408,6 +408,11 @@ export const model = {
 	},
 
 	"edit_modal_jobs": [
+		// polygons-timeline
+		// raster
+		// raster-mutant
+		// table
+		//
 		async function(object) {
 			if (![
 				"lines",

@@ -47,16 +47,6 @@
   </td>
 
   <td>
-    <span bind-icon="test"
-          title="deployed in test"
-          bind-cond="intest"></span>
-
-    <span title="NOT deployed in test"
-          bind-icon="empty"
-          bind-unless="intest"></span>
-  </td>
-
-  <td>
     <span bind-icon="bounding-box-circles"
           title="deployed in training"
           bind-cond="intraining"></span>
@@ -67,16 +57,24 @@
   </td>
 
   <td>
-    <span bind-icon="braces"
-          title="deployed in development"
-          bind-cond="indevelopment"></span>
+    <span bind-icon="test"
+          title="deployed in test"
+          bind-cond="intest"></span>
 
-    <span title="NOT deployed in development"
+    <span title="NOT deployed in test"
           bind-icon="empty"
-          bind-unless="indevelopment"></span>
+          bind-unless="intest"></span>
   </td>
 
+  <td>
+    <span bind-icon="braces"
+          title="deployed in dev"
+          bind-cond="indev"></span>
 
+    <span title="NOT deployed in dev"
+          bind-icon="empty"
+          bind-unless="indev"></span>
+  </td>
 
   <td>
     <span bind-value="updated"
