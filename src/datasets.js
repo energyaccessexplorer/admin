@@ -244,9 +244,17 @@ export const model = {
 								"hint":     "Key refers to the column header corresponding to the desired display attribute in the linked GeoJSONfile.",
 							},
 							"match": {
-								"type":     "regexp",
-								"required": true,
-								"hint":     "Match refers to the corresponding value under the desired attribute column in the linked GeoJSON file.",
+								"type":      "regexp",
+								"droppable": true,
+								"required":  true,
+								"hint":      "Match refers to the corresponding value under the desired attribute column in the linked GeoJSON file.",
+							},
+							"range": {
+								"type":      "regexp",
+								"droppable": true,
+								"required":  true,
+								"pattern":   "^[0-9]+,[0-9]+$",
+								"hint":      "Range refers to the corresponding value under the desired attribute column in the linked GeoJSON file.",
 							},
 							"radius": {
 								"type":      "number",
