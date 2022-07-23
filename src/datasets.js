@@ -622,7 +622,7 @@ export async function init() {
 	if (!geography_id) return true;
 
 	function dump_table() {
-		const a = ce('a', ce('i', null, { "class": 'bi-download', "title": 'Dump Table' }));
+		const a = ce('button', ce('i', null, { "class": 'bi-download', "title": 'Dump Table' }));
 
 		a.onclick = _ => API.get('datasets', {
 			"select": [
