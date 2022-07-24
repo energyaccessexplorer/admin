@@ -15,13 +15,13 @@ import {
 	model as datasets_model,
 } from './datasets.js';
 
+import deployment_options from './deployment_options.js';
+
 const API = dt.API;
 
 export const base = 'geographies';
 
 export const header = "Geographies";
-
-const deployment_options = ['production', 'staging', 'training', 'test', 'dev'];
 
 window.email_user = email_user;
 

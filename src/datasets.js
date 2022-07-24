@@ -13,6 +13,8 @@ import {
 	routine as paver_routine,
 } from './paver.js';
 
+import deployment_options from './deployment_options.js';
+
 window.email_user = email_user;
 
 const FLASH = dt.FLASH;
@@ -24,8 +26,6 @@ const geography_id = url.searchParams.get('geography_id');
 const category_id = url.searchParams.get('category_id');
 
 export const base = 'datasets';
-
-const deployment_options = ['production', 'staging', 'training', 'test', 'dev'];
 
 export const model = {
 	"main": _ => "&nbsp;",
