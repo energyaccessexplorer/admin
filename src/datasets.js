@@ -175,7 +175,7 @@ export const model = {
 					"nullable": true,
 					"hint":     "CSV file configuration",
 					"schema":   {
-						"id": {
+						"key": {
 							"type":     "string",
 							"required": true,
 							"hint":     "Column header containing IDs for geographic divisions in linked CSV file. This corresponds to the vectors_id value above.",
