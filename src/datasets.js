@@ -425,6 +425,9 @@ export const model = {
 		// polygons-timeline
 		// raster
 		// raster-mutant
+		// raster-timeline
+		// points-timeline
+		// lines-timeline
 		// table
 		//
 		async function(object) {
