@@ -1,3 +1,5 @@
+/*eslint no-fallthrough: ["error", { "commentPattern": "break[\\s\\w]*omitted" }]*/
+
 import {
 	csvParse,
 } from '../lib/ds-dsv.js';
@@ -67,6 +69,7 @@ export async function routine(obj, { edit_modal, pre }) {
 		"baseurl":     null,
 		"field":       null,
 		"fields":      [],
+		"lnglat":      [],
 		"config":      null,
 		"resolution":  null,
 	};
@@ -77,8 +80,19 @@ export async function routine(obj, { edit_modal, pre }) {
 	let header;
 
 	switch (d.datatype) {
-	case 'lines':
 	case 'points':
+		if (d.source_files.find(f => f.func === 'csv')) {
+			fn = csv_points;
+			datasets_func = 'csv';
+			template = 'datasets/paver-csv-points.html';
+			header = "CSV -> points";
+
+			break;
+		}
+		//
+		// break omitted
+
+	case 'lines':
 	case 'polygons': {
 		fn = clip_proximity;
 		datasets_func = 'vectors';
@@ -405,6 +419,56 @@ async function clip_proximity(obj, payload, { paver_modal }) {
 
 	return function() {
 		return submit('clip-proximity', payload, { paver_modal })
+			.then(async r => {
+				if (r.error) {
+					flag(obj);
+					return r;
+				}
+
+				const j = await r.json();
+
+				return API.patch(
+					'datasets',
+					{ "id": `eq.${obj.data.id}` },
+					{ "payload": {
+						"processed_files": [{
+							"func":     'vectors',
+							"endpoint": `https://wri-public-data.s3.amazonaws.com/EnergyAccess/paver-outputs/${j.vectors}`,
+						}, {
+							"func":     'raster',
+							"endpoint": `https://wri-public-data.s3.amazonaws.com/EnergyAccess/paver-outputs/${j.raster}`,
+						}],
+					} },
+				);
+			});
+	};
+};
+
+async function csv_points(obj, payload, { paver_modal }) {
+	let f;
+	if (f = maybe(obj.data, 'configuration', 'attributes_map'))
+		payload.fields = payload.fields.concat(f.map(x => x['dataset']));
+
+	if (f = maybe(obj.data, 'configuration', 'features_specs'))
+		payload.fields = payload.fields.concat(f.map(x => x['key']));
+
+	if (f = maybe(obj.data, 'configuration', 'properties_search'))
+		payload.fields = payload.fields.concat(f);
+
+	payload.fields = Array.from(new Set(payload.fields)).sort();
+
+	if (paver_modal) {
+		const input = paver_modal.content.querySelector('form input[name=fields]');
+
+		paver_modal.content.querySelector('form').append(select_attributes(obj, payload.fields, input));
+		input.value = payload.fields;
+	}
+
+	return function() {
+		payload.lnglat = paver_modal.content.querySelector('form input[name=lnglat]').value;
+		payload.fields = paver_modal.content.querySelector('form input[name=fields]').value;
+
+		return submit('csv-points', payload, { paver_modal })
 			.then(async r => {
 				if (r.error) {
 					flag(obj);

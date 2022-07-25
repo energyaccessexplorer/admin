@@ -441,6 +441,13 @@ export const model = {
 			if (s) fetch(s).then(r => r.json())
 				.then(r => object.data._selectable_attributes = Object.keys(r.features[0]['properties']));
 
+			if (object.data.datatype === 'points') {
+				const ps = maybe(object.data.source_files?.find(f => f.func === 'csv'), 'endpoint');
+
+				if (ps) fetch(ps).then(r => r.text())
+					.then(r => object.data._selectable_attributes = r.split(/(\r\n|\n)/)[0].split(','));
+			}
+
 			const v = maybe(object.data.processed_files?.find(f => f.func === 'vectors'), 'endpoint');
 
 			if (v) fetch(v).then(r => r.json())
@@ -686,8 +693,8 @@ async function flag(obj) {
 function source_files_requirements(m) {
 	let n;
 
+	// 'points' are handled later
 	switch (m.datatype) {
-	case 'points':
 	case 'polygons':
 	case 'lines':
 		n = ['vectors'];
@@ -720,7 +727,27 @@ function source_files_requirements(m) {
 };
 
 function source_files_validate(newdata, data) {
-	const reqs = source_files_requirements(data);
+	let reqs = source_files_requirements(data);
+
+	if (data.datatype === 'points') {
+		const l = newdata.source_files.length;
+		if (l === 0)
+			reqs = ['vectors', 'csv'];
+		else {
+			const first = newdata.source_files.find(x => ['vectors', 'csv'].includes(x.func));
+
+			if (first) reqs = [first.func];
+			else {
+				FLASH.push({
+					"type":    'error',
+					"title":   `Source Files are incomplete`,
+					"message": `A 'vectors' or 'csv' item is required.`,
+				});
+
+				return false;
+			}
+		}
+	}
 
 	const existing = newdata['source_files'].map(s => s.func);
 
