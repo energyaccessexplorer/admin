@@ -11,7 +11,6 @@ import {
 } from './socket.js';
 
 import {
-	geojson_summary_iframe,
 	model as dataset_model,
 } from './datasets.js';
 
@@ -214,12 +213,9 @@ export async function routine(obj, { edit_modal, pre }) {
 
 	const c = paver_modal.content;
 	const f = c.querySelector('form');
-	const g = f.querySelector('button[bind=geojson]');
 
 	qs('form', c).id = id;
 	c.append(ce('pre', null, { "id": "infopre" }));
-
-	if (g) g.onclick = _ => geojson_summary_iframe(obj);
 
 	const s = await fn(obj, payload, { paver_modal });
 

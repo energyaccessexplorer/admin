@@ -225,15 +225,8 @@ export const model = {
 				"features_specs": {
 					"type":     "array",
 					"nullable": true,
-					"callback": function(details) {
-						const button = ce('button', "see GEOJSON summary", { "style": "float: right;", "type": "button" });
-
-						button.onclick = _ => geojson_summary_iframe(this);
-
-						details.querySelector(':scope > summary').append(button);
-					},
-					"hint":   "GeoJSON file features visual configuration",
-					"schema": {
+					"hint":     "GeoJSON file features visual configuration",
+					"schema":   {
 						"type":       "object",
 						"nullable":   false,
 						"appendable": true,
@@ -661,27 +654,6 @@ export async function init() {
 	until(_ => qs('body main header .actions-drawer')).then(dump_table);
 
 	return true;
-};
-
-export function geojson_summary_url(m) {
-	const u = new URL(dt.config.production + "/d");
-
-	u.searchParams.set('id', m.geography_id);
-	u.searchParams.set('dataset_id', m.id);
-	u.searchParams.set('fn', 'geojson_summary');
-
-	return u;
-};
-
-export function geojson_summary_iframe(o) {
-	const iframe = ce('iframe', null, { "width": "600", "height": "600" });
-	iframe.src = geojson_summary_url(o);
-
-	new modal({
-		"header":  null,
-		"content": iframe,
-		"destroy": true,
-	}).show();
 };
 
 async function flag(obj) {
