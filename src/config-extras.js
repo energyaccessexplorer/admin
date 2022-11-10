@@ -1,5 +1,10 @@
 /* eslint no-undef: "off" */
 
+Object.assign(config, {
+	"default_model":       "geographies",
+	"landing":             false,
+});
+
 export const fetchables = {
 	"geographies": {
 		"primary":     'name',

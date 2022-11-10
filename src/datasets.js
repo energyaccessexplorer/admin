@@ -41,7 +41,6 @@ export const model = {
 	"clonable_attrs": [
 		'geography_id',
 		'category_id',
-		'name_long',
 		'configuration',
 		'category_overrides',
 		'metadata',
@@ -797,7 +796,7 @@ Just delete it. `,
 	};
 
 	if (config.vectors_id) {
-		if (!selected.includes(config.vectors_id))
+		if (selected && !selected.includes(config.vectors_id))
 			return attrerr("vectors_id", config.vectors_id);
 	}
 
@@ -817,7 +816,7 @@ Just delete it. `,
 		if (fb) return unnerr("attributes_map");
 
 		for (const n of config.attributes_map.map(a => a.dataset)) {
-			if (!selected.includes(n))
+			if (selected && !selected.includes(n))
 				return attrerr("attributes_map", n);
 		}
 	}
@@ -826,7 +825,7 @@ Just delete it. `,
 		if (fb) return unnerr("properties_search");
 
 		for (const n of config.properties_search) {
-			if (!selected.includes(n))
+			if (selected && !selected.includes(n))
 				return attrerr("properties_search", n);
 		}
 	}
@@ -835,7 +834,7 @@ Just delete it. `,
 		if (fb) return unnerr("features_specs");
 
 		for (const n of config.features_specs.map(a => a.key)) {
-			if (!selected.includes(n))
+			if (selected && !selected.includes(n))
 				return attrerr("features_specs", n);
 		}
 	}

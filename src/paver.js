@@ -584,7 +584,7 @@ export async function subgeographies(obj, { vectors, csv }) {
 
 	for (const r of table) {
 		if (!shapes.features.find(f => +f.properties[vectors.id] === +r[csv.id]))
-			throw new Error("you suck");
+			throw new Error(`vectors_id ${vectors.id} and csv_id ${csv.id} don't corelate`);
 	}
 
 	const paver_modal = new modal({
