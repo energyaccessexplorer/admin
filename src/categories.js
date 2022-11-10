@@ -2,6 +2,12 @@ import {
 	email_user,
 } from './extras.js';
 
+import {
+	circles_user,
+} from './circles.js';
+
+import deployment_options from './deployment_options.js';
+
 export const base = 'categories';
 
 export const header = "Categories";
@@ -27,6 +33,25 @@ export const model = {
 		"unit": {
 			"type":  "string",
 			"label": "Unit",
+		},
+
+		"circle": {
+			"type":     "string",
+			"label":    "Circle",
+			"pattern":  "^[a-z][a-z0-9\-]+$",
+			"validate": circle_validate,
+			"required": true,
+		},
+
+		"deployment": {
+			"type":     "array",
+			"hint":     "Select the environments where the category will be deployed",
+			"required": true,
+			"schema":   {
+				"type":     "string",
+				"options":  deployment_options,
+				"required": true,
+			},
 		},
 
 		"mutant": {
@@ -678,4 +703,19 @@ function mutant_validate(newdata) {
 	}
 
 	return true;
+};
+
+function circle_validate(newdata) {
+	const c = circles_user();
+
+	if (c === null) return true;
+
+	if (c.includes(newdata['circle'])) return true;
+
+	err(
+		"Circle error",
+		"Managers can create/edit categories only within their circle",
+	);
+
+	return false;
 };
