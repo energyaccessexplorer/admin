@@ -61,5 +61,5 @@ dtsynced:
 		${DIST}/ \
 		${DT_HOST}:${DT_DEST}
 
-dtdeploy: dtbuild dtsync
+dtdeploy: envpatchreverse dtbuild dtsync envpatch
 	bmake dtbuild env=development
