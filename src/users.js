@@ -2,7 +2,7 @@ dt.API.base = dt.config.auth_server + "/admin/api";
 
 const claims = jwt_decode(localStorage.getItem('token'));
 
-if (!['leader', 'director','root'].includes(claims['role']))
+if (!['leader', 'manager', 'director', 'root'].includes(claims['role']))
 	qs(`nav#dt-nav a[href="${dt.config.base}/?model=users"]`).remove();
 
 const url = new URL(location);

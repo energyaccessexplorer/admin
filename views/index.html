@@ -98,7 +98,7 @@
       if (!dtnav) return;
 
       const r = jwt_decode(localStorage['token']).role;
-      if (['leader', 'master', 'root'].includes(r)) {
+      if (['leader', 'manager', 'director', 'root'].includes(r)) {
         qs('#navigation-links', nav).append(ce('a', "Users", {
           "href": "/?model=users",
           "class": "toggleable",
