@@ -158,7 +158,7 @@ export const model = {
 					"nullable": true,
 					"default":  null,
 					"required": true,
-					"enabled":  m => m.datatype.match(/polygons-(fixed|timeline)/),
+					"enabled":  m => m.datatype.match(/polygons-(valued|timeline)/),
 					"hint":     "Subdivision level corresponds to the CSV data. 0 = Entire geography.",
 				},
 
@@ -415,7 +415,7 @@ export const model = {
 				"points",
 				"polygons",
 				"polygons-boundaries",
-				"polygons-fixed",
+				"polygons-valued",
 			].includes(object.data.datatype)) return;
 
 			const s = maybe(object.data.source_files?.find(f => f.func === 'vectors'), 'endpoint');
@@ -673,7 +673,7 @@ function source_files_requirements(m) {
 		break;
 
 	case 'table':
-	case 'polygons-fixed':
+	case 'polygons-valued':
 	case 'polygons-timeline':
 		n = ['csv'];
 		break;
@@ -735,11 +735,11 @@ function configuration_attributes_validate(newdata, data) {
 
 	if (!config) return true;
 
-	const fb = data.datatype.match(/polygons-(fixed|boundaries)/);
+	const fb = data.datatype.match(/polygons-(valued|boundaries)/);
 
 	const m = data.datatype.match(/mutant-/);
 
-	const f = data.datatype === 'polygons-fixed';
+	const f = data.datatype === 'polygons-valued';
 
 	function attrerr(p, n) {
 		FLASH.clear();
