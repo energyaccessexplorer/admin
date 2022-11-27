@@ -163,13 +163,13 @@ export const model = {
 				},
 
 				"vectors_id": {
-					"hint":     "IDs for geographic features in linked GeoJSON file. This corresponds to the csv_columns->id value below.",
+					"hint":     "IDs for geographic features in linked GeoJSON file. This corresponds to the polygons_valued_columns->id value below.",
 					"type":     "string",
 					"required": true,
 					"enabled":  m => m.datatype.match(/polygons-boundaries/),
 				},
 
-				"csv_columns": {
+				"polygons_valued_columns": {
 					"type":     "object",
 					"nullable": true,
 					"hint":     "CSV file configuration",
@@ -800,17 +800,17 @@ Just delete it. `,
 			return attrerr("vectors_id", config.vectors_id);
 	}
 
-	if (config.csv_columns) {
-		if (!fb) return unnerr("csv_columns");
+	if (config.polygons_valued_columns) {
+		if (!fb) return unnerr("polygons_valued_columns");
 
-		for (const n in config.csv_columns) {
-			const k = config.csv_columns[n];
+		for (const n in config.polygons_valued_columns) {
+			const k = config.polygons_valued_columns[n];
 
 			if (!data._selected_columns.includes(k))
-				return colerr("csv_columns", k);
+				return colerr("polygons_valued_columns", k);
 		}
 	}
-	else if (f) reqerr("csv_columns");
+	else if (f) reqerr("polygons_valued_columns");
 
 	if (config.attributes_map) {
 		if (fb) return unnerr("attributes_map");
