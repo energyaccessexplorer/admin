@@ -338,6 +338,7 @@ export const model = {
 		"controls": {
 			"type":     "object",
 			"nullable": true,
+			"validate": controls_validate,
 			"schema":   {
 				"range": {
 					"type":    "select",
@@ -718,4 +719,20 @@ function circle_validate(newdata) {
 	);
 
 	return false;
+};
+
+function controls_validate(newdata) {
+	return and(
+		controls_path_validate(newdata),
+	);
+};
+
+function controls_path_validate(newdata) {
+	const path = maybe(newdata, 'controls', 'path');
+	if (!path) return true;
+
+	if (or(path.length === 0, path.length === 2))
+		return true;
+
+	err("Controls configuration error", "Path length should be 0 or 2");
 };
