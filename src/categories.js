@@ -566,11 +566,10 @@ function raster_exists_validate(newdata, data) {
 };
 
 function raster_paver_validate(newdata) {
-	if (and(maybe(newdata, 'raster', 'paver'),
-	        or(newdata['vectors'], newdata['csv']))) {
+	if (and(newdata['vectors'], maybe(newdata, 'raster', 'paver'))) {
 		err(
 			"Paver configuration error",
-			"Only pure raster categories require a paver->raster configuration",
+			"Vector categories do not require raster->paver",
 		);
 
 		return false;
