@@ -46,6 +46,7 @@
 		"maybe": "readonly",
 		"or": "readonly",
 		"and": "readonly",
+		"coalesce": "readonly",
 		"ce": "readonly",
 		"qs": "readonly",
 		"qsa": "readonly",

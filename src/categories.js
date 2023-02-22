@@ -544,7 +544,17 @@ function raster_validate() {
 function raster_exists_validate(newdata, data) {
 	const r = newdata['raster'];
 	const t = data.datatype;
-	const x = or(t.match(/-timeline$/), ['mutant', 'table'].includes(t));
+	const x = or(t === 'polygons-timeline', ['mutant', 'table'].includes(t));
+
+	if (!t) {
+		FLASH.push({
+			"type":    'warning',
+			"title":   "Datatype?",
+			"message": "Undecided datatype for this category. Is it new?",
+		});
+
+		return true;
+	}
 
 	if (and(r,x)) {
 		err(

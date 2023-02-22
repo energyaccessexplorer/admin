@@ -221,6 +221,7 @@ export async function routine(obj, { edit_modal, pre }) {
 
 	f.onsubmit = function(e) {
 		e.preventDefault();
+		qs('[type="submit"]', paver_modal.footer).setAttribute('disabled', '');
 
 		s().then(_r => {
 			const r = _r[0];
