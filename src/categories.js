@@ -342,7 +342,7 @@ export const model = {
 			"schema":   {
 				"range": {
 					"type":    "select",
-					"options": ["", "single", "double"],
+					"options": ["", "single", "double", "multiselect"],
 					"default": "double",
 					"hint":    "Configuration of scroll range type",
 				},
@@ -702,11 +702,10 @@ function vectors_shape_type_requirements_validate(newdata) {
 function mutant_validate(newdata) {
 	if (and(newdata['mutant'],
 	        or(newdata['raster'],
-	           newdata['vectors'],
-	           newdata['csv']))) {
+	           newdata['vectors']))) {
 		err(
 			"Mutant configuration error",
-			"If mutant is set to 'true', no other (raster,csv,vectors) configuration should be set",
+			"If mutant is set to 'true', no other (raster,vectors) configuration should be set",
 		);
 
 		return false;

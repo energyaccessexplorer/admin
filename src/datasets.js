@@ -383,6 +383,7 @@ export const model = {
 			'points',
 			'lines',
 			'raster',
+			'raster-valued',
 			'polygons',
 			'polygons-boundaries',
 		].includes(m.datatype);
@@ -404,6 +405,7 @@ export const model = {
 		// polygons-timeline
 		// raster
 		// raster-mutant
+		// raster-valued
 		// raster-timeline
 		// points-timeline
 		// lines-timeline
@@ -666,6 +668,10 @@ function source_files_requirements(m) {
 			n = ['vectors'];
 		else
 			n = ['vectors', 'csv'];
+		break;
+
+	case 'raster-valued':
+		n = ['raster', 'csv'];
 		break;
 
 	case 'raster':
