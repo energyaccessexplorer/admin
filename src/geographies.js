@@ -159,7 +159,7 @@ export const model = {
 			"type":       "uuid",
 			"fkey":       "geographies",
 			"label":      "Parent Geography",
-			"constraint": "subgeographies:parent",
+			"constraint": "subgeographies:geographies!parent_id",
 			"required":   false,
 			"editable":   false,
 			"columns":    ['id', 'name'],
