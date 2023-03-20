@@ -11,9 +11,7 @@ import {
 
 import * as paver from './paver.js';
 
-import {
-	model as datasets_model,
-} from './datasets.js';
+import * as datasets_module from './datasets.js';
 
 import deployment_options from './deployment_options.js';
 
@@ -80,8 +78,8 @@ function inherit_datasets() {
 			infopre.innerText = "";
 
 			const o = new dt.object({
-				"model": datasets_model,
-				"data":  d,
+				"module": datasets_module,
+				"data":   d,
 			});
 
 			const n = await o.clone({

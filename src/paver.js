@@ -10,9 +10,7 @@ import {
 	listen as socket_listen,
 } from './socket.js';
 
-import {
-	model as dataset_model,
-} from './datasets.js';
+import * as datasets_module from './datasets.js';
 
 const paver = { "base": "/paver" };
 
@@ -36,8 +34,8 @@ async function pavercheck() {
 	});
 };
 
-function select_attributes(obj, selected, input) {
-	const arr = obj.data._selectable_attributes.map(a => {
+function select_attributes($, selected, input) {
+	const arr = $._selectable_attributes.map(a => {
 		const o = ce('option', a, { "value": a });
 		if (selected.includes(a)) o.setAttribute('selected', '');
 
@@ -59,11 +57,11 @@ height: 10rem;
 export async function routine(obj, { edit_modal, pre }) {
 	await pavercheck();
 
-	const d = obj.data;
+	const $ = obj.data;
 
 	const payload = {
-		"geographyid": d.geography_id,
-		"datasetid":   d.id,
+		"geographyid": $.geography_id,
+		"datasetid":   $.id,
 		"dataseturl":  null,
 		"baseurl":     null,
 		"field":       null,
@@ -78,9 +76,9 @@ export async function routine(obj, { edit_modal, pre }) {
 	let template;
 	let header;
 
-	switch (d.datatype) {
+	switch ($.datatype) {
 	case 'points':
-		if (d.source_files.find(f => f.func === 'csv')) {
+		if ($.source_files.find(f => f.func === 'csv')) {
 			fn = csv_points;
 			datasets_func = 'csv';
 			template = 'datasets/paver-csv-points.html';
@@ -104,11 +102,11 @@ export async function routine(obj, { edit_modal, pre }) {
 		datasets_func = 'vectors';
 		template = 'datasets/paver-outline.html';
 
-		if (d.category_name === 'boundaries') {
+		if ($.category_name === 'boundaries') {
 			header = "Admin Boundaries";
 			fn = admin_boundaries;
 		}
-		else if (d.category_name === 'outline') {
+		else if ($.category_name === 'outline') {
 			header = "Outline";
 			fn = outline;
 		}
@@ -131,7 +129,7 @@ export async function routine(obj, { edit_modal, pre }) {
 	await obj.fetch();
 
 	const ok = await (async function payload_fill() {
-		payload.dataseturl = maybe(d.source_files.find(x => x.func === datasets_func), 'endpoint');
+		payload.dataseturl = maybe($.source_files.find(x => x.func === datasets_func), 'endpoint');
 
 		if (!payload.dataseturl) {
 			alert(`Could not get endpoint for the ${datasets_func} source file. Check that...`);
@@ -162,12 +160,12 @@ export async function routine(obj, { edit_modal, pre }) {
 		payload.baseurl = maybe(refs.processed_files.find(x => x.func === 'raster'), 'endpoint');
 
 		const cat = await API.get('categories', {
-			"id":     `eq.${obj.data.category_id}`,
+			"id":     `eq.${$.category_id}`,
 			"select": ["raster"],
 		}, { "one": true });
 
-		if (and(d.datatype.match('raster'), !maybe(cat, 'raster', 'paver'))) {
-			const msg = `'${d.category_name}' category raster->paver configuration is not setup!`;
+		if (and($.datatype.match('raster'), !maybe(cat, 'raster', 'paver'))) {
+			const msg = `'${$.category_name}' category raster->paver configuration is not setup!`;
 
 			FLASH.push({
 				"type":    'error',
@@ -188,7 +186,7 @@ export async function routine(obj, { edit_modal, pre }) {
 	})();
 
 	if (!ok) {
-		flag(obj);
+		flag($.id);
 
 		return {
 			"error":   "Failed. Looks like a configuration error.",
@@ -198,7 +196,7 @@ export async function routine(obj, { edit_modal, pre }) {
 	}
 
 	if (!edit_modal)
-		return (await fn(obj, payload, { pre }));
+		return (await fn($, payload, { pre }));
 
 	const id = "form-" + uuid();
 	const footer = `
@@ -218,49 +216,65 @@ export async function routine(obj, { edit_modal, pre }) {
 	qs('form', c).id = id;
 	c.append(ce('pre', null, { "id": "infopre" }));
 
-	const s = await fn(obj, payload, { paver_modal });
+	const s = await fn($, payload, { paver_modal });
 
 	f.onsubmit = function(e) {
 		e.preventDefault();
 		qs('[type="submit"]', paver_modal.footer).setAttribute('disabled', '');
 
-		s().then(_r => {
-			const r = _r[0];
+		s()
+			.then(_r => {
+				const r = _r[0];
 
-			const form = qs('form', edit_modal.content);
+				const form = qs('form', edit_modal.content);
 
-			const changes = [];
+				const changes = [];
 
-			for (let k in r) {
-				const d = typeof obj.data[k];
+				for (let k in r) {
+					const d = typeof $[k];
 
-				switch (d) {
-				case 'object': {
-					if (JSON.stringify(obj.data[k]) !== JSON.stringify(r[k]))
-						changes.push(k);
-					break;
+					switch (d) {
+					case 'object': {
+						if (JSON.stringify($[k]) !== JSON.stringify(r[k]))
+							changes.push(k);
+						break;
+					}
+
+					default: {
+						if ($[k] !== r[k])
+							changes.push(k);
+						break;
+					}
+					}
 				}
 
-				default: {
-					if (obj.data[k] !== r[k])
-						changes.push(k);
-					break;
-				}
-				}
-			}
+				obj.fetch()
+					.then(_ => dt.edit_update(form, changes, obj));
+			})
+			.then(async _ => {
+				console.log($);
+				const tree = await API.get('/tree_down', { "id": `eq.${$.geography_id}` });
 
-			obj.fetch()
-				.then(_ => dt.edit_update(form, changes, obj));
-		});
+				if (confirm("Inherit changes to subgeographies?")) {
+					tree.forEach(async b => {
+						const leaf = b['leaf'];
+
+						const data = await API.get('/geographies', { "id": `eq.${leaf}` }, { "one": true });
+
+						const f = (await fn(data, Object.assign({}, payload, { "geographyid": leaf }), {}));
+						console.log(f());
+					});
+				}
+			});
 	};
 
 	paver_modal.show();
 };
 
-function flag(obj) {
+function flag(id) {
 	API.patch(
 		'datasets',
-		{ "id": `eq.${obj.data.id}` },
+		{ "id": `eq.${id}` },
 		{ "payload": { "flagged": true } },
 	);
 };
@@ -315,19 +329,19 @@ ${msg}`;
 	});
 };
 
-async function outline(obj, payload, { paver_modal }) {
+async function outline($, payload, { paver_modal }) {
 	if (paver_modal)
-		paver_modal.content.querySelector('form input[name=field]').value = maybe(obj.data, 'configuration', 'vectors_id');
+		paver_modal.content.querySelector('form input[name=field]').value = maybe($, 'configuration', 'vectors_id');
 
 	return function() {
 		payload.field = paver_modal ?
 			paver_modal.content.querySelector('form input[name=field]').value :
-			maybe(obj.data, 'configuration', 'vectors_id');
+			maybe($, 'configuration', 'vectors_id');
 
 		return submit('admin-boundaries', payload, { paver_modal })
 			.then(async r => {
 				if (r.error) {
-					flag(obj);
+					flag($.id);
 					return r;
 				}
 
@@ -335,7 +349,7 @@ async function outline(obj, payload, { paver_modal }) {
 
 				const d = API.patch(
 					'datasets',
-					{ "id": `eq.${obj.data.id}` },
+					{ "id": `eq.${$.id}` },
 					{	"payload": {
 						"processed_files": [{
 							"func":     'vectors',
@@ -349,7 +363,7 @@ async function outline(obj, payload, { paver_modal }) {
 
 				const {Left, Bottom, Right, Top} = j.info.bounds;
 
-				API.patch('geographies', { "id": `eq.${obj.data.geography_id}` }, {
+				API.patch('geographies', { "id": `eq.${$.geography_id}` }, {
 					"payload": {
 						"envelope": [Left, Bottom, Right, Top],
 					},
@@ -360,8 +374,8 @@ async function outline(obj, payload, { paver_modal }) {
 	};
 };
 
-async function admin_boundaries(obj, payload, { paver_modal }) {
-	paver_modal.content.querySelector('form input[name=field]').value = maybe(obj.data, 'configuration', 'vectors_id');
+async function admin_boundaries($, payload, { paver_modal }) {
+	paver_modal.content.querySelector('form input[name=field]').value = maybe($, 'configuration', 'vectors_id');
 
 	return function() {
 		payload.field = paver_modal.content.querySelector('form input[name=field]').value;
@@ -369,7 +383,7 @@ async function admin_boundaries(obj, payload, { paver_modal }) {
 		return submit('admin-boundaries', payload, { paver_modal })
 			.then(async r => {
 				if (r.error) {
-					flag(obj);
+					flag($.id);
 					return r;
 				}
 
@@ -377,7 +391,7 @@ async function admin_boundaries(obj, payload, { paver_modal }) {
 
 				return API.patch(
 					'datasets',
-					{ "id": `eq.${obj.data.id}` },
+					{ "id": `eq.${$.id}` },
 					{ "payload": {
 						"processed_files": [{
 							"func":     'vectors',
@@ -392,18 +406,18 @@ async function admin_boundaries(obj, payload, { paver_modal }) {
 	};
 };
 
-async function clip_proximity(obj, payload, { paver_modal }) {
+async function clip_proximity($, payload, { paver_modal }) {
 	let f;
-	if (f = maybe(obj.data, 'configuration', 'vectors_id'))
+	if (f = maybe($, 'configuration', 'vectors_id'))
 		payload.fields = payload.fields.push('vectors_id');
 
-	if (f = maybe(obj.data, 'configuration', 'attributes_map'))
+	if (f = maybe($, 'configuration', 'attributes_map'))
 		payload.fields = payload.fields.concat(f.map(x => x['dataset']));
 
-	if (f = maybe(obj.data, 'configuration', 'features_specs'))
+	if (f = maybe($, 'configuration', 'features_specs'))
 		payload.fields = payload.fields.concat(f.map(x => x['key']));
 
-	if (f = maybe(obj.data, 'configuration', 'properties_search'))
+	if (f = maybe($, 'configuration', 'properties_search'))
 		payload.fields = payload.fields.concat(f);
 
 	payload.fields = Array.from(new Set(payload.fields)).sort();
@@ -411,7 +425,7 @@ async function clip_proximity(obj, payload, { paver_modal }) {
 	if (paver_modal) {
 		const input = paver_modal.content.querySelector('form input[name=fields]');
 
-		paver_modal.content.querySelector('form').append(select_attributes(obj, payload.fields, input));
+		paver_modal.content.querySelector('form').append(select_attributes($, payload.fields, input));
 		input.value = payload.fields;
 	}
 
@@ -419,7 +433,7 @@ async function clip_proximity(obj, payload, { paver_modal }) {
 		return submit('clip-proximity', payload, { paver_modal })
 			.then(async r => {
 				if (r.error) {
-					flag(obj);
+					flag($.id);
 					return r;
 				}
 
@@ -427,7 +441,7 @@ async function clip_proximity(obj, payload, { paver_modal }) {
 
 				return API.patch(
 					'datasets',
-					{ "id": `eq.${obj.data.id}` },
+					{ "id": `eq.${$.id}` },
 					{ "payload": {
 						"processed_files": [{
 							"func":     'vectors',
@@ -442,15 +456,15 @@ async function clip_proximity(obj, payload, { paver_modal }) {
 	};
 };
 
-async function csv_points(obj, payload, { paver_modal }) {
+async function csv_points($, payload, { paver_modal }) {
 	let f;
-	if (f = maybe(obj.data, 'configuration', 'attributes_map'))
+	if (f = maybe($, 'configuration', 'attributes_map'))
 		payload.fields = payload.fields.concat(f.map(x => x['dataset']));
 
-	if (f = maybe(obj.data, 'configuration', 'features_specs'))
+	if (f = maybe($, 'configuration', 'features_specs'))
 		payload.fields = payload.fields.concat(f.map(x => x['key']));
 
-	if (f = maybe(obj.data, 'configuration', 'properties_search'))
+	if (f = maybe($, 'configuration', 'properties_search'))
 		payload.fields = payload.fields.concat(f);
 
 	payload.fields = Array.from(new Set(payload.fields)).sort();
@@ -458,7 +472,7 @@ async function csv_points(obj, payload, { paver_modal }) {
 	if (paver_modal) {
 		const input = paver_modal.content.querySelector('form input[name=fields]');
 
-		paver_modal.content.querySelector('form').append(select_attributes(obj, payload.fields, input));
+		paver_modal.content.querySelector('form').append(select_attributes($, payload.fields, input));
 		input.value = payload.fields;
 	}
 
@@ -469,7 +483,7 @@ async function csv_points(obj, payload, { paver_modal }) {
 		return submit('csv-points', payload, { paver_modal })
 			.then(async r => {
 				if (r.error) {
-					flag(obj);
+					flag($.id);
 					return r;
 				}
 
@@ -477,7 +491,7 @@ async function csv_points(obj, payload, { paver_modal }) {
 
 				return API.patch(
 					'datasets',
-					{ "id": `eq.${obj.data.id}` },
+					{ "id": `eq.${$.id}` },
 					{ "payload": {
 						"processed_files": [{
 							"func":     'vectors',
@@ -492,18 +506,18 @@ async function csv_points(obj, payload, { paver_modal }) {
 	};
 };
 
-async function crop_raster(obj, payload, { paver_modal }) {
+async function crop_raster($, payload, { paver_modal }) {
 	return function() {
 		return submit('crop-raster', payload, { paver_modal })
 			.then(async r => {
 				if (r.error) {
-					flag(obj);
+					flag($.id);
 					return r;
 				}
 
 				const j = await r.json();
 
-				return API.patch('datasets', { "id": `eq.${obj.data.id}` }, {
+				return API.patch('datasets', { "id": `eq.${$.id}` }, {
 					"payload": {
 						"processed_files": [{
 							"func":     'raster',
@@ -517,8 +531,8 @@ async function crop_raster(obj, payload, { paver_modal }) {
 
 async function subgeography(r, { results, cid, vectors, csv, obj, resolution }) {
 	const g = new dt.object({
-		"model": dt.modules['geographies']['model'],
-		"data":  {
+		"module": dt.modules['geographies'],
+		"data":   {
 			"name":       r[csv.value],
 			"parent_id":  obj.id,
 			"adm":        obj.adm + 1,
@@ -539,8 +553,8 @@ async function subgeography(r, { results, cid, vectors, csv, obj, resolution }) 
 	}];
 
 	const d = new dt.object({
-		"model": dataset_model,
-		"data":  {
+		"module": datasets_module,
+		"data":   {
 			"category_id":   cid,
 			"geography_id":  gid,
 			"configuration": {
@@ -605,8 +619,6 @@ export async function subgeographies(obj, { vectors, csv }) {
 			.then(async r => r.json())
 			.then(async results => {
 				const resolution = payload.field = paver_modal.content.querySelector('form input[name=resolution]').value;
-
-				dataset_model['base'] = 'datasets';
 
 				for (const r of table)
 					await subgeography(r, { obj, results, csv, cid, vectors, resolution });
