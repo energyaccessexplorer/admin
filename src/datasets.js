@@ -163,7 +163,7 @@ export const model = {
 				},
 
 				"vectors_id": {
-					"hint":     "IDs for geographic features in linked GeoJSON file. This corresponds to the polygons_valued_columns->id value below.",
+					"hint":     "IDs for geographic features in linked GeoJSON file. This corresponds to the polygons_valued_columns->key value below.",
 					"type":     "string",
 					"required": true,
 					"enabled":  m => m.datatype.match(/polygons-(valued|boundaries)/),
