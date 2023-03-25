@@ -252,18 +252,22 @@ export async function routine(obj, { edit_modal, pre }) {
 					.then(_ => dt.edit_update(form, changes, obj));
 			})
 			.then(async _ => {
-				console.log($);
-				const tree = await API.get('/tree_down', { "id": `eq.${$.geography_id}` });
+				const tree = await API.get('geographies_tree_down', { "id": `eq.${$.geography_id}` });
 
-				if (confirm("Inherit changes to subgeographies?")) {
-					tree.forEach(async b => {
-						const leaf = b['leaf'];
+				if (tree.length <= 1) return;
 
-						const data = await API.get('/geographies', { "id": `eq.${leaf}` }, { "one": true });
+				if (!confirm(`Inherit to ${tree.length - 1} subgeographies?`)) return;
 
-						const f = (await fn(data, Object.assign({}, payload, { "geographyid": leaf }), {}));
-						console.log(f());
-					});
+				for await (const b of tree) {
+					const path = b['path'];
+					if (path.length === 0) return;
+
+					const leaf = path[path.length - 1];
+
+					const data = await API.get('geographies', { "id": `eq.${leaf}` }, { "one": true });
+
+					const f = (await fn(data, Object.assign({}, payload, { "geographyid": leaf }), {}));
+					await f();
 				}
 			});
 	};
