@@ -230,6 +230,12 @@ export const model = {
 					"default": false,
 				},
 
+				"filtered_geographies": {
+					"type":    "boolean",
+					"default": true,
+					"hint":    "Whether to enable the filtered tab on the tool for this geography",
+				},
+
 				"introduction": {
 					"type":    "text",
 					"default": null,
