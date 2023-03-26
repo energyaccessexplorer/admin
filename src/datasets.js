@@ -423,13 +423,19 @@ export const model = {
 			const s = maybe(object.data.source_files?.find(f => f.func === 'vectors'), 'endpoint');
 
 			if (s) fetch(s).then(r => r.json())
-				.then(r => object.data._selectable_attributes = Object.keys(r.features[0]['properties']));
+				.catch(e => {
+					console.warn("ERROR", e);
+					console.log("zipfile? auto available_properties feature on paver will not work.");
+
+					return { "features": [ { "properties": {} } ] };
+				})
+				.then(r => object.data._available_properties = Object.keys(r.features[0]['properties']));;
 
 			if (object.data.datatype === 'points') {
 				const ps = maybe(object.data.source_files?.find(f => f.func === 'csv'), 'endpoint');
 
 				if (ps) fetch(ps).then(r => r.text())
-					.then(r => object.data._selectable_attributes = r.split(/(\r\n|\n)/)[0].split(','));
+					.then(r => object.data._available_properties = r.split(/(\r\n|\n)/)[0].split(','));
 			}
 
 			const v = maybe(object.data.processed_files?.find(f => f.func === 'vectors'), 'endpoint');

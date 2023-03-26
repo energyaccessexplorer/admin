@@ -35,7 +35,7 @@ async function pavercheck() {
 };
 
 function select_attributes($, selected, input) {
-	const arr = $._selectable_attributes.map(a => {
+	const arr = $._available_properties.map(a => {
 		const o = ce('option', a, { "value": a });
 		if (selected.includes(a)) o.setAttribute('selected', '');
 
