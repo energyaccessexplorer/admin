@@ -364,6 +364,23 @@ export const model = {
 		inherit_button,
 	],
 
+	"after_patch": function(m, changes) {
+		if (!changes['deployment']) return;
+
+		const [before, after] = changes['deployment'];
+
+		const c = `DEPLOYMENTS CHANGED
+
+Select 'OK' if ALL of ${m.data.name}'s the __datasets__ deployments be updated to match.
+
+Select 'Cancel' if you are unsure or if someone has already customised some datasets to appear in certain deployments but not others.`;
+
+		if (after && (before.length !== after.length) && confirm(c))
+			dt.API.patch('datasets', { "geography_id": `eq.${m.data.id}` }, { "payload": { "deployment": after } });
+
+		console.warn(m, changes);
+	},
+
 	"parse": function(m) {
 		m.inproduction = m.deployment.indexOf("production") > -1;
 		m.instaging = m.deployment.indexOf("staging") > -1;
