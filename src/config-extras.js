@@ -1,6 +1,8 @@
 /* eslint no-undef: "off" */
 
 Object.assign(config, {
+	"departer_server":     "/departer",
+	"storage_track_files": false,
 	"default_model":       "geographies",
 	"landing":             false,
 });
