@@ -87,7 +87,7 @@ export async function routine(obj, { edit_modal, pre }) {
 			break;
 		}
 		//
-		// break omitted
+		// break omitted, go to lines/polygons.
 
 	case 'lines':
 	case 'polygons': {

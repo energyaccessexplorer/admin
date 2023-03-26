@@ -29,11 +29,11 @@ function envelope_validate(newdata) {
 	const e = newdata['envelope'];
 
 	return and(e[0] >= -180,
-						 e[2] <=  180,
-						 e[0] <  e[2],
-						 e[1] >=  -90,
-						 e[3] <=   90,
-						 e[1] <  e[3]);
+	           e[2] <=  180,
+	           e[0] <  e[2],
+	           e[1] >=  -90,
+	           e[3] <=   90,
+	           e[1] <  e[3]);
 };
 
 async function generate_subgeographies() {

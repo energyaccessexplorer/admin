@@ -402,7 +402,6 @@ export const model = {
 	},
 
 	"edit_modal_jobs": [
-		// polygons-timeline
 		// raster
 		// raster-mutant
 		// raster-valued
@@ -418,6 +417,7 @@ export const model = {
 				"polygons",
 				"polygons-boundaries",
 				"polygons-valued",
+				"polygons-timeline",
 			].includes(object.data.datatype)) return;
 
 			const s = maybe(object.data.source_files?.find(f => f.func === 'vectors'), 'endpoint');
@@ -435,12 +435,12 @@ export const model = {
 			const v = maybe(object.data.processed_files?.find(f => f.func === 'vectors'), 'endpoint');
 
 			if (v) fetch(v).then(r => r.json())
-				.then(r => object.data._selected_attributes = Object.keys(r.features[0]['properties']));
+				.then(r => object.data._existing_properties = Object.keys(r.features[0]['properties']));
 
 			const c = maybe(object.data.source_files?.find(f => f.func === 'csv'), 'endpoint');
 
 			if (c) fetch(c).then(r => r.text())
-				.then(r => object.data._selected_columns = r.split(/(\r\n|\n)/)[0].split(','));
+				.then(r => object.data._existing_columns = r.split(/(\r\n|\n)/)[0].split(','));
 		},
 		function(object, form, edit_modal) {
 			const p = ce('button', ce('i', null, { "class": 'bi-gem', "title": 'Paver' }));
@@ -737,11 +737,11 @@ function source_files_validate(newdata, data) {
 
 function configuration_attributes_validate(newdata, data) {
 	const config = newdata.configuration;
-	const selected = data._selected_attributes;
+	const selected = data._existing_properties;
 
 	if (!config) return true;
 
-	const fb = data.datatype.match(/polygons-(valued|boundaries)/);
+	const vb = data.datatype.match(/polygons-(valued|boundaries)/);
 
 	const m = data.datatype.match(/mutant-/);
 
@@ -769,7 +769,7 @@ Available values are: ${selected.join(', ')}`,
 			"title":   `Configuration -> ${p}`,
 			"message": `'${n}' attribute does not belong.
 
-Available values are: ${data._selected_columns.join(', ')}`,
+Available values are: ${data._existing_columns.join(', ')}`,
 		});
 
 		return false;
@@ -807,19 +807,19 @@ Just delete it. `,
 	}
 
 	if (config.polygons_valued_columns) {
-		if (!fb) return unnerr("polygons_valued_columns");
+		if (!vb) return unnerr("polygons_valued_columns");
 
 		for (const n in config.polygons_valued_columns) {
 			const k = config.polygons_valued_columns[n];
 
-			if (!data._selected_columns.includes(k))
+			if (!data._existing_columns.includes(k))
 				return colerr("polygons_valued_columns", k);
 		}
 	}
 	else if (f) reqerr("polygons_valued_columns");
 
 	if (config.attributes_map) {
-		if (fb) return unnerr("attributes_map");
+		if (vb) return unnerr("attributes_map");
 
 		for (const n of config.attributes_map.map(a => a.dataset)) {
 			if (selected && !selected.includes(n))
@@ -828,7 +828,7 @@ Just delete it. `,
 	}
 
 	if (config.properties_search) {
-		if (fb) return unnerr("properties_search");
+		if (vb) return unnerr("properties_search");
 
 		for (const n of config.properties_search) {
 			if (selected && !selected.includes(n))
@@ -846,7 +846,8 @@ Just delete it. `,
 	}
 
 	if (config.mutant_targets) {
-		if (!data.datatype.match(/-mutant/)) return unnerr("mutant_targets");
+		if (!data.datatype.match(/mutant/))
+			return unnerr("mutant_targets");
 	}
 	else if (m) reqerr("mutant_targets");
 
