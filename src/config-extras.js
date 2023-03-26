@@ -1,7 +1,7 @@
 /* eslint no-undef: "off" */
 
 Object.assign(config, {
-	"departer_server":     "/departer",
+	"departer_endpoint":   "http://eaadmin.localhost/departer",
 	"storage_track_files": false,
 	"default_model":       "geographies",
 	"landing":             false,

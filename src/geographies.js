@@ -51,7 +51,7 @@ export async function init() {
 		form.onsubmit = function(e) {
 			e.preventDefault();
 
-			fetch(`${dt.config.departer_server}/build`, {
+			fetch(`${dt.config.departer_endpoint}/build`, {
 				"method":  'POST',
 				"headers": {
 					"Authorization": `Bearer ${localStorage.getItem('token')}`,
@@ -67,7 +67,7 @@ export async function init() {
 					const c = m.content;
 
 					qs('#offroad-info', c).style.display = "";
-					qs('#log', c).href = `${dt.config.departer_server}/builds/${r.id}.log`;
+					qs('#log', c).href = `${dt.config.departer_endpoint}/builds/${r.id}.log`;
 				});
 		};
 
