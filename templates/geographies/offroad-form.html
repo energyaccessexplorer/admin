@@ -1,0 +1,30 @@
+Select geographies for the build:
+<br><br>
+
+<form>
+  <label>Deepest ADM level:</label> <input type="number" min="0" max="3" name="depth" value="0">
+  <br><br>
+
+  <select name="os" style="width: 100%;" required>
+    <option disabled>OS</option>
+    <option value="windows">Windows</option>
+    <option value="darwin">MacOS</option>
+    <option value="linux">Linux</option>
+    <option value="freebsd">FreeBSD</option>
+    <option value="openbsd">OpenBSD</option>
+  </select>
+  <br><br>
+
+  <select name="ids" style="width: 100%; min-height: 10em;" autofocus multiple></select>
+  <br><br>
+
+  <button type="submit">Submit</button>
+</form>
+
+<div id="offroad-info" style="display: none;">
+  <p>
+    You can see a log of the process here: <a href="#" id="log">here</a>. At the
+    end of the log, you will see a link to fetch your build. The build will be
+    deleted one day after it's created.
+  </p>
+</div>
