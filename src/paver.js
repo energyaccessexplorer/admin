@@ -54,6 +54,63 @@ height: 10rem;
 	return ce('div', s, { "class": "input-group" });
 };
 
+async function payload_fill($, payload, datasets_func) {
+	payload.dataseturl = maybe($.source_files.find(x => x.func === datasets_func), 'endpoint');
+
+	if (!payload.dataseturl) {
+		alert(`Could not get endpoint for the ${datasets_func} source file. Check that...`);
+		return false;
+	}
+
+	const r = await API.get('geographies', {
+		"id":     `eq.${payload.geographyid}`,
+		"select": ["id", "name", "configuration", "resolution"],
+	}, { "one": true });
+
+	const rid = maybe(r, 'configuration', 'divisions', 0, 'dataset_id');
+
+	if (!rid) {
+		alert(`MISSING: ${r.name} -> configuration -> divisions -> 0 -> dataset_id`);
+		return false;
+	}
+
+	const refs = await API.get(
+		'datasets',
+		{
+			"id":     `eq.${rid}`,
+			"select": ["processed_files"],
+		},
+		{ "one": true });
+
+	payload.referenceurl = maybe(refs.processed_files.find(x => x.func === 'vectors'), 'endpoint');
+	payload.baseurl = maybe(refs.processed_files.find(x => x.func === 'raster'), 'endpoint');
+
+	const cat = await API.get('categories', {
+		"id":     `eq.${$.category_id}`,
+		"select": ["raster"],
+	}, { "one": true });
+
+	if (and($.datatype.match('raster'), !maybe(cat, 'raster', 'paver'))) {
+		const msg = `'${$.category_name}' category raster->paver configuration is not setup!`;
+
+		FLASH.push({
+			"type":    'error',
+			"title":   "Configuration error",
+			"message": msg,
+		});
+
+		console.error(msg);
+
+		return false;
+	}
+
+	payload.config = JSON.stringify(cat.raster.paver);
+
+	payload.resolution = r.resolution;
+
+	return true;
+};
+
 export async function routine(obj, { edit_modal, pre }) {
 	await pavercheck();
 
@@ -128,62 +185,7 @@ export async function routine(obj, { edit_modal, pre }) {
 
 	await obj.fetch();
 
-	const ok = await (async function payload_fill() {
-		payload.dataseturl = maybe($.source_files.find(x => x.func === datasets_func), 'endpoint');
-
-		if (!payload.dataseturl) {
-			alert(`Could not get endpoint for the ${datasets_func} source file. Check that...`);
-			return false;
-		}
-
-		const r = await API.get('geographies', {
-			"id":     `eq.${payload.geographyid}`,
-			"select": ["configuration", "resolution"],
-		}, { "one": true });
-
-		const rid = maybe(r, 'configuration', 'divisions', 0, 'dataset_id');
-
-		if (!rid) {
-			alert("The geography -> configuration -> division -> 0 is not setup properly.");
-			return false;
-		}
-
-		const refs = await API.get(
-			'datasets',
-			{
-				"id":     `eq.${rid}`,
-				"select": ["processed_files"],
-			},
-			{ "one": true });
-
-		payload.referenceurl = maybe(refs.processed_files.find(x => x.func === 'vectors'), 'endpoint');
-		payload.baseurl = maybe(refs.processed_files.find(x => x.func === 'raster'), 'endpoint');
-
-		const cat = await API.get('categories', {
-			"id":     `eq.${$.category_id}`,
-			"select": ["raster"],
-		}, { "one": true });
-
-		if (and($.datatype.match('raster'), !maybe(cat, 'raster', 'paver'))) {
-			const msg = `'${$.category_name}' category raster->paver configuration is not setup!`;
-
-			FLASH.push({
-				"type":    'error',
-				"title":   "Configuration error",
-				"message": msg,
-			});
-
-			console.error(msg);
-
-			return false;
-		}
-
-		payload.config = JSON.stringify(cat.raster.paver);
-
-		payload.resolution = r.resolution;
-
-		return true;
-	})();
+	const ok = await payload_fill($, payload, datasets_func);
 
 	if (!ok) {
 		flag($.id);
@@ -258,15 +260,63 @@ export async function routine(obj, { edit_modal, pre }) {
 
 				if (!confirm(`Inherit to ${tree.length - 1} subgeographies?`)) return;
 
+				let count = 0;
 				for await (const b of tree) {
 					const path = b['path'];
-					if (path.length === 0) return;
+					if (path.length === 1) continue;
 
 					const leaf = path[path.length - 1];
 
-					const data = await API.get('geographies', { "id": `eq.${leaf}` }, { "one": true });
+					const g = await API.get('geographies', {
+						"id":     `eq.${leaf}`,
+						"select": ["id", "name", "configuration", "resolution"],
+					}, { "one": true });
 
-					const f = (await fn(data, Object.assign({}, payload, { "geographyid": leaf }), {}));
+					const rid = maybe(g, 'configuration', 'divisions', 0, 'dataset_id');
+
+					if (!rid) {
+						alert(`MISSING: ${g.name} -> configuration -> divisions -> 0 -> dataset_id`);
+						continue;
+					}
+
+					const refs = await API.get(
+						'datasets',
+						{
+							"id":     `eq.${rid}`,
+							"select": ["processed_files"],
+						},
+						{ "one": true });
+
+					payload.referenceurl = maybe(refs.processed_files.find(x => x.func === 'vectors'), 'endpoint');
+					payload.baseurl = maybe(refs.processed_files.find(x => x.func === 'raster'), 'endpoint');
+
+					const opts = {
+						"geography_id": `eq.${g.id}`,
+						"category_id":  `eq.${$.category_id}`,
+						"flagged":      "is.false",
+					};
+
+					if ($.name === null) {
+						opts['name'] = "is.null";
+					} else {
+						opts['name'] = `eq.${$.name}`;
+					}
+
+					const ds = await API.get('datasets', opts);
+
+					count += 1;
+					document.querySelector('#infopre').innerText = `Pavering ${g.name} (${count}/${tree.length - 1})\n\n`;
+
+					if (ds.length === 0) {
+						console.warn("No such dataset on subgeography. NEXT!");
+					} else if (ds.length > 1) {
+						console.warn("Cannot choose. NEXT!");
+						continue;
+					}
+
+					const p = Object.assign(ds, payload, { "geographyid": leaf });
+
+					const f = (await fn(g, p, {}));
 					await f();
 				}
 			});
