@@ -15,6 +15,8 @@ import * as datasets_module from './datasets.js';
 
 import deployment_options from './deployment_options.js';
 
+let ADM = 0;
+
 const API = dt.API;
 
 export const base = 'geographies';
@@ -22,6 +24,67 @@ export const base = 'geographies';
 export const header = "Geographies";
 
 window.email_user = email_user;
+
+export async function init() {
+	const d = 'body main header .actions-drawer';
+	const t = await remote_tmpl("geographies/offroad-form.html");
+
+	function offroad() {
+		const content = t.cloneNode(true);
+
+		const arr = dt.collections.geographies.objects.slice(0)
+			.sort((a,b) => a.data.name > b.data.name ? 1 : -1)
+			.map(g => ce('option', g.data.name, { "value": g.data.id }));
+
+		qs('select[name="ids"]', content).append(...arr);
+		const form = qs('form', content);
+
+		const depth = qs('[name="depth"]', form);
+		depth.value = ADM;
+		depth.setAttribute('min', ADM);
+
+		const m = new modal({
+			"header": ce('h3', "Offroad build"),
+			content,
+		});
+
+		form.onsubmit = function(e) {
+			e.preventDefault();
+
+			fetch(`${dt.config.departer_server}/build`, {
+				"method":  'POST',
+				"headers": {
+					"Authorization": `Bearer ${localStorage.getItem('token')}`,
+				},
+				"body": JSON.stringify({
+					"os":    qs('[name="os"]', form).value,
+					"ids":   arr.filter(o => o.selected).map(o => o.value),
+					"depth": +depth.value,
+				}),
+			})
+				.then(r => r.json())
+				.then(r => {
+					const c = m.content;
+
+					qs('#offroad-info', c).style.display = "";
+					qs('#log', c).href = `${dt.config.departer_server}/builds/${r.id}.log`;
+				});
+		};
+
+		m.show();
+	};
+
+	until(_ => typeof (ADM = maybe(dt.collections, 'geographies', 'objects', 0, 'data', 'adm')) === 'number')
+		.then(function() {
+			const a = ce('button', ce('i', null, { "class": 'bi-signpost-split-fill', "title": 'Offroad Build' }));
+
+			a.onclick = offroad;
+
+			qs(d).append(a);
+		});
+
+	return true;
+};
 
 function envelope_validate(newdata) {
 	if (!maybe(newdata, 'envelope', 'length')) return true;
