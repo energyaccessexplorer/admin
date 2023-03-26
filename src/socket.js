@@ -1,9 +1,7 @@
-import paver from './paver.js';
-
 export function listen(id, fn) {
-	const p = location.protocol === "https:" ? "wss" : "ws";
+	const u = dt.config.paver_endpoint.replace(/^http/, 'ws');
 
-	const c = new WebSocket(`${p}://${location.host}${paver.base}/socket?id=${id}`);
+	const c = new WebSocket(`${u}/socket?id=${id}`);
 
 	c.addEventListener("open", e => console.log("WebSocket Connected", e));
 

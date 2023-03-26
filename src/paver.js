@@ -12,15 +12,11 @@ import {
 
 import * as datasets_module from './datasets.js';
 
-const paver = { "base": "/paver" };
-
 const FLASH = dt.FLASH;
 const API = dt.API;
 
-export default paver;
-
 async function pavercheck() {
-	fetch(`${paver.base}/routines`, {
+	fetch(`${dt.config.paver_endpoint}/routines`, {
 		"method":  'OPTIONS',
 		"headers": {
 			"Authorization": `Bearer ${localStorage.getItem('token')}`,
@@ -350,7 +346,7 @@ async function submit(routine, payload, { paver_modal, pre }) {
 		if (infopre) infopre.innerText += "\n" + m;
 	});
 
-	return fetch(`${paver.base}/routines?routine=${routine}&socket_id=${socket_id}`, {
+	return fetch(`${dt.config.paver_endpoint}/routines?routine=${routine}&socket_id=${socket_id}`, {
 		"method":  'POST',
 		"headers": {
 			"Content-Type":  'application/x-www-form-urlencoded',

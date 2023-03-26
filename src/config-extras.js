@@ -1,6 +1,7 @@
 /* eslint no-undef: "off" */
 
 Object.assign(config, {
+	"paver_endpoint":      "http://eaadmin.localhost/paver",
 	"departer_endpoint":   "http://eaadmin.localhost/departer",
 	"storage_track_files": false,
 	"default_model":       "geographies",
