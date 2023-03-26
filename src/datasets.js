@@ -166,7 +166,7 @@ export const model = {
 					"hint":     "IDs for geographic features in linked GeoJSON file. This corresponds to the polygons_valued_columns->key value below.",
 					"type":     "string",
 					"required": true,
-					"enabled":  m => m.datatype.match(/polygons-(valued|boundaries)/),
+					"enabled":  m => m.datatype.match(/polygons-(valued|boundaries)/) && m.category_name !== 'outline',
 				},
 
 				"polygons_valued_columns": {
@@ -739,15 +739,32 @@ function configuration_attributes_validate(newdata, data) {
 	const config = newdata.configuration;
 	const selected = data._existing_properties;
 
+	const o = data.category_name === 'outline';
+
+	if (config && o) {
+		FLASH.clear();
+
+		FLASH.push({
+			"type":    'error',
+			"title":   `Configuration`,
+			"message": `Outlines do not need any of it.
+
+Just delete it. `,
+		});
+
+		return false;
+	}
+
 	if (!config) return true;
 
 	const vb = data.datatype.match(/polygons-(valued|boundaries)/);
 
-	const m = data.datatype.match(/mutant-/);
-
-	const f = data.datatype === 'polygons-valued';
+	// const b = data.datatype === 'polygons-boundaries';
+	const v = data.datatype === 'polygons-valued';
 
 	const t = data.datatype === 'polygons-timeline';
+
+	const m = data.datatype.match(/mutant-/);
 
 	function attrerr(p, n) {
 		FLASH.clear();
@@ -818,7 +835,7 @@ Just delete it. `,
 				return colerr("polygons_valued_columns", k);
 		}
 	}
-	else if (f) reqerr("polygons_valued_columns");
+	else if (v) return reqerr("polygons_valued_columns");
 
 	if (config.attributes_map) {
 		if (vb || t) return unnerr("attributes_map");
