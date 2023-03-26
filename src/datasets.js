@@ -747,6 +747,8 @@ function configuration_attributes_validate(newdata, data) {
 
 	const f = data.datatype === 'polygons-valued';
 
+	const t = data.datatype === 'polygons-timeline';
+
 	function attrerr(p, n) {
 		FLASH.clear();
 
@@ -819,7 +821,7 @@ Just delete it. `,
 	else if (f) reqerr("polygons_valued_columns");
 
 	if (config.attributes_map) {
-		if (vb) return unnerr("attributes_map");
+		if (vb || t) return unnerr("attributes_map");
 
 		for (const n of config.attributes_map.map(a => a.dataset)) {
 			if (selected && !selected.includes(n))
@@ -828,7 +830,7 @@ Just delete it. `,
 	}
 
 	if (config.properties_search) {
-		if (vb) return unnerr("properties_search");
+		if (vb || t) return unnerr("properties_search");
 
 		for (const n of config.properties_search) {
 			if (selected && !selected.includes(n))
@@ -837,7 +839,7 @@ Just delete it. `,
 	}
 
 	if (config.features_specs) {
-		if (fb) return unnerr("features_specs");
+		if (vb || t) return unnerr("features_specs");
 
 		for (const n of config.features_specs.map(a => a.key)) {
 			if (selected && !selected.includes(n))
