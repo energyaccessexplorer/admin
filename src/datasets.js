@@ -570,6 +570,7 @@ export const collection = {
 			'category_name',
 			'geography_circle',
 			'geography_id',
+			'content_date:metadata->>content_date',
 			'created',
 			'created_by',
 			'updated',
