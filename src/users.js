@@ -9,7 +9,7 @@ const url = new URL(location);
 url.searchParams.set('world', 'ea');
 history.replaceState(null, null, url);
 
-import * as _u from 'https://auth.chestnut.vision/admin/src/users.js';
+import * as _u from 'https://noop.nu/auth/admin/src/users.js';
 
 export const model = _u.model;
 export const collection = _u.collection;

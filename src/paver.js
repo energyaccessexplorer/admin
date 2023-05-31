@@ -281,7 +281,8 @@ export async function routine(obj, { edit_modal, pre }) {
 							"id":     `eq.${rid}`,
 							"select": ["processed_files"],
 						},
-						{ "one": true });
+						{ "one": true },
+					);
 
 					payload.referenceurl = maybe(refs.processed_files.find(x => x.func === 'vectors'), 'endpoint');
 					payload.baseurl = maybe(refs.processed_files.find(x => x.func === 'raster'), 'endpoint');
