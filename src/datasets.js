@@ -622,6 +622,8 @@ export async function init() {
 	function dump_table() {
 		const a = ce('button', ce('i', null, { "class": 'bi-download', "title": 'Dump Table' }));
 
+		const meta = Object.keys(model.schema.metadata.schema).map(t => t+":metadata->>"+t);
+
 		a.onclick = _ => API.get('datasets', {
 			"select": [
 				"id",
@@ -636,7 +638,7 @@ export async function init() {
 				"category_overrides",
 				"source_files",
 				"processed_files",
-				"metadata",
+				...meta,
 				"created",
 				"updated",
 			],
