@@ -401,6 +401,7 @@ export const model = {
 				"sort_branches": {
 					"type":     "array",
 					"nullable": true,
+					"sortable":  true,
 					"hint":     "Configuration of dataset branches within the geography",
 					"schema":   {
 						"type":     "string",
@@ -411,6 +412,7 @@ export const model = {
 				"sort_subbranches": {
 					"type":     "array",
 					"nullable": true,
+					"sortable":  true,
 					"hint":     "Configuration of dataset sub-branches within the geography",
 					"schema":   {
 						"type":     "string",
@@ -421,6 +423,7 @@ export const model = {
 				"sort_datasets": {
 					"type":     "array",
 					"nullable": true,
+					"sortable":  true,
 					"hint":     "Configuration of dataset order within the geography",
 					"schema":   {
 						"type":     "string",
