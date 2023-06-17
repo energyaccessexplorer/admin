@@ -17,6 +17,7 @@ import deployment_options from './deployment_options.js';
 
 let ADM = 0;
 
+const FLASH = dt.FLASH;
 const API = dt.API;
 
 export const base = 'geographies';
@@ -82,6 +83,38 @@ export async function init() {
 
 			qs(d).append(a);
 		});
+
+	return true;
+};
+
+function configuration_validate(newdata, data) {
+	return and(
+		configuration_sort_datasets_validate(newdata, data),
+	);
+};
+
+async function configuration_sort_datasets_validate(newdata, data) {
+	const datasets = await dt.API.get('datasets', {
+		"geography_id": `eq.${data.id}`,
+		"select":       ["name", "category_name"],
+	});
+
+	const arr = maybe(newdata, 'configuration', 'sort_datasets');
+
+	if (!arr.length) return true;
+
+	if (!arr.every(t => datasets.find(d => or(d.name === t, d.category_name === t)))) {
+		FLASH.clear();
+
+		const e = arr.find(t => !datasets.find(d => or(d.name === t, d.category_name === t)));
+		FLASH.push({
+			"type":    'error',
+			"title":   `Configuration -> sort_datasets`,
+			"message": `'${e}' not found`,
+		});
+
+		return false;
+	}
 
 	return true;
 };
@@ -282,6 +315,7 @@ export const model = {
 			"label":     "Configuration",
 			"collapsed": false,
 			"nullable":  true,
+			"validate":  configuration_validate,
 			"schema":    {
 				"timeline": {
 					"type":    "boolean",
@@ -384,7 +418,7 @@ export const model = {
 					},
 				},
 
-				"sort_datasets": { // TODO: should come from dataset's name (or category_name)
+				"sort_datasets": {
 					"type":     "array",
 					"nullable": true,
 					"hint":     "Configuration of dataset order within the geography",
