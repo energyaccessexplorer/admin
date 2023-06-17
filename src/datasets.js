@@ -552,7 +552,7 @@ export const model = {
 };
 
 export const collection = {
-	"filters": ['name', 'deployments', 'name_long', 'category_name'],
+	"filters": ['name', 'deployments', 'name_long', 'category_name', 'geography_name'],
 
 	"switches": {
 		"deployment": deployment_options,
@@ -568,6 +568,7 @@ export const collection = {
 			'category(*)',
 			'category_id',
 			'category_name',
+			'geography_name',
 			'geography_circle',
 			'geography_id',
 			'content_date:metadata->>content_date',
