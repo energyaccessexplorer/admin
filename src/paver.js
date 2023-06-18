@@ -531,6 +531,34 @@ async function csv_points($, payload, { paver_modal }) {
 		payload.lnglat = paver_modal.content.querySelector('form input[name=lnglat]').value;
 		payload.fields = paver_modal.content.querySelector('form input[name=fields]').value;
 
+		for (const p of payload.lnglat.split(',')) {
+			if ($._available_properties.indexOf(p) < 0) {
+				FLASH.push({
+					"type":    'error',
+					"title":   "Incorrect long/lat Selection",
+					"message": `Attribute '${p}' does not exist.`,
+				});
+
+				qs('[type="submit"]', paver_modal.footer).removeAttribute('disabled');
+
+				throw new Error("Attribute '${p}' does not exist");
+			}
+		}
+
+		for (const p of payload.fields.split(',').filter(t => t !== "")) {
+			if ($._available_properties.indexOf(p) < 0) {
+				FLASH.push({
+					"type":    'error',
+					"title":   "Incorrect Fields Selection",
+					"message": `Attribute '${p}' does not exist.`,
+				});
+
+				qs('[type="submit"]', paver_modal.footer).removeAttribute('disabled');
+
+				throw new Error("Attribute '${p}' does not exist");
+			}
+		}
+
 		return submit('csv-points', payload, { paver_modal })
 			.then(async r => {
 				if (r.error) {
