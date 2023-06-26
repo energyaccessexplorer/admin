@@ -101,7 +101,7 @@ async function configuration_sort_datasets_validate(newdata, data) {
 
 	const arr = maybe(newdata, 'configuration', 'sort_datasets');
 
-	if (!arr.length) return true;
+	if (!maybe(arr, 'length')) return true;
 
 	if (!arr.every(t => datasets.find(d => or(d.name === t, d.category_name === t)))) {
 		FLASH.clear();
