@@ -305,7 +305,7 @@ export const model = {
 		"circle": {
 			"type":     "string",
 			"label":    "Circle",
-			"pattern":  "^[a-z][a-z0-9\-]+$",
+			"pattern":  "^[a-z][a-z0-9\\-]+[^\\-]$",
 			"default":  "public",
 			"required": true,
 		},

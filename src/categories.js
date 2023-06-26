@@ -27,7 +27,7 @@ export const model = {
 			"label":    "Name",
 			"editable": false,
 			"required": true,
-			"pattern":  "^[a-z][a-z0-9\-]+$",
+			"pattern":  "^[a-z][a-z0-9\\-]+[^\\-]$",
 		},
 
 		"unit": {
@@ -38,7 +38,7 @@ export const model = {
 		"circle": {
 			"type":     "string",
 			"label":    "Circle",
-			"pattern":  "^[a-z][a-z0-9\-]+$",
+			"pattern":  "^[a-z][a-z0-9\\-]+[^\\-]$",
 			"validate": circle_validate,
 			"required": true,
 		},
@@ -366,7 +366,7 @@ export const model = {
 					"hint":      "Branch and Subbranch of the category",
 					"schema":    {
 						"type":     "string",
-						"pattern":  "^[a-z][a-z0-9\-]+$",
+						"pattern":  "^[a-z][a-z0-9\\-]+[^\\-]$",
 						"required": true,
 					},
 				},

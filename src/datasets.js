@@ -72,7 +72,7 @@ export const model = {
 		"name": {
 			"type":        "string",
 			"label":       "Name",
-			"pattern":     "^[a-z][a-z0-9\-]+$",
+			"pattern":     "^[a-z][a-z0-9\\-]+[^\\-]$",
 			"placeholder": "leave blank to inherit from category",
 		},
 
