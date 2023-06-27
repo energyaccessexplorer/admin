@@ -299,13 +299,18 @@ export async function routine(obj, { edit_modal, pre }) {
 						opts['name'] = `eq.${$.name}`;
 					}
 
-					const ds = await API.get('datasets', opts);
+					let ds = await API.get('datasets', opts);
 
 					count += 1;
 					document.querySelector('#infopre').innerText = `Pavering ${g.name} (${count}/${tree.length - 1})\n\n`;
 
 					if (ds.length === 0) {
-						console.warn("No such dataset on subgeography. NEXT!");
+						const o = new dt.object({
+							"module": dt.modules['datasets'],
+							"data":   $,
+						});
+
+						ds = (await o.clone({ "geography_id": leaf }))['data'];
 					} else if (ds.length > 1) {
 						console.warn("Cannot choose. NEXT!");
 						continue;
