@@ -13,7 +13,7 @@ import * as paver from './paver.js';
 
 import * as datasets_module from './datasets.js';
 
-import deployment_options from './deployment_options.js';
+import deployment_options from './deployment-options.js';
 
 let ADM = 0;
 

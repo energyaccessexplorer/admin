@@ -13,7 +13,7 @@ import {
 	routine as paver_routine,
 } from './paver.js';
 
-import deployment_options from './deployment_options.js';
+import deployment_options from './deployment-options.js';
 
 window.email_user = email_user;
 

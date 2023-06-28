@@ -6,7 +6,7 @@ import {
 	circles_user,
 } from './circles.js';
 
-import deployment_options from './deployment_options.js';
+import deployment_options from './deployment-options.js';
 
 export const base = 'categories';
 
