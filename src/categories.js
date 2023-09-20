@@ -130,6 +130,7 @@ export const model = {
 					"hint":     "Configuration of intervals for a TIFF file",
 					"schema":   {
 						"type":     "number",
+						"step":     "any",
 						"required": true,
 					},
 				},
@@ -608,6 +609,26 @@ function raster_proximity_validate(newdata) {
 function raster_intervals_validate(newdata) {
 	const r = maybe(newdata, 'raster', 'intervals');
 	if (!r) return true;
+
+	const t = maybe(newdata, 'raster', 'paver', 'numbertype');
+
+	if (r.some(v => t === "Byte" && or(parseInt(v) !== v, v < 0, v > 255))) {
+		err(
+			"Raster configuration error",
+			"Raster->invervals should match the Raster->paver->numbertype (Byte)",
+		);
+
+		return false;
+	}
+
+	if (r.some(v => t.match(/Int/) && parseInt(v) !== v)) {
+		err(
+			"Raster configuration error",
+			"Raster->invervals should match the Raster->paver->numbertype (Int)",
+		);
+
+		return false;
+	}
 
 	if (!or(
 		r.every((v,i,a) => !i || a[i-1] > v),
