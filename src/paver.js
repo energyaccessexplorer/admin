@@ -100,6 +100,9 @@ async function payload_fill($, payload, datasets_func) {
 		return false;
 	}
 
+	if (and(['lines', 'polygons'].includes($.datatype)))
+		payload.simplify = maybe(cat, 'vectors', 'paver', 'simplify') || null;
+
 	payload.config = JSON.stringify(cat.raster.paver);
 
 	payload.resolution = r.resolution;
@@ -122,6 +125,7 @@ export async function routine(obj, { edit_modal, pre }) {
 		"lnglat":      [],
 		"config":      null,
 		"resolution":  null,
+		"simplify":    null,
 	};
 
 	let fn;

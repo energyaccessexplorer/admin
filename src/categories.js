@@ -243,6 +243,21 @@ export const model = {
 					"pattern":   "^[0-9]([0-9\ ]*[0-9])?$",
 					"enabled":   m => maybe(m.vectors, 'shape_type') === "lines",
 				},
+				"paver": {
+					"type":     "object",
+					"nullable": true,
+					"schema":   {
+						"simplify": {
+							"type":     "number",
+							"required": true,
+							"step":     "any",
+							"min":      0,
+							"max":      1,
+							"default":  0,
+							"hint":     "Factor fed to the simplification algorithm",
+						},
+					},
+				},
 			},
 		},
 
@@ -676,6 +691,7 @@ function raster_colorstops_validate(newdata) {
 function vectors_validate(newdata) {
 	return and(
 		vectors_shape_type_requirements_validate(newdata),
+		vectors_paver_simplify_validate(newdata),
 	);
 };
 
@@ -716,6 +732,24 @@ function vectors_shape_type_requirements_validate(newdata) {
 	if (n.every(x => keys.includes(x))) return true;
 
 	err("Vectors configuration error", m);
+
+	return false;
+};
+
+function vectors_paver_simplify_validate(newdata) {
+	const v = newdata['vectors'];
+	if (!v) return true;
+
+	const s = maybe(newdata, 'vectors', 'paver', 'simplify');
+	if (s === null || s === undefined) return true;
+
+	const t = v['shape_type'];
+	if (!['points'].includes(t)) return true;
+
+	err(
+		"Vectors configuration error",
+		"vectors -> paver -> simplify is only required for polygons and lines",
+	);
 
 	return false;
 };
