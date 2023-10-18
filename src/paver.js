@@ -499,6 +499,9 @@ async function clip_proximity($, payload, { paver_modal }) {
 
 		paver_modal.content.querySelector('form').append(select_attributes($, payload.fields, input));
 		input.value = payload.fields;
+
+		if (!payload.fields.length && !$._available_properties.length)
+			input.removeAttribute('disabled');
 	}
 
 	return function() {
@@ -552,6 +555,9 @@ async function csv_points($, payload, { paver_modal }) {
 
 		paver_modal.content.querySelector('form').append(select_attributes($, payload.fields, input));
 		input.value = payload.fields;
+
+		if (!payload.fields.length && !$._available_properties.length)
+			input.removeAttribute('disabled');
 	}
 
 	return function() {
