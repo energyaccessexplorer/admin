@@ -549,7 +549,7 @@ export const model = {
 					m.hide();
 				};
 
-				for (let k of ['analysis', 'controls', 'domain', 'domain_init', 'metadata', 'raster', 'vectors'])
+				for (let k of ['analysis', 'controls', 'description', 'domain', 'domain_init', 'metadata', 'raster', 'vectors'])
 					select.append(ce('option', k));
 
 				m.show();
