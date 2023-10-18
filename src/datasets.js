@@ -141,7 +141,19 @@ export const model = {
 						"type":     "string",
 						"required": true,
 						"editable": false,
-						"pattern":  "^https://(.+)",
+						"callback": function(data, input) {
+							if (data.func !== 'vectors') return;
+
+							const g = input.closest('.input-group');
+							const l = qs('label', g);
+
+							const a = ce('a', ce('i', null, { "class": "bi-table" }));
+							a.style = "margin-right: 1em;";
+							a.onclick = _ => features_table_modal.call(this, data.endpoint);
+
+							l.prepend(a);
+						},
+						"pattern": "^https://(.+)",
 					},
 				},
 			},
@@ -881,4 +893,60 @@ Just delete it. `,
 	else if (m) reqerr("mutant_targets");
 
 	return true;
+};
+
+async function features_table_modal(url) {
+	const trunc = 100;
+
+	const geojson = await fetch(url).then(r => r.json());
+
+	const features = geojson.features.slice(0, trunc);
+
+	const content = ce('table');
+	content.className = 'feature-table';
+
+	const rows = features.map(f => {
+		const columns = [];
+
+		for (const p in f.properties) {
+			if (p.match(/^__/)) continue;
+			columns.push(f.properties[p]);
+		}
+
+		if (f.geometry.coordinates.length === 2) {
+			columns.push(
+				ce('code', "["+f.geometry.coordinates.map(x => x.toFixed(3)).join(',')+"]"),
+			);
+		}
+
+		const tr = ce('tr');
+		tr.append(...columns.map(c => ce('td', c)));
+
+		return tr;
+	});
+
+	const head = ce('tr');
+
+	for (const p in features[0].properties) {
+		if (p.match(/^__/)) continue;
+		head.append(ce('th', p));
+	}
+
+	if (features[0].geometry?.coordinates.length === 2)
+		head.append(ce('th', "long/lat"));
+
+	rows.unshift(head);
+
+	content.append(head, ...rows);
+
+	let header = `${geojson.features.length} features.`;
+	if (geojson.features.length > trunc)
+		header += ` Showing ${trunc}.`;
+
+	new modal({
+		"id":      'ds-features-table',
+		header,
+		content,
+		"destroy": true,
+	}).show();
 };

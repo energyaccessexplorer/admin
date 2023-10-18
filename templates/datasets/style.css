@@ -2,11 +2,11 @@ body > main .actions-drawer a {
   display: inline-block;
 }
 
-td:nth-of-type(5),
-td:nth-of-type(6),
-td:nth-of-type(7),
-td:nth-of-type(8),
-td:nth-of-type(9) {
+body > main td:nth-of-type(5),
+body > main td:nth-of-type(6),
+body > main td:nth-of-type(7),
+body > main td:nth-of-type(8),
+body > main td:nth-of-type(9) {
   text-align: center;
   font-size: 0.9em;
   padding: 0.7em 0.9em;
