@@ -434,7 +434,8 @@ export const model = {
 
 			const s = maybe(object.data.source_files?.find(f => f.func === 'vectors'), 'endpoint');
 
-			if (s) fetch(s).then(r => r.json())
+			if (s) fetch(s)
+				.then(r => r.json())
 				.catch(e => {
 					console.warn("ERROR", e);
 					console.log("zipfile? auto available_properties feature on paver will not work.");
