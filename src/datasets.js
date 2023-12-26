@@ -153,7 +153,7 @@ export const model = {
 
 							l.prepend(a);
 						},
-						"pattern": "^https://(.+)",
+						"pattern":  "^https://(.+)",
 					},
 				},
 			},
@@ -906,6 +906,14 @@ async function features_table_modal(url) {
 	const content = ce('table');
 	content.className = 'feature-table';
 
+	const c0 = maybe(features, 0, 'geometry', 'coordinates');
+
+	const is_points = and(
+		c0.length === 2,
+		Number.isFinite(c0[0]),
+		Number.isFinite(c0[1]),
+	);
+
 	const rows = features.map(f => {
 		const columns = [];
 
@@ -914,7 +922,7 @@ async function features_table_modal(url) {
 			columns.push(f.properties[p]);
 		}
 
-		if (f.geometry.coordinates.length === 2) {
+		if (is_points) {
 			columns.push(
 				ce('code', "["+f.geometry.coordinates.map(x => x.toFixed(3)).join(',')+"]"),
 			);
@@ -933,7 +941,7 @@ async function features_table_modal(url) {
 		head.append(ce('th', p));
 	}
 
-	if (features[0].geometry?.coordinates.length === 2)
+	if (is_points)
 		head.append(ce('th', "long/lat"));
 
 	rows.unshift(head);

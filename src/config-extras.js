@@ -4,6 +4,7 @@ Object.assign(config, {
 	"paver_endpoint":      "http://eaadmin.localhost/paver",
 	"departer_endpoint":   "http://eaadmin.localhost/departer",
 	"storage_track_files": false,
+	"storage_use_prefix":  true,
 	"default_model":       "geographies",
 	"landing":             false,
 });

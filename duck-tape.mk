@@ -36,7 +36,7 @@ dtbuild:
 
 	@touch src/config-extras.js
 
-	@echo -n "export const config = " | \
+	@printf "%s" "export const config = " | \
 		cat - tmpconfig \
 		src/config-extras.js \
 		> ${DIST}/config.js
