@@ -117,6 +117,7 @@ export const model = {
 						"required": true,
 						"pattern":  "^https://(.+)",
 						"bind":     "storage",
+						"callback": show_modal,
 						"hint":     "Enter the secure URL that corresponds to the dataset in the cloud",
 					},
 				},
@@ -141,19 +142,8 @@ export const model = {
 						"type":     "string",
 						"required": true,
 						"editable": false,
-						"callback": function(data, input) {
-							if (data.func !== 'vectors') return;
-
-							const g = input.closest('.input-group');
-							const l = qs('label', g);
-
-							const a = ce('a', ce('i', null, { "class": "bi-table" }));
-							a.style = "margin-right: 1em;";
-							a.onclick = _ => features_table_modal.call(this, data.endpoint);
-
-							l.prepend(a);
-						},
 						"pattern":  "^https://(.+)",
+						"callback": show_modal,
 					},
 				},
 			},
@@ -958,4 +948,69 @@ async function features_table_modal(url) {
 		content,
 		"destroy": true,
 	}).show();
+};
+
+async function map_modal(url, gid, datatype) {
+	const g = await dt.API.get('geographies', { "id": `eq.${gid}` }, { "one": true });
+	const e = g.envelope;
+
+	const content = document.createElement('iframe');
+	content.src = `/mapbox-mini.html?endpoint=${url}&datatype=${datatype}&W=${e[0]}&S=${e[1]}&E=${e[2]}&N=${e[3]}`;
+	content.width = 600;
+	content.height = 600;
+
+	new modal({
+		content,
+		"id":      "map-modal",
+		"destroy": true,
+	}).show();
+};
+
+function show_modal(data, input) {
+	const datatype = this.datatype;
+
+	const g = input.closest('.input-group');
+	const l = qs('label', g);
+
+	const gid = this.geography_id;
+
+	function table() {
+		if (data.func !== 'vectors') return "";
+
+		const a = ce('a', ce('i', null, { "class": "bi-table" }));
+		a.style = "margin-right: 1em;";
+		a.onclick = _ => features_table_modal.call(this, data.endpoint);
+
+		return a;
+	};
+
+	function image() {
+		if (data.func !== 'raster') return "";
+
+		const a = ce('a', ce('i', null, { "class": "bi-image" }));
+		a.style = "margin-right: 1em;";
+		a.onclick = _ => map_modal.call(this, data.endpoint, gid, "raster");
+
+		return a;
+	};
+
+	function geojson() {
+		if (data.func !== 'vectors') return "";
+
+		let icon;
+		if (datatype === "lines")
+			icon = "align-center";
+		else if (datatype === "points")
+			icon = "geo-fill";
+		else if (datatype === "polygons")
+			icon = "hexagon";
+
+		const a = ce('a', ce('i', null, { "class": `bi-${icon}` }));
+		a.style = "margin-right: 1em;";
+		a.onclick = _ => map_modal.call(this, data.endpoint, gid, datatype);
+
+		return a;
+	};
+
+	l.prepend(table(), image(), geojson());
 };

@@ -1,3 +1,7 @@
+#ds-features-table main {
+  overflow: scroll;
+}
+
 body > main .actions-drawer a {
   display: inline-block;
 }
