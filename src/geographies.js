@@ -109,7 +109,7 @@ async function configuration_sort_datasets_validate(newdata, data) {
 		const e = arr.find(t => !datasets.find(d => or(d.name === t, d.category_name === t)));
 		FLASH.push({
 			"type":    'error',
-			"title":   `Configuration -> sort_datasets`,
+			"title":   "Configuration -> sort_datasets",
 			"message": `'${e}' not found`,
 		});
 

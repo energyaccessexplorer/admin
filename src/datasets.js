@@ -432,7 +432,7 @@ export const model = {
 
 					return { "features": [ { "properties": {} } ] };
 				})
-				.then(r => object.data._available_properties = Object.keys(r.features[0]['properties']));;
+				.then(r => object.data._available_properties = Object.keys(r.features[0]['properties']));
 
 			if (object.data.datatype === 'points') {
 				const ps = maybe(object.data.source_files?.find(f => f.func === 'csv'), 'endpoint');
@@ -443,12 +443,14 @@ export const model = {
 
 			const v = maybe(object.data.processed_files?.find(f => f.func === 'vectors'), 'endpoint');
 
-			if (v) fetch(v).then(r => r.json())
+			if (v) fetch(v)
+				.then(r => r.json())
 				.then(r => object.data._existing_properties = Object.keys(r.features[0]['properties']));
 
 			const c = maybe(object.data.source_files?.find(f => f.func === 'csv'), 'endpoint');
 
-			if (c) fetch(c).then(r => r.text())
+			if (c) fetch(c)
+				.then(r => r.text())
 				.then(r => object.data._existing_columns = r.split(/(\r\n|\n)/)[0].split(','));
 		},
 		function(object, form, edit_modal) {
@@ -759,7 +761,7 @@ function configuration_attributes_validate(newdata, data) {
 
 		FLASH.push({
 			"type":    'error',
-			"title":   `Configuration`,
+			"title":   "Configuration",
 			"message": `Outlines do not need any of it.
 
 Just delete it. `,
@@ -772,7 +774,6 @@ Just delete it. `,
 
 	const vb = data.datatype.match(/polygons-(valued|boundaries)/);
 
-	// const b = data.datatype === 'polygons-boundaries';
 	const v = data.datatype === 'polygons-valued';
 
 	const t = data.datatype === 'polygons-timeline';
