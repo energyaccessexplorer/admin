@@ -455,7 +455,7 @@ export const model = {
 
 			if (c) fetch(c)
 				.then(r => r.text())
-				.then(r => object.data._existing_columns = r.split(/(\r\n|\n)/)[0].split(','));
+				.then(r => object.data._existing_columns = r.split(/\r?\n/)[0].split(','));
 		},
 		function(object, form, edit_modal) {
 			const p = ce('button', ce('i', null, { "class": 'bi-gem', "title": 'Paver' }));
