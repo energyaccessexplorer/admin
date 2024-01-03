@@ -160,15 +160,19 @@ export const model = {
 					"nullable": true,
 					"default":  null,
 					"required": true,
-					"enabled":  m => m.datatype.match(/polygons-(valued|timeline)/),
+					"enabled":  m => and(m.datatype.match(/polygons-(valued|timeline)/), m.category_name.match(/^(timeline-)?indicator/)),
 					"hint":     "Subdivision level corresponds to the CSV data. 0 = Entire geography.",
 				},
 
 				"vectors_id": {
-					"hint":     "IDs for geographic features in linked GeoJSON file. This corresponds to the polygons_valued_columns->key value below.",
+					"hint":     "GEOJSON: Name of the features' property that will work as an identifier.",
 					"type":     "string",
 					"required": true,
-					"enabled":  m => m.datatype.match(/polygons-(valued|boundaries)/) && m.category_name !== 'outline',
+					"enabled":  m => and(
+						m.datatype.match(/polygons-(valued|boundaries|timeline)/),
+						m.category_name !== 'outline',                             // outlines have no data
+						!m.category_name.match(/^(timeline-)?indicator/),          // indicators inherit from the divisions[i]
+					),
 				},
 
 				"polygons_valued_columns": {
@@ -695,8 +699,11 @@ function source_files_requirements(m) {
 
 	case 'table':
 	case 'polygons-valued':
-	case 'polygons-timeline':
 		n = ['csv'];
+		break;
+
+	case 'polygons-timeline':
+		n = ['csv', 'vectors'];
 		break;
 
 	case 'raster-mutant':
