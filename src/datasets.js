@@ -855,13 +855,15 @@ Just delete it. `,
 
 	if (!config) return true;
 
-	const vb = data.datatype.match(/polygons-(valued|boundaries)/);
+	const b = data.datatype === 'polygons-boundaries';
 
 	const v = data.datatype === 'polygons-valued';
 
 	const t = data.datatype === 'polygons-timeline';
 
 	const m = data.datatype.match(/mutant-/);
+
+	const vb = or(v,b);
 
 	function attrerr(p, n) {
 		FLASH.clear();
@@ -932,7 +934,7 @@ Just delete it. `,
 				return colerr("polygons_valued_columns", k);
 		}
 	}
-	else if (v) return reqerr("polygons_valued_columns");
+	else if (vb) return reqerr("polygons_valued_columns");
 
 	if (config.attributes_map) {
 		if (vb || t) return unnerr("attributes_map");
