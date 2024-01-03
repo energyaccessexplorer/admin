@@ -715,7 +715,7 @@ function source_files_requirements(m) {
 	return n;
 };
 
-function source_files_validate(newdata, data) {
+async function source_files_validate(newdata, data) {
 	let reqs = source_files_requirements(data);
 
 	if (data.datatype === 'points') {
@@ -754,7 +754,59 @@ function source_files_validate(newdata, data) {
 		}
 	}
 
+	ok = and(ok, await timeline_validate(newdata, data));
 	return ok;
+};
+
+async function timeline_validate(newdata, data) {
+	if (!maybe(data, 'category', 'timeline', 'enabled')) return true;
+
+	const c = maybe(data, 'geography', 'configuration', 'timeline_dates');
+
+	const e = maybe(newdata['source_files'].find(s => s.func === 'csv'), 'endpoint');
+	const t = await fetch(e)
+		.then(r => r.text())
+		.then(r => {
+			const csv = r.split(/\r?\n/).map(e => e.split(','));
+			newdata._csv = csv;
+
+			return csv[0];
+		});
+
+	const _c = c.filter(e => t.indexOf(e) < 0);
+	const _t = t.filter(e => c.indexOf(e) < 0);
+
+	if (_c.length > 0) {
+		FLASH.clear();
+
+		FLASH.push({
+			"type":    'error',
+			"title":   "Configuration",
+			"message": `CSV file should have the following columns:
+
+${_c}`,
+		});
+
+		return false;
+	}
+
+	if (_t.length > 1) {
+		_t.splice(0,1);
+
+		FLASH.clear();
+
+		FLASH.push({
+			"type":    'error',
+			"title":   "Configuration",
+			"message": `CSV file has some unknown columns:
+
+${_t}`,
+		});
+
+		return false;
+	}
+
+	return true;
 };
 
 function configuration_attributes_validate(newdata, data) {
