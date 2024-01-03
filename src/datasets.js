@@ -161,7 +161,7 @@ export const model = {
 					"default":  null,
 					"required": true,
 					"enabled":  m => and(m.datatype.match(/polygons-(valued|timeline)/), m.category_name.match(/^(timeline-)?indicator/)),
-					"hint":     "Subdivision level corresponds to the CSV data. 0 = Entire geography.",
+					"hint":     "Indicators: Subdivision level corresponds to the CSV. 0 = Entire geography.",
 				},
 
 				"vectors_id": {
@@ -855,6 +855,8 @@ Just delete it. `,
 
 	if (!config) return true;
 
+	const i = data.category.match(/indicator/);
+
 	const b = data.datatype === 'polygons-boundaries';
 
 	const v = data.datatype === 'polygons-valued';
@@ -918,6 +920,10 @@ Just delete it. `,
 
 		return false;
 	};
+
+	if (config.divisions_tier) {
+		if (!i) return unnerr("divisions_tier");
+	}
 
 	if (config.vectors_id) {
 		if (selected && !selected.includes(config.vectors_id))
