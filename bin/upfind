@@ -1,0 +1,8 @@
+#!/bin/sh
+
+DIR=$PWD
+
+while [ $DIR != / ]; do
+    find "$DIR" -maxdepth 1 "$@" 2>&1
+    DIR=`readlink -f $DIR/..`
+done
