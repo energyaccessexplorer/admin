@@ -449,6 +449,10 @@ export const model = {
 
 			if (v) fetch(v)
 				.then(r => r.json())
+				.then(r => {
+					object.data._features = r.features;
+					return r;
+				})
 				.then(r => object.data._existing_properties = Object.keys(r.features[0]['properties']));
 
 			const c = maybe(object.data.source_files?.find(f => f.func === 'csv'), 'endpoint');
@@ -755,7 +759,27 @@ async function source_files_validate(newdata, data) {
 	}
 
 	ok = and(ok, await timeline_validate(newdata, data));
+	ok = and(ok, await vectors_csv_validate(newdata, data));
+
 	return ok;
+};
+
+async function vectors_csv_validate(newdata, data) {
+	if (!data._features) return true;
+
+	if (data._features.length !== newdata._csv.length - 1) {
+		FLASH.clear();
+
+		FLASH.push({
+			"type":    'error',
+			"title":   "Configuration",
+			"message": `CSV file rows and Vectors features count should match`,
+		});
+
+		return false;
+	}
+
+	return true;
 };
 
 async function timeline_validate(newdata, data) {
