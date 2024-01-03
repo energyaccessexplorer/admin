@@ -4,7 +4,7 @@
   <td>
     <a bind-attr="href"
        bind-value="id"
-       bind-format="/?model=geographies&parent_id={0}"
+       bind-format="./?model=geographies&parent_id={0}"
        bind-cond="has_subgeographies"
        title="Subgeographies">
       <i class="bi-filter"></i>
@@ -14,7 +14,7 @@
   <td>
     <a bind-attr="href"
        bind-value="id"
-       bind-format="/?model=datasets&geography_id={0}"
+       bind-format="./?model=datasets&geography_id={0}"
        title="Datasets">
       <i class="bi-collection"></i>
     </a>

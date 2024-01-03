@@ -80,11 +80,11 @@
       </a>
 
       <div id="navigation-links">
-        <a href="/?model=geographies" class="toggleable">
+        <a href="./?model=geographies" class="toggleable">
           Geographies
         </a>
 
-        <a href="/?model=categories" class="toggleable">
+        <a href="./?model=categories" class="toggleable">
           Categories
         </a>
       </div>`;
@@ -100,7 +100,7 @@
       const r = jwt_decode(localStorage['token']).role;
       if (['leader', 'manager', 'director', 'root'].includes(r)) {
         qs('#navigation-links', nav).append(ce('a', "Users", {
-          "href": "/?model=users",
+          "href": "./?model=users",
           "class": "toggleable",
         }));
       }
