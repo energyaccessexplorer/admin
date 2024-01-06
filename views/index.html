@@ -103,6 +103,11 @@
           "href": "./?model=users",
           "class": "toggleable",
         }));
+
+        qs('#navigation-links', nav).append(ce('a', "System Status", {
+          "href": "./?model=status",
+          "class": "toggleable",
+        }));
       }
 
       dtnav.remove();

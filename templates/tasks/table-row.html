@@ -1,0 +1,31 @@
+<tr>
+  <td bind="name"></td>
+
+  <td>
+     <span bind-icon=""
+           bind-cond="_not_running"></span>
+
+     <span bind-icon="x-lg"
+           bind-cond="_failed"
+           style="color: red;"></span>
+
+     <span bind-icon="check-lg"
+           bind-cond="_running"
+           style="color: green;"></span>
+  </td>
+
+  <td>
+    <pre bind="infos"></pre>
+  </td>
+
+  <td>
+    <span bind="interval"></span> seconds
+  </td>
+
+  <td bind="last-run"></td>
+
+  <td>
+    <span bind-cond="retry">yes</span>
+    <span bind-unless="retry">no</span>
+  </td>
+</tr>
