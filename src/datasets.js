@@ -855,7 +855,7 @@ Just delete it. `,
 
 	if (!config) return true;
 
-	const i = data.category.match(/indicator/);
+	const i = data.category.name.match(/indicator/);
 
 	const b = data.datatype === 'polygons-boundaries';
 
