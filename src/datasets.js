@@ -764,8 +764,19 @@ async function source_files_validate(newdata, data) {
 	return ok;
 };
 
+function parse_csv(x) {
+	return x
+		.split(/\r?\n/)
+		.filter(r => r.trim() !== "")
+		.map(e => e.split(","));
+};
+
 async function vectors_csv_validate(newdata, data) {
 	if (!data._features) return true;
+
+	await fetch(maybe(newdata['source_files'].find(s => s.func === 'csv'), 'endpoint'))
+		.then(r => r.text())
+		.then(r => newdata._csv = parse_csv(r));
 
 	if (data._features.length !== newdata._csv.length - 1) {
 		FLASH.clear();
@@ -773,7 +784,7 @@ async function vectors_csv_validate(newdata, data) {
 		FLASH.push({
 			"type":    'error',
 			"title":   "Configuration",
-			"message": `CSV file rows and Vectors features count should match`,
+			"message": `CSV file rows count (${newdata._csv.length - 1}) and Vectors features count (${data._features.length}) must match`,
 		});
 
 		return false;
@@ -787,15 +798,11 @@ async function timeline_validate(newdata, data) {
 
 	const c = maybe(data, 'geography', 'configuration', 'timeline_dates');
 
-	const e = maybe(newdata['source_files'].find(s => s.func === 'csv'), 'endpoint');
-	const t = await fetch(e)
+	await fetch(maybe(newdata['source_files'].find(s => s.func === 'csv'), 'endpoint'))
 		.then(r => r.text())
-		.then(r => {
-			const csv = r.split(/\r?\n/).map(e => e.split(','));
-			newdata._csv = csv;
+		.then(r => newdata._csv = parse_csv(r));
 
-			return csv[0];
-		});
+	const t = newdata._csv[0];
 
 	const _c = c.filter(e => t.indexOf(e) < 0);
 	const _t = t.filter(e => c.indexOf(e) < 0);
