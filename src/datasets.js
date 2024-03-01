@@ -393,6 +393,7 @@ export const model = {
 			'raster-valued',
 			'polygons',
 			'polygons-boundaries',
+			'polygons-timeline',
 		].includes(m.datatype);
 
 		m.deployments = m.deployment.join(',');

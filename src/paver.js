@@ -100,8 +100,12 @@ async function payload_fill($, payload, datasets_func) {
 		return false;
 	}
 
-	if (and(['lines', 'polygons'].includes($.datatype)))
-		payload.simplify = maybe(cat, 'vectors', 'paver', 'simplify') || null;
+	if (and([
+		'lines',
+		'polygons',
+		'polygons-timeline',
+	].includes($.datatype)))
+		payload.simplify = maybe(cat, 'vectors', 'paver', 'simplify') || 0;
 
 	payload.config = JSON.stringify(cat.raster.paver);
 
@@ -152,6 +156,14 @@ export async function routine(obj, { edit_modal, pre }) {
 		datasets_func = 'vectors';
 		template = 'datasets/paver-clip-proximity.html';
 		header = "Clip Proximity";
+		break;
+	}
+
+	case 'polygons-timeline': {
+		fn = simplify;
+		datasets_func = 'vectors';
+		template = 'datasets/paver-simplify.html';
+		header = "Simplify";
 		break;
 	}
 
@@ -635,6 +647,35 @@ async function crop_raster($, payload, { paver_modal }) {
 					FLASH.push({
 						"type":    'error',
 						"title":   "Crop Raster Failed",
+						"message": "Inspect the error messages",
+					});
+
+					return r;
+				}
+
+				return API.patch('datasets', { "id": `eq.${$.id}` }, {
+					"payload": {
+						"processed_files": [{
+							"func":     'raster',
+							"endpoint": `https://wri-public-data.s3.amazonaws.com/EnergyAccess/paver-outputs/${r.raster}`,
+						}],
+					},
+				});
+			});
+	};
+};
+
+async function simplify($, payload, { paver_modal }) {
+	return function() {
+		return submit('simplify', payload, { paver_modal })
+			.then(r => r.json())
+			.then(async r => {
+				if (r.error) {
+					flag($.id);
+
+					FLASH.push({
+						"type":    'error',
+						"title":   "Simplify Failed",
 						"message": "Inspect the error messages",
 					});
 
