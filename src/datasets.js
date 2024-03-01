@@ -261,6 +261,12 @@ export const model = {
 								"required":  true,
 								"hint":      "Refers to the radius size. Only for point features.",
 							},
+							"fill": {
+								"type":      "colour",
+								"droppable": true,
+								"required":  true,
+								"hint":      "Refers to the fill colour. Use is discouraged - features might get confused with other datasets'.",
+							},
 							"stroke": {
 								"type":      "colour",
 								"droppable": true,
