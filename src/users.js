@@ -6,7 +6,7 @@ if (!['leader', 'manager', 'director', 'root'].includes(claims['role']))
 	qs(`nav#dt-nav a[href="${dt.config.base}/?model=users"]`).remove();
 
 const url = new URL(location);
-url.searchParams.set('world', 'ea');
+url.searchParams.set('world', 'eae');
 history.replaceState(null, null, url);
 
 import * as _u from 'https://noop.nu/auth/admin/src/users.js';

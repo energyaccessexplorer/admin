@@ -358,7 +358,7 @@ export const model = {
 			"schema":   {
 				"range": {
 					"type":    "select",
-					"options": ["", "single", "double", "multiselect"],
+					"options": ["", "single", "double", "multiselect", "none"],
 					"default": "double",
 					"hint":    "Configuration of scroll range type",
 				},

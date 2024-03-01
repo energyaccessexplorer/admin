@@ -21,6 +21,7 @@ const FLASH = dt.FLASH;
 const API = dt.API;
 
 const url = new URL(location);
+
 const dataset_id = url.searchParams.get('id');
 const geography_id = url.searchParams.get('geography_id');
 const category_id = url.searchParams.get('category_id');
@@ -258,7 +259,7 @@ export const model = {
 								"type":      "number",
 								"droppable": true,
 								"required":  true,
-								"hint":      "Refers to the radius size only for point features.",
+								"hint":      "Refers to the radius size. Only for point features.",
 							},
 							"stroke": {
 								"type":      "colour",
@@ -764,14 +765,9 @@ async function source_files_validate(newdata, data) {
 	return ok;
 };
 
-function parse_csv(x) {
-	return x
-		.split(/\r?\n/)
-		.filter(r => r.trim() !== "")
-		.map(e => e.split(","));
-};
-
 async function vectors_csv_validate(newdata, data) {
+	if (!maybe(data, 'category', 'csv')) return true;
+
 	if (!data._features) return true;
 
 	await fetch(maybe(newdata['source_files'].find(s => s.func === 'csv'), 'endpoint'))
@@ -1112,4 +1108,11 @@ function show_modal(data, input) {
 	};
 
 	l.prepend(table(), image(), geojson());
+};
+
+function parse_csv(x) {
+	return x
+		.split(/\r?\n/)
+		.filter(r => r.trim() !== "")
+		.map(e => e.split(","));
 };
