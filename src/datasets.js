@@ -389,6 +389,12 @@ export const model = {
 			"label":    "Last update by",
 			"editable": false,
 		},
+
+		"notification_interval": {
+			"type":     "string",
+			"label":    "Notification Interval. Every:",
+			"pattern":  "^[0-9]{1,2} (day|week|month|year)s?$",
+		},
 	},
 
 	"parse": function(m) {
@@ -568,6 +574,18 @@ export const model = {
 			};
 
 			ig.prepend(button);
+		},
+		async function(object, form) {
+			const follows = await API.get('follows', { "dataset_id": `eq.${object.data.id}` });
+			const d = ce('details');
+			d.append(ce('summary', ce('label', 'follows')));
+
+			const x = ce('div', null, { "id": "badges" });
+			x.append(...follows.map(f => ce('span', f.email, { "class": "badge" })));
+
+			d.append(x);
+
+			qs('fieldset', form).append(d);
 		},
 	],
 };
