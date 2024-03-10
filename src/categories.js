@@ -277,6 +277,7 @@ export const model = {
 			"type":     "object",
 			"label":    "Analysis configuration",
 			"nullable": true,
+			"validate": analysis_validate,
 			"schema":   {
 				"index": {
 					"type":     "select",
@@ -503,6 +504,28 @@ function within(i,d) {
 		and(d['min'] < d['max'], and(i['min'] >= d['min'], i['max'] <= d['max'])),
 		and(d['min'] > d['max'], and(i['min'] <= d['min'], i['max'] >= d['max'])),
 	);
+};
+
+function analysis_validate(newdata, data) {
+	return and(
+		analysis_intervals_validate(newdata, data),
+	);
+};
+
+function analysis_intervals_validate(newdata) {
+	const r = maybe(newdata, 'analysis', 'intervals');
+	if (!r) return true;
+
+	if (r.length !== 6) {
+		err(
+			"Analysis configuration error",
+			"analysis->intervals should have length 6 to match EAE's analysis colour scheme.",
+		);
+
+		return false;
+	}
+
+	return true;
 };
 
 function domain_init_validate(newdata, data) {
