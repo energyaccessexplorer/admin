@@ -97,17 +97,29 @@
       const dtnav = document.querySelector('nav#dt-nav');
       if (!dtnav) return;
 
-      const r = jwt_decode(localStorage['token']).role;
-      if (['leader', 'manager', 'director', 'root'].includes(r)) {
-        qs('#navigation-links', nav).append(ce('a', "Users", {
-          "href": "./?model=users",
-          "class": "toggleable",
-        }));
+      const links = qs('#navigation-links', nav);
 
-        qs('#navigation-links', nav).append(ce('a', "System Status", {
-          "href": "./?model=status",
-          "class": "toggleable",
-        }));
+      const token = localStorage['token'];
+
+      if (token) {
+        const r = jwt_decode(token).role;
+        if (['leader', 'manager', 'director', 'root'].includes(r)) {
+          links.append(ce('a', "Users", {
+            "href": "./?model=users",
+            "class": "toggleable",
+          }));
+
+          links.append(ce('a', "System Status", {
+            "href": "./?model=status",
+            "class": "toggleable",
+          }));
+        }
+
+        if (r)
+          links.append(ce('a', "Log Out", {
+            "href": "./?login",
+            "class": "toggleable",
+          }));
       }
 
       dtnav.remove();
