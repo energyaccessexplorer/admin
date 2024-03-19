@@ -391,9 +391,10 @@ export const model = {
 		},
 
 		"notification_interval": {
-			"type":     "string",
-			"label":    "Notification Interval. Every:",
-			"pattern":  "^[0-9]{1,2} (day|week|month|year)s?$",
+			"type":        "string",
+			"label":       "Notification Interval. Every:",
+			"pattern":     "^[0-9]{1,2} (day|week|month|year)s?$",
+			"placeholder": "eg: \"5 days\", \"2 weeks\", \"1 year\"",
 		},
 	},
 
@@ -578,7 +579,14 @@ export const model = {
 		async function(object, form) {
 			const follows = await API.get('follows', { "dataset_id": `eq.${object.data.id}` });
 			const d = ce('details');
-			d.append(ce('summary', ce('label', 'follows')));
+			const s = ce('summary', ce('label', 'follows'));
+
+			const a = ce('a', ce('i', null, { "class": "bi-pencil-fill" }));
+			a.style = "margin-left: 1em;";
+			a.onclick = _ => window.location = `./?model=follows&dataset_id=${object.data.id}`;
+
+			s.append(a);
+			d.append(s);
 
 			const x = ce('div', null, { "id": "badges" });
 			x.append(...follows.map(f => ce('span', f.email, { "class": "badge" })));
