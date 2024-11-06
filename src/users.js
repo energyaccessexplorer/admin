@@ -1,8 +1,8 @@
-import * as _u from 'https://noop.nu/auth/admin/src/users.js';
+import * as _u from './base_user.js';
 
-import pgrest from 'https://noop.nu/dist/duck-tape/lib/pgrest.js';
+import pgrest from './pgrest.js';
 
-dt.API.base = dt.config.auth_server + "/admin/api";
+dt.API.base = dt.config.api;
 
 const claims = jwt_decode(localStorage.getItem('token'));
 
@@ -10,7 +10,6 @@ if (!['leader', 'manager', 'director', 'root'].includes(claims['role']))
 	qs(`nav#dt-nav a[href="${dt.config.base}/?model=users"]`).remove();
 
 const url = new URL(location);
-url.searchParams.set('world', 'eae');
 history.replaceState(null, null, url);
 
 _u.model['edit_modal_jobs'].push(
@@ -27,6 +26,7 @@ _u.model['edit_modal_jobs'].push(
 		d.append(ce('summary', ce('label', 'follows')));
 
 		const x = ce('div', null, { "id": "badges" });
+		console.log('DATASET:', f)
 		x.append(...follows.map(f => ce(
 			'span',
 			ce('a', f.dataset.info, { "href": `./?model=datasets&id=${f.dataset_id}&edit_model=${f.dataset_id}` }),
@@ -40,7 +40,7 @@ _u.model['edit_modal_jobs'].push(
 );
 
 _u.collection['parse'] = function($) {
-	const a = $['about'] || {};
+	const a = $['data'] || {};
 
 	$._country = a['country'];
 	$._aoi = maybe(a, 'areas_of_interest', 'length') ? a['areas_of_interest'][0] : a['areas_of_interest'];
@@ -60,8 +60,7 @@ _u.collection['endpoint'] = {
 		'id',
 		'email',
 		'role',
-		'world',
-		'about',
+		'data',
 	],
 	"order": 'email.asc',
 };

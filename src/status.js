@@ -42,7 +42,7 @@ export const model = {
 };
 
 export const collection = {
-	"endpoint": { "world": "eae" },
+	"endpoint": {},
 	"parse":    model.parse,
 };
 

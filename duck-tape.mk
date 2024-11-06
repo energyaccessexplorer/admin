@@ -1,7 +1,7 @@
 DIST = ./dist
 
 .ifndef DT_BASE
-DT_BASE = "/"
+DT_BASE = "./duck-tape"
 .endif
 
 .ifndef DT_HOST
@@ -24,7 +24,6 @@ dtbuild:
 		| jq '.api = ${DT_API}' \
 		| jq '.logo = ${DT_LOGO}' \
 		| jq '.auth_server = ${AUTH_SERVER}' \
-		| jq '.auth_world = ${AUTH_WORLD}' \
 		| jq '.production = ${DT_PRODUCTION}' \
 		| jq '.upload = ${DT_UPLOAD}' \
 		| jq '.src = ${DT_SRC}' \
