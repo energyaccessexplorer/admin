@@ -58,6 +58,17 @@
         min-width: 1em;
         display: block;
       }
+
+      #canvases {
+        display: flex;
+        flex-flow: row wrap;
+      }
+
+      #canvases canvas {
+        margin: 2em;
+        max-width: 200px;
+        max-height: 600px;
+      }
     </style>
 
     <title>Admin :: Energy Access Explorer</title>
@@ -133,6 +144,13 @@
 
         links.append(ce('a', "System Status", {
           "href": "./?model=status",
+          "class": "toggleable",
+        }));
+      }
+
+      if (['director', 'root'].includes(role)) {
+        links.append(ce('a', "Analytics", {
+          "href": "./?model=analytics",
           "class": "toggleable",
         }));
       }

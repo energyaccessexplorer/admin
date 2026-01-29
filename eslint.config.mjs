@@ -11,6 +11,7 @@ export default [
 			"globals": {
 				...globals.browser,
 				"SELF": "writable",
+				"Chart": "readonly",
 				"dt": "readonly",
 				"jwt_decode": "readonly"
 			},
