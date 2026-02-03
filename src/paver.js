@@ -26,37 +26,42 @@ import * as datasets_module from './datasets.js';
 const FLASH = dt.FLASH;
 const API = dt.API;
 
-async function pavercheck() {
-	fetch(`${dt.config.paver_endpoint}/routines`, {
+export function server_check() {
+	return fetch(`${dt.config.paver_endpoint}/check`, {
 		"method":  'OPTIONS',
 		"headers": {
 			"Authorization": `Bearer ${localStorage.getItem('token')}`,
 		},
 	}).then(r => {
 		if (!r.ok) {
-			const msg = "Paver is not running... :(";
-			FLASH.push({ "title": msg });
-			throw new Error(msg);
+			FLASH.push({
+				"title":   "Could not connect to Paver",
+				"type":    "error",
+				"message": `Status code ${r.status}`,
+				"timeout": 0,
+			});
 		}
+
+		return r.ok;
 	});
 };
 
-function select_attributes($, selected, input) {
+function select_attributes($, payload) {
 	const arr = $._available_properties.map(a => {
 		const o = ce('option', a, { "value": a });
-		if (selected.includes(a)) o.setAttribute('selected', '');
+		if (payload.fields.includes(a)) o.setAttribute('selected', '');
 
 		return o;
 	});
 
-	const s = ce('select', arr, { "multiple": "", "name": "attrs" });
+	const s = ce('select', arr, { "multiple": "", "name": "fields" });
 
 	s.style = `
 width: 200px;
 height: 10rem;
 `;
 
-	s.onchange = _ => input.value = Array.from(s.selectedOptions).map(o => o.value).join(',');
+	s.onchange = _ => payload.fields = Array.from(s.selectedOptions).map(o => o.value);
 
 	return ce('div', s, { "class": "input-group" });
 };
@@ -118,30 +123,32 @@ async function payload_fill($, payload, datasets_func) {
 	].includes($.type)))
 		payload.simplify = maybe(cat, 'vectors', 'paver', 'simplify') || 0;
 
-	payload.config = JSON.stringify(maybe(cat, 'raster', 'paver'));
+	if (maybe(cat, 'raster', 'paver'))
+		payload.config = cat.raster.paver;
+
 	payload.resolution = r.resolution;
 
 	return true;
 };
 
 export async function routine(obj, { edit_modal, pre }) {
-	await pavercheck();
+	if (!await server_check()) return;
 
 	const data = obj.data;
 
 	const payload = {
 		"geographyid":  data.geography_id,
 		"datasetid":    data.id,
-		"dataseturl":   null,
-		"referenceurl": null,
-		"baseurl":      null,
-		"attr":         null,
+		"dataseturl":   undefined,
+		"referenceurl": undefined,
+		"baseurl":      undefined,
+		"attr":         undefined,
 		"fields":       [],
 		"lnglat":       [],
-		"config":       null,
-		"resolution":   null,
-		"simplify":     null,
-		"s3bucket":     null,
+		"config":       undefined,
+		"resolution":   undefined,
+		"simplify":     undefined,
+		"s3bucket":     undefined,
 	};
 
 	// const tree = await API.get('geographies_tree_up', { "id": `eq.${data.geography_id}` }, { "one": true });
@@ -270,16 +277,21 @@ export async function routine(obj, { edit_modal, pre }) {
 
 	const c = paver_modal.content;
 	const f = c.querySelector('form');
+	const p = ce('pre', null, { "id": "infopre" });
+	const b = qs('[type="submit"]', paver_modal.footer);
 
-	c.append(ce('pre', null, { "id": "infopre" }));
+	paver_modal.footer.append(p);
 
 	const go = await fn(data, payload, { paver_modal });
 
-	f.onsubmit = function(e) {
+	f.onsubmit = async function(e) {
 		e.preventDefault();
-		qs('[type="submit"]', paver_modal.footer).setAttribute('disabled', '');
 
-		go()
+		p.innerText = "";
+		b.innerText = "Paving...";
+		b.setAttribute('disabled', '');
+
+		await go()
 			.then(r => r ? ds_patch(data.id, r) : null)
 			.then(r => {
 				const form = qs('form', edit_modal.content);
@@ -380,6 +392,9 @@ export async function routine(obj, { edit_modal, pre }) {
 					await f();
 				}
 			});
+
+		b.removeAttribute('disabled');
+		b.innerText = "Pave it!";
 	};
 
 	paver_modal.show();
@@ -394,12 +409,7 @@ function flag(id) {
 };
 
 async function submit(routine, dataset_id, payload, { paver_modal, pre }) {
-	const body = [];
-
-	for (const p in payload)
-		body.push(encodeURIComponent(p) + "=" + encodeURIComponent(payload[p]));
-
-	const infopre = pre || (paver_modal?.content || document).querySelector('#infopre');
+	const infopre = pre || (paver_modal?.footer || document).querySelector('#infopre');
 
 	const socket_id = uuid();
 
@@ -408,10 +418,10 @@ async function submit(routine, dataset_id, payload, { paver_modal, pre }) {
 	return fetch(`${dt.config.paver_endpoint}/routines?routine=${routine}&socket_id=${socket_id}`, {
 		"method":  'POST',
 		"headers": {
-			"Content-Type":  'application/x-www-form-urlencoded',
+			"Content-Type":  'application/json',
 			"Authorization": `Bearer ${localStorage.getItem('token')}`,
 		},
-		"body": body.join("&"),
+		"body": JSON.stringify(payload),
 	}).then(async r => {
 		if (!r.ok) {
 			const msg = await r.text();
@@ -508,13 +518,9 @@ async function clip_proximity($, payload, { paver_modal }) {
 	payload.fields = Array.from(new Set(payload.fields)).sort();
 
 	if (paver_modal) {
-		const input = paver_modal.content.querySelector('form input[name=fields]');
+		bind(paver_modal.content, { "points": $.type.match(/points/) });
 
-		paver_modal.content.querySelector('form').append(select_attributes($, payload.fields, input));
-		input.value = payload.fields;
-
-		if (!payload.fields.length && !$._available_properties.length)
-			input.removeAttribute('disabled');
+		paver_modal.content.querySelector('form').append(select_attributes($, payload));
 	}
 
 	return function() {
@@ -536,18 +542,11 @@ async function csv_points($, payload, { paver_modal }) {
 	payload.fields = Array.from(new Set(payload.fields)).sort();
 
 	if (paver_modal) {
-		const input = paver_modal.content.querySelector('form input[name=fields]');
-
-		paver_modal.content.querySelector('form').append(select_attributes($, payload.fields, input));
-		input.value = payload.fields;
-
-		if (!payload.fields.length && !$._available_properties.length)
-			input.removeAttribute('disabled');
+		paver_modal.content.querySelector('form').append(select_attributes($, payload));
 	}
 
 	return function() {
 		payload.lnglat = paver_modal.content.querySelector('form input[name=lnglat]').value;
-		payload.fields = paver_modal.content.querySelector('form input[name=fields]').value;
 
 		for (const p of payload.lnglat.split(',')) {
 			if ($._available_properties.indexOf(p) < 0) {

@@ -6,6 +6,7 @@ import {
 } from './extras.js';
 
 import {
+	server_check as paver_server_check,
 	routine as paver_routine,
 } from './paver.js';
 
@@ -510,6 +511,8 @@ export const model = {
 					const d = await r.text();
 					object.data._existing_columns = d.split(/\r?\n/)[0].split(',');
 				});
+
+			if (!await paver_server_check()) return;
 
 			const p = ce('button', ce('i', null, { "class": 'bi-gem', "title": 'Paver' }));
 			p.onclick = _ => paver_routine(object, { edit_modal });
