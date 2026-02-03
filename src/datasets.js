@@ -421,14 +421,22 @@ export const model = {
 	},
 
 	"parse": function(m) {
+		//
+		// raster-mutant
+		// raster-timeline
+		// points-timeline
+		// lines-timeline
+		// table
+		//
 		m.haspaver = [
-			'points',
-			'lines',
-			'raster',
-			'raster-valued',
-			'polygons',
-			'polygons-boundaries',
-			'polygons-timeline',
+			"lines",
+			"points",
+			"polygons",
+			"polygons-boundaries",
+			"polygons-valued",
+			"polygons-timeline",
+			"raster",
+			"raster-valued",
 		].includes(m.type);
 
 		m.deployments = m.deployment.join(',');
@@ -445,24 +453,7 @@ export const model = {
 
 	"edit_modal_jobs": [
 		async function columns_and_paver(object, _, edit_modal) {
-			//
-			// raster
-			// raster-mutant
-			// raster-valued
-			// raster-timeline
-			// points-timeline
-			// lines-timeline
-			// table
-			//
-			if (![
-				"lines",
-				"points",
-				"polygons",
-				"polygons-boundaries",
-				"polygons-valued",
-				"polygons-timeline",
-				"raster",
-			].includes(object.data.type)) return;
+			if (!object.data.haspaver) return;
 
 			const s = maybe(object.data.source_files?.find(f => f.func === 'vectors'), 'endpoint');
 

@@ -212,7 +212,14 @@ export async function routine(obj, { edit_modal, pre }) {
 		break;
 	}
 
-	case 'raster-valued':
+	case 'raster-valued': {
+		datasets_func = 'raster';
+		template = 'datasets/paver-crop-raster.html';
+		fn = crop_raster;
+		header = "Crop Raster";
+		break;
+	}
+
 	case 'raster': {
 		if (data.source_files.find(f => f.func === 'csv')) {
 			fn = csv_raster;
