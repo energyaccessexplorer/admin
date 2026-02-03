@@ -524,6 +524,8 @@ async function clip_proximity($, payload, { paver_modal }) {
 	}
 
 	return function() {
+		payload.dissolve = paver_modal.content.querySelector('form input[name=dissolve]').checked;
+
 		return submit('clip-proximity', $.id, payload, { paver_modal });
 	};
 };
