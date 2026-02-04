@@ -58,31 +58,13 @@
         min-width: 1em;
         display: block;
       }
-
-      #canvases {
-        display: flex;
-        flex-flow: row wrap;
-      }
-
-      #canvases canvas {
-        margin: 2em;
-        max-width: 200px;
-        max-height: 600px;
-      }
     </style>
 
     <title>Admin :: Energy Access Explorer</title>
   </head>
 
-  <body></body>
-
-  <script type="module">
-    import {
-      ce,
-      maybe,
-    } from './lib/helpers.js';
-
-    const nav_html = `
+  <body>
+    <nav>
       <input id="toggle" class="no-desktop" type="checkbox">
 
       <label for="toggle" class="no-desktop">
@@ -104,15 +86,41 @@
         <a href="./?model=categories" class="toggleable">
           Categories
         </a>
-      </div>`;
 
-    const nav = document.createElement('nav');
-    nav.innerHTML = nav_html;
+        <a href="./?model=users" class="toggleable">
+          Users
+        </a>
 
-    let i;
-    i = setInterval(function() {
-      const role = maybe(window.SELF, 'role');
+        <a href="./?model=status" class="toggleable">
+          System Status
+        </a>
 
+        <a href="./?model=analytics" class="toggleable">
+          Analytics
+        </a>
+
+        <a href="./?login" class="toggleable">
+          Log Out
+        </a>
+      </div>
+    </nav>
+  </body>
+
+  <script type="module">
+    import {
+      ce,
+      maybe,
+      qs,
+      tmpl,
+      until,
+    } from './lib/helpers.js';
+
+    document.addEventListener("DOMContentLoaded", async function() {
+      const dtnav = document.querySelector('nav#dt-nav');
+      if (!dtnav) return;
+      dtnav.remove();
+
+      let role; await until(_ => role = maybe(window.SELF, 'role'));
       if (!role) return;
 
       if (['guest'].includes(role)) {
@@ -127,45 +135,21 @@
 
         document.body.replaceChildren(p);
 
-        clearInterval(i);
         return;
       }
 
-      const dtnav = document.querySelector('nav#dt-nav');
-      if (!dtnav) return;
+      const links = qs('#navigation-links');
 
-      const links = nav.querySelector('#navigation-links');
-
-      if (['leader', 'manager', 'director', 'root'].includes(role)) {
-        links.append(ce('a', "Users", {
-          "href": "./?model=users",
-          "class": "toggleable",
-        }));
-
-        links.append(ce('a', "System Status", {
-          "href": "./?model=status",
-          "class": "toggleable",
-        }));
+      if (!['leader', 'manager', 'director', 'root'].includes(role)) {
+        qs('[href="./?model=users"]', links).remove();
+        qs('[href="./?model=status"]', links).remove();
       }
 
-      if (['director', 'root'].includes(role)) {
-        links.append(ce('a', "Analytics", {
-          "href": "./?model=analytics",
-          "class": "toggleable",
-        }));
+      if (!['director', 'root'].includes(role)) {
+        qs('[href="./?model=analytics"]', links).remove();
       }
 
-      links.append(ce('a', "Log Out", {
-        "href": "./?login",
-        "class": "toggleable",
-      }));
-
-      dtnav.remove();
-      document.body.prepend(nav);
-
-      nav.style.display = 'flex';
-
-      clearInterval(i);
-    }, 10);
+      qs('body > nav').style.display = 'flex';
+    });
   </script>
 </html>
