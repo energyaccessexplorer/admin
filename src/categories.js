@@ -238,9 +238,8 @@ export const model = {
 						"simplify": {
 							"type":     "number",
 							"required": true,
-							"step":     "any",
 							"min":      0,
-							"max":      1,
+							"max":      1000,
 							"default":  0,
 							"hint":     "The tolerance value given to the simplification algorithm",
 						},

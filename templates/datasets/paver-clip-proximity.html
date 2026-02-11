@@ -8,6 +8,16 @@
            type="checkbox" />
   </div>
 
+  <div bind-ifnot="points"
+       class="input-group">
+    <label>simplify</label>
+
+    <input name="simplify"
+           type="number"
+           bind-value="simplify"
+           min="0" max="1000" />
+  </div>
+
   <p style="font-size: 0.8em; text-align: left;">
     <strong>Hint:</strong> Hold the CTRL key to toggle items without losing the current selection.<br>
     Hold SHIFT key to select a contiguous range of items.

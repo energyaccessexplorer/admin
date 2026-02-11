@@ -97,9 +97,12 @@ async function payload_fill($, payload, datasets_func) {
 	payload.referenceurl = maybe(refs.processed_files.find(x => x.func === 'vectors'), 'endpoint');
 	payload.baseurl = maybe(refs.processed_files.find(x => x.func === 'raster'), 'endpoint');
 
-	const cat = await API.get('categories', {
+	const cat = $.category = await API.get('categories', {
 		"id":     `eq.${$.category_id}`,
-		"select": ["raster"],
+		"select": [
+			"raster",
+			"vectors",
+		],
 	}, { "one": true });
 
 	if (and($.type.match('raster'), !maybe(cat, 'raster', 'paver'))) {
@@ -115,13 +118,6 @@ async function payload_fill($, payload, datasets_func) {
 
 		return false;
 	}
-
-	if (and([
-		'lines',
-		'polygons',
-		'polygons-timeline',
-	].includes($.type)))
-		payload.simplify = maybe(cat, 'vectors', 'paver', 'simplify') || 0;
 
 	payload.config = maybe(cat, 'raster', 'paver');
 
@@ -522,13 +518,17 @@ async function clip_proximity($, payload, { paver_modal }) {
 	payload.fields = Array.from(new Set(payload.fields)).sort();
 
 	if (paver_modal) {
-		bind(paver_modal.content, { "points": $.type.match(/points/) });
+		bind(paver_modal.content, {
+			"points":   $.type.match(/points/),
+			"simplify": maybe($.category, 'vectors', 'paver', 'simplify') || 0,
+		});
 
 		paver_modal.content.querySelector('form').append(select_attributes($, payload));
 	}
 
 	return function() {
 		payload.dissolve = paver_modal.content.querySelector('form input[name=dissolve]')?.checked;
+		payload.simplify = +paver_modal.content.querySelector('form input[name=simplify]').value;
 
 		return submit('clip-proximity', $.id, payload, { paver_modal });
 	};
