@@ -123,8 +123,7 @@ async function payload_fill($, payload, datasets_func) {
 	].includes($.type)))
 		payload.simplify = maybe(cat, 'vectors', 'paver', 'simplify') || 0;
 
-	if (maybe(cat, 'raster', 'paver'))
-		payload.config = cat.raster.paver;
+	payload.config = maybe(cat, 'raster', 'paver');
 
 	payload.resolution = r.resolution;
 
@@ -463,10 +462,15 @@ ${msg}`;
 };
 
 async function outline($, payload, { paver_modal }) {
-	if (paver_modal)
-		bind(paver_modal.content, { "outline": true });
+	if (paver_modal) {
+		bind(paver_modal.content, {
+			"_available_properties": $._available_properties.map(v => ({ v })),
+		});
+	}
 
 	return function() {
+		payload.attr = paver_modal.content.querySelector('form [name=attr]').value;
+
 		return submit('admin-boundaries', $.id, payload, { paver_modal })
 			.then(r => {
 				if (!r) return null;
@@ -494,7 +498,7 @@ async function admin_boundaries($, payload, { paver_modal }) {
 	}
 
 	return function() {
-		payload.attr = paver_modal.content.querySelector('form input[name=attr]').value;
+		payload.attr = paver_modal.content.querySelector('form [name=attr]').value;
 
 		return submit('admin-boundaries', $.id, payload, { paver_modal })
 			.then(r => r ? ds_patch($.id, r) : null);
@@ -524,7 +528,7 @@ async function clip_proximity($, payload, { paver_modal }) {
 	}
 
 	return function() {
-		payload.dissolve = paver_modal.content.querySelector('form input[name=dissolve]').checked;
+		payload.dissolve = paver_modal.content.querySelector('form input[name=dissolve]')?.checked;
 
 		return submit('clip-proximity', $.id, payload, { paver_modal });
 	};
