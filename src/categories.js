@@ -266,6 +266,13 @@ export const model = {
 			"nullable": true,
 			"validate": analysis_validate,
 			"schema":   {
+				"aggregation": {
+					"type":     "select",
+					"options":  ['', "AVG", "SUM"],
+					"default":  '',
+					"hint":     "Aggregation func used in the admin boundaries analysis",
+				},
+
 				"index": {
 					"type":     "select",
 					"required": true,
