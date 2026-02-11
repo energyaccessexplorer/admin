@@ -488,9 +488,8 @@ async function admin_boundaries($, payload, { paver_modal }) {
 	if (paver_modal) {
 		bind(paver_modal.content, {
 			"_available_properties": $._available_properties.map(v => ({ v })),
+			"attr":                  maybe($, 'vectors_configuration', 'vectors_id'),
 		});
-
-		paver_modal.content.querySelector('form select[name=attr]').value = maybe($, 'vectors_configuration', 'vectors_id');
 	}
 
 	return function() {
@@ -519,11 +518,10 @@ async function clip_proximity($, payload, { paver_modal }) {
 
 	if (paver_modal) {
 		bind(paver_modal.content, {
-			"points":   $.type.match(/points/),
-			"simplify": maybe($.category, 'vectors', 'paver', 'simplify') || 0,
+			"points":     $.type.match(/points/),
+			"simplify":   maybe($.category, 'vectors', 'paver', 'simplify') || 0,
+			"selectable": select_attributes($, payload),
 		});
-
-		paver_modal.content.querySelector('form').append(select_attributes($, payload));
 	}
 
 	return function() {
@@ -548,7 +546,9 @@ async function csv_points($, payload, { paver_modal }) {
 	payload.fields = Array.from(new Set(payload.fields)).sort();
 
 	if (paver_modal) {
-		paver_modal.content.querySelector('form').append(select_attributes($, payload));
+		bind(paver_modal.content, {
+			"selectable": select_attributes($, payload),
+		});
 	}
 
 	return function() {
@@ -590,13 +590,8 @@ async function csv_raster($, payload, { paver_modal }) {
 	if (paver_modal) {
 		bind(paver_modal.content, {
 			"_available_properties": $._available_properties.map(v => ({ v })),
+			"attr":                  payload.attr,
 		});
-
-		const input = paver_modal.content.querySelector('form select[name=attr]');
-		input.value = payload.attr;
-
-		if (payload.attr)
-			input.removeAttribute('disabled');
 	}
 
 	return function() {
