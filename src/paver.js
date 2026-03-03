@@ -516,17 +516,21 @@ async function clip_proximity($, payload, { paver_modal }) {
 
 	payload.fields = Array.from(new Set(payload.fields)).sort();
 
+	const points = $.type.match(/points/);
+
 	if (paver_modal) {
 		bind(paver_modal.content, {
-			"points":     $.type.match(/points/),
+			"points":     points,
 			"simplify":   maybe($.category, 'vectors', 'paver', 'simplify') || 0,
 			"selectable": select_attributes($, payload),
 		});
 	}
 
 	return function() {
-		payload.dissolve = paver_modal.content.querySelector('form input[name=dissolve]')?.checked;
-		payload.simplify = +paver_modal.content.querySelector('form input[name=simplify]').value;
+		if (!points) {
+			payload.dissolve = paver_modal.content.querySelector('form input[name=dissolve]').checked;
+			payload.simplify = paver_modal.content.querySelector('form input[name=simplify]').value;
+		}
 
 		return submit('clip-proximity', $.id, payload, { paver_modal });
 	};
