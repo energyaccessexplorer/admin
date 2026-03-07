@@ -495,8 +495,7 @@ async function admin_boundaries($, payload, { paver_modal }) {
 	return function() {
 		payload.attr = paver_modal.content.querySelector('form [name=attr]').value;
 
-		return submit('admin-boundaries', $.id, payload, { paver_modal })
-			.then(r => r ? ds_patch($.id, r) : null);
+		return submit('admin-boundaries', $.id, payload, { paver_modal });
 	};
 };
 
@@ -527,10 +526,8 @@ async function clip_proximity($, payload, { paver_modal }) {
 	}
 
 	return function() {
-		if (!points) {
-			payload.dissolve = paver_modal.content.querySelector('form input[name=dissolve]').checked;
-			payload.simplify = paver_modal.content.querySelector('form input[name=simplify]').value;
-		}
+		payload.dissolve = points ? false :  paver_modal.content.querySelector('form input[name=dissolve]').checked;
+		payload.simplify = points ?   0   : +paver_modal.content.querySelector('form input[name=simplify]').value;
 
 		return submit('clip-proximity', $.id, payload, { paver_modal });
 	};
