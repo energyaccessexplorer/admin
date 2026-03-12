@@ -85,8 +85,17 @@ export const collection = {
 async function bulk_insert(dataset) {
 	const users = await dt.API.get('users', {
 		"select": ["id", "email", "role"],
-		"order":  ["role", "email"],
+		"order":  ["role.desc", "email"],
+		"role":   "not.in.(director,root)",
 	});
+
+	const existing = dt.collections.datasets_permissions.objects.map(x => x.data);
+
+	for (const e of existing) {
+		let u;
+		if (u = users.find(x => x.id === e.user_id))
+			users.splice(users.indexOf(u), 1);
+	}
 
 	const content = bind(
 		await remote_tmpl("datasets_permissions/bulk-insert.html"),
@@ -100,10 +109,10 @@ async function bulk_insert(dataset) {
 
 	function submit() {
 		const type = qs('select[name=type]', m.content).value;
-		qsa('input:checked', m.content, true).forEach(i => {
-			const user_id = i.value;
-			dt.API.post('datasets_permissions', null, { "payload": { dataset_id, type, user_id }});
-		});
+		Promise.all(
+			qsa('input:checked', document.body, true)
+				.map(i => dt.API.post('datasets_permissions', null, { "payload": { "user_id": i.value, dataset_id, type }})),
+		).then(r => { if (r.filter(x => x !== null).length) location.reload(); });
 	};
 
 	m.show();
@@ -119,11 +128,9 @@ export async function init() {
 
 	until(_ => qs('body main header .actions-drawer'))
 		.then(_ => {
-			const a = ce('button', ce('i', null, { "class": "bi-lock", "title": 'Bulk insert' }));
+			const a = ce('button', ce('i', null, { "class": "bi-list-check", "title": 'Bulk insert' }));
 			a.onclick = _ => bulk_insert(dataset);
 			qs('body main header .actions-drawer').append(a);
-
-			bulk_insert(dataset);
 		});
 
 	return true;
