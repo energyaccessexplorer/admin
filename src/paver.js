@@ -635,7 +635,7 @@ async function subgeography(r, { results, cid, vectors, csv, obj, resolution }) 
 	const g = new dt.object({
 		"module": dt.modules['geographies'],
 		"data":   {
-			"name":       r[csv.value],
+			"name":       r[csv.column],
 			"parent_id":  obj.id,
 			"adm":        obj.adm + 1,
 			"resolution": parseInt(resolution),
@@ -691,9 +691,13 @@ export async function subgeographies(obj, { vectors, csv }) {
 	const payload = {
 		"dataseturl": vectors.endpoint,
 		"attr":       vectors.id,
+		"s3bucket":   "world",
 	};
+	// TODO: fetch the proper s3bucket above...
 
 	const table = await fetch(csv.endpoint).then(r => r.text()).then(r => csvParse(r));
+	csv.id = table.columns[0];
+
 	const shapes = await fetch(vectors.endpoint).then(r => r.json());
 	const cid = (await API.get('categories', { "name": "eq.outline", 'select': ['id'] }, { "one": true }))['id'];
 

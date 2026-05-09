@@ -150,12 +150,11 @@ async function generate_subgeographies() {
 
 	paver.subgeographies(this, {
 		"csv": {
-			"id":       maybe(div1, 'configuration', 'polygons_valued_columns', 'key'),
-			"value":    maybe(div1, 'configuration', 'polygons_valued_columns', 'value'),
+			"column":   maybe(div1, 'vectors_configuration', 'csv_column'),
 			"endpoint": div1.source_files.find(f => f.func === 'csv').endpoint,
 		},
 		"vectors": {
-			"id":       maybe(div1, 'configuration', 'vectors_id'),
+			"id":       maybe(div1, 'vectors_configuration', 'vectors_id'),
 			"endpoint": div1.source_files.find(f => f.func === 'vectors').endpoint,
 		},
 	});
