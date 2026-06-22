@@ -1,0 +1,66 @@
+name: DEPLOY
+
+on:
+  push:
+    branches: [ trunk ]
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: sudo apt-get install -y bmake curl jq rsync
+
+      - name: Build default.mk
+        run: |
+          cat > default.mk <<'EOF'
+          # Default configuration values
+          DT_BASE = "/admin"
+          DT_PRODUCTION = false
+          DT_LOGO = "/admin/lib/images/eae-logo.svg"
+          DT_UPLOAD = "local"
+          DT_SRC = "development"
+          DT_PROJECT = "eae"
+          PAVER_ENDPOINT = "http://eae.localhost/paver"
+          DEPARTER_ENDPOINT = "http://eae.localhost/departer"
+          STATUS_ENDPOINT = "http://eae.localhost/status"
+          BUCKET_ENDPOINT = "http://eae.localhost/bucket"
+          EOF
+
+      - name: Build production.mk from secrets
+        run: |
+          cat > production.mk <<'EOF'
+          # Production environment configuration
+          DT_BASE = "/admin"
+          DT_HOST = "ubuntu@${{ vars.DEPLOY_HOST }}"
+          DT_DEST = "/var/www/html/website/admin"
+          DT_API = "${{ vars.DT_API }}"
+          AUTH_SERVER = "${{ vars.AUTH_SERVER }}"
+          AUTH_WORLD = "${{ vars.AUTH_WORLD }}"
+          DT_PRODUCTION = "${{ vars.DT_PRODUCTION }}"
+          PAVER_ENDPOINT = "${{ vars.PAVER_ENDPOINT }}"
+          DEPARTER_ENDPOINT = "${{ vars.DEPARTER_ENDPOINT }}"
+          BUCKET_ENDPOINT = "${{ vars.BUCKET_ENDPOINT }}"
+          EOF
+
+      - name: Set up SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p ${{ vars.DEPLOY_PORT }} -H ${{ vars.DEPLOY_HOST }} >> ~/.ssh/known_hosts 2>/dev/null || true
+          cat <<- EOF >> ~/.ssh/config
+          	Host ${{ vars.DEPLOY_HOST }}
+          		HostName ${{ vars.DEPLOY_HOST }}
+          		Port ${{ vars.DEPLOY_PORT }}
+          		User ${{ vars.DEPLOY_USER }}
+          		IdentityFile ~/.ssh/deploy_key
+          		StrictHostKeyChecking no
+          EOF
+
+      - name: Build and deploy
+        run: |
+          bmake env=production build sync

@@ -2,12 +2,17 @@ import {
 	ce,
 	maybe,
 	qs,
+	until,
 } from '../lib/helpers.js';
 
-const claims = jwt_decode(localStorage.getItem('token'));
-
-if (!['leader', 'manager', 'director', 'root'].includes(claims['role']))
-	qs(`nav#dt-nav a[href="${dt.config.base}/?model=users"]`).remove();
+// Use the DB role from SELF, not the JWT (always "guest"); wait for it since
+// pre_view sets SELF after this module imports.
+until(_ => maybe(window.SELF, 'role'))
+	.then(role => {
+		if (!['leader', 'manager', 'director', 'root'].includes(role))
+			qs(`nav#dt-nav a[href="${dt.config.base}/?model=users"]`)?.remove();
+	})
+	.catch(() => {});
 
 export const model = {
 	"main": "email",

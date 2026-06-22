@@ -3,7 +3,7 @@ import js from "@eslint/js";
 
 export default [
 	{
-		"ignores": ["lib/*.js"],
+		"ignores": ["lib/*.js", "src/duck-tape.js"],
 	},
 	js.configs.recommended,
 	{

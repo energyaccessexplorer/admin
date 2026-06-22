@@ -45,6 +45,8 @@ EOF
 		continue
 	fi
 
+	mkdir -p "$DEST/$(dirname "$target")"
+
 	if curl -L "$origin" --silent --fail --output "$DEST/$target"; then
 		printline "$target"
 	else

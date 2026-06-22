@@ -5,6 +5,9 @@ pgrest.js	https://gitlab.com/noop.nu/web-toolbelt/-/raw/main/pgrest.js
 helpers.js	https://gitlab.com/noop.nu/web-toolbelt/-/raw/main/helpers.js
 bubblemessage.js	https://gitlab.com/noop.nu/web-toolbelt/-/raw/main/bubblemessage.js
 bind.js	https://gitlab.com/noop.nu/web-toolbelt/-/raw/main/bind.js
+bootstrap-icons.css	https://cdn.jsdelivr.net/npm/bootstrap-icons@latest/font/bootstrap-icons.css
+fonts/bootstrap-icons.woff2	https://cdn.jsdelivr.net/npm/bootstrap-icons@latest/font/fonts/bootstrap-icons.woff2
+fonts/bootstrap-icons.woff	https://cdn.jsdelivr.net/npm/bootstrap-icons@latest/font/fonts/bootstrap-icons.woff
 fonts/lato.woff2	https://fonts.gstatic.com/s/lato/v14/S6uyw4BMUTPHjx4wXg.woff2
 fonts/lato-light.woff2	https://fonts.gstatic.com/s/lato/v14/S6u9w4BMUTPHh7USSwiPGQ.woff2
 fonts/lato-bold.woff2	https://fonts.gstatic.com/s/lato/v14/S6u9w4BMUTPHh6UVSwiPGQ.woff2

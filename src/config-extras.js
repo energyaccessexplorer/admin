@@ -2,10 +2,6 @@
 // this file will be "cat'ed" with another "config" is there. See the duck-tape.mk
 
 Object.assign(config, {
-	"paver_endpoint":      "http://eae.localhost/paver",
-	"departer_endpoint":   "http://eae.localhost/departer",
-	"status":              "http://eae.localhost/status",
-	"bucket":              "http://eae.localhost/bucket",
 	"storage_track_files": false,
 	"storage_use_prefix":  true,
 	"landing":             config.base + "/?model=geographies",
@@ -18,7 +14,7 @@ Object.assign(config, {
 			window.SELF = u;
 		} catch(_err) {
 			console.warn("Failed to fetch SELF (this might be OK)", _err);
-			window.SELF = { "data": { "circles": [], "envs": [] } };
+			window.SELF = { "data": { "circles": [], "envs": [] }, "role": "guest" };
 		}
 	},
 });
