@@ -34,13 +34,14 @@ jobs:
         run: |
           cat > production.mk <<'EOF'
           # Production environment configuration
-          DT_BASE = "/admin"
-          DT_HOST = "ubuntu@${{ vars.DEPLOY_HOST }}"
-          DT_DEST = "/var/www/html/website/admin"
+          DT_BASE = "${{ vars.DT_BASE }}"
+          DT_HOST = "${{ vars.DEPLOY_USER }}@${{ vars.DEPLOY_HOST }}"
+          DT_DEST = "${{ vars.DT_DEST }}"
           DT_API = "${{ vars.DT_API }}"
           AUTH_SERVER = "${{ vars.AUTH_SERVER }}"
           AUTH_WORLD = "${{ vars.AUTH_WORLD }}"
           DT_PRODUCTION = "${{ vars.DT_PRODUCTION }}"
+          DT_UPLOAD = "${{ vars.DT_UPLOAD }}"
           PAVER_ENDPOINT = "${{ vars.PAVER_ENDPOINT }}"
           DEPARTER_ENDPOINT = "${{ vars.DEPARTER_ENDPOINT }}"
           BUCKET_ENDPOINT = "${{ vars.BUCKET_ENDPOINT }}"
