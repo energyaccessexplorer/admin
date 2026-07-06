@@ -631,13 +631,13 @@ async function simplify($, payload, { paver_modal }) {
 	};
 };
 
-async function subgeography(r, { results, cid, vectors, csv, obj, resolution }) {
+async function subgeography(r, { results, cid, vectors, csv, obj, resolution, level }) {
 	const g = new dt.object({
 		"module": dt.modules['geographies'],
 		"data":   {
 			"name":       r[csv.column],
 			"parent_id":  obj.id,
-			"adm":        obj.adm + 1,
+			"adm":        obj.adm + level,
 			"resolution": parseInt(resolution),
 			"circle":     obj.circle,
 			"deployment": ['protected'],
@@ -687,19 +687,23 @@ async function subgeography(r, { results, cid, vectors, csv, obj, resolution }) 
 		.then(e => e());
 };
 
-export async function subgeographies(obj, { vectors, csv }) {
-	const payload = {
-		"dataseturl": vectors.endpoint,
-		"attr":       vectors.id,
-		"s3bucket":   "world",
+async function load_division(division) {
+	const ds = await API.get('datasets', { "id": 'eq.' + division.dataset_id }, { "one": true });
+
+	const csv = {
+		"column":   maybe(ds, 'vectors_configuration', 'csv_column'),
+		"endpoint": ds.source_files.find(f => f.func === 'csv').endpoint,
 	};
-	// TODO: fetch the proper s3bucket above...
+
+	const vectors = {
+		"id":       maybe(ds, 'vectors_configuration', 'vectors_id'),
+		"endpoint": ds.source_files.find(f => f.func === 'vectors').endpoint,
+	};
 
 	const table = await fetch(csv.endpoint).then(r => r.text()).then(r => csvParse(r));
-	csv.id = table.columns[0];
+	csv.id = table.columns.includes(vectors.id) ? vectors.id : table.columns[0];
 
 	const shapes = await fetch(vectors.endpoint).then(r => r.json());
-	const cid = (await API.get('categories', { "name": "eq.outline", 'select': ['id'] }, { "one": true }))['id'];
 
 	if (table.length !== shapes.features.length)
 		throw new Error("different lengths. ciao.");
@@ -709,6 +713,12 @@ export async function subgeographies(obj, { vectors, csv }) {
 			throw new Error(`vectors_id ${vectors.id} and csv_id ${csv.id} don't corelate`);
 	}
 
+	return { csv, vectors, table };
+};
+
+export async function subgeographies(obj, { divisions }) {
+	const cid = (await API.get('categories', { "name": "eq.outline", 'select': ['id'] }, { "one": true }))['id'];
+
 	const paver_modal = new modal({
 		"content": await remote_tmpl("geographies/paver-subgeographies.html"),
 	});
@@ -716,17 +726,56 @@ export async function subgeographies(obj, { vectors, csv }) {
 	const c = paver_modal.content;
 	const f = c.querySelector('form');
 
+	const level_select = qs('[name=admlevel]', f);
+	const name_input = qs('[name=subgeography_name]', f);
+	const name_list = qs('datalist', f);
+
+	level_select.append(...divisions.map(d => ce('option', d.name, { "value": d.level })));
+
+	let current = null;
+
+	async function select_level() {
+		current = null;
+		name_input.value = "";
+		name_list.replaceChildren();
+
+		const division = divisions.find(d => d.level === +level_select.value);
+		if (!division) return;
+
+		const loaded = await load_division(division);
+
+		current = Object.assign({ "level": division.level }, loaded);
+
+		name_list.append(...loaded.table.map(r => ce('option', null, { "value": r[loaded.csv.column] })));
+	};
+
+	level_select.onchange = select_level;
+	await select_level();
+
 	paver_modal.show();
 
 	f.onsubmit = e => {
 		e.preventDefault();
 
+		if (!current) return;
+
+		const { level, csv, vectors, table } = current;
+
+		const payload = {
+			"dataseturl": vectors.endpoint,
+			"attr":       vectors.id,
+			"s3bucket":   "world",
+		};
+		// TODO: fetch the proper s3bucket above...
+
+		const resolution = qs('[name=resolution]', f).value;
+		const name = name_input.value.trim();
+		const rows = name ? table.filter(r => r[csv.column] === name) : table;
+
 		submit('subgeographies', obj.id, payload, { paver_modal })
 			.then(async results => {
-				const resolution = paver_modal.content.querySelector('form input[name=resolution]').value;
-
-				for (const r of table)
-					await subgeography(r, { obj, results, csv, cid, vectors, resolution });
+				for (const r of rows)
+					await subgeography(r, { obj, results, csv, cid, vectors, resolution, level });
 			});
 	};
 };
