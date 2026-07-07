@@ -9,5 +9,12 @@ export function listen(id, fn) {
 
 	c.addEventListener("message", e => typeof fn === 'function' ? fn(e.data) : null);
 
-	return new Promise(r => c.addEventListener("open", _ => r()));
+	// Reject (not just resolve-on-open) so a failed handshake surfaces as an
+	// error instead of leaving callers awaiting this forever — see submit()
+	// in paver.js, which awaits this before doing any real work.
+	return new Promise((resolve, reject) => {
+		c.addEventListener("open", () => resolve());
+		c.addEventListener("error", e => reject(new Error("Paver socket connection failed")));
+		c.addEventListener("close", e => reject(new Error(`Paver socket closed before opening (code ${e.code})`)));
+	});
 };

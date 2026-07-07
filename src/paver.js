@@ -465,7 +465,11 @@ async function outline($, payload, { paver_modal }) {
 	}
 
 	return function() {
-		payload.attr = paver_modal.content.querySelector('form [name=attr]').value;
+		// No modal in the headless subgeographies flow (routine() called with
+		// no edit_modal) — fall back to the dataset's own vectors_id then.
+		payload.attr = paver_modal
+			? paver_modal.content.querySelector('form [name=attr]').value
+			: maybe($, 'vectors_configuration', 'vectors_id');
 
 		return submit('admin-boundaries', $.id, payload, { paver_modal })
 			.then(r => {
@@ -667,6 +671,11 @@ async function subgeography(r, { results, cid, vectors, csv, obj, resolution, le
 	});
 	await d.create().then(r => did = r.id);
 
+	// create()'s response has no category(*) association (only GET/PATCH
+	// select it) — patch()'s validators (e.g. vectors_configuration_validate)
+	// read data.category, so it must be fetched before patching.
+	await d.fetch();
+
 	d.patch({
 		"deployment":      ['protected'],
 		"processed_files": [],
@@ -684,7 +693,8 @@ async function subgeography(r, { results, cid, vectors, csv, obj, resolution, le
 
 	return d.fetch()
 		.then(_ => routine(d, {}))
-		.then(e => e());
+		.then(e => e())
+		.then(r => r ? ds_patch(did, r) : null);
 };
 
 async function load_division(division) {
@@ -774,8 +784,19 @@ export async function subgeographies(obj, { divisions }) {
 
 		submit('subgeographies', obj.id, payload, { paver_modal })
 			.then(async results => {
+				if (!results) return;
+
 				for (const r of rows)
 					await subgeography(r, { obj, results, csv, cid, vectors, resolution, level });
+			})
+			.catch(err => {
+				console.error(err);
+
+				FLASH.push({
+					"type":    'error',
+					"title":   "Could not create subgeographies",
+					"message": err.message,
+				});
 			});
 	};
 };

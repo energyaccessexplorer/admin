@@ -6,6 +6,12 @@ Object.assign(config, {
 	"storage_use_prefix":  true,
 	"landing":             config.base + "/?model=geographies",
 	"email_reset":         "https://www.energyaccessexplorer.org/password-reset/",
+
+	// Same-origin, not the build-time host: paver/departer reject cross-origin
+	// requests (their Origin header won't match Host on a worktree/PR-preview
+	// domain), so this must track wherever this page is actually being served.
+	"paver_endpoint":      `${location.origin}/paver`,
+	"departer_endpoint":   `${location.origin}/departer`,
 	"pre_view":            async _ => {
 		try {
 			const id = jwt_decode(localStorage['token']).id;
