@@ -1,0 +1,53 @@
+name: TRUNK TEST DEPLOY
+
+on:
+  push:
+    branches: [ trunk ]
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: sudo apt-get install -y bmake curl jq rsync
+
+      - name: Build test.mk from secrets
+        run: |
+          cat > test.mk <<EOF
+          DT_BASE = "/admin"
+          DT_LOGO = "/admin/lib/images/eae-logo.svg"
+          DT_API = "${{ vars.DT_API }}"
+          AUTH_SERVER = "${{ vars.AUTH_SERVER }}"
+          AUTH_WORLD = "${{ vars.AUTH_WORLD }}"
+          DT_PRODUCTION = "${{ vars.DT_PRODUCTION }}"
+          DT_UPLOAD = "${{ vars.DT_UPLOAD }}"
+          PAVER_ENDPOINT = "${{ vars.PAVER_ENDPOINT }}"
+          DEPARTER_ENDPOINT = "${{ vars.DEPARTER_ENDPOINT }}"
+          BUCKET_ENDPOINT = "${{ vars.BUCKET_ENDPOINT }}"
+          EOF
+
+      - name: Build
+        run: bmake env=test build
+
+      - name: Make destination directory
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host:     ${{ secrets.PR_DEPLOY_HOST }}
+          username: ${{ secrets.PR_DEPLOY_USER }}
+          port:     ${{ secrets.PR_DEPLOY_PORT }}
+          key:      ${{ secrets.PR_DEPLOY_KEY }}
+          script:   mkdir -p ${{ secrets.PR_DEPLOY_PATH }}/trunk/admin
+
+      - name: Deploy
+        uses: burnett01/rsync-deployments@7.1.0
+        with:
+          switches:    --recursive --verbose
+          path:        dist/
+          remote_path: ${{ secrets.PR_DEPLOY_PATH }}/trunk/admin/
+          remote_host: ${{ secrets.PR_DEPLOY_HOST }}
+          remote_port: ${{ secrets.PR_DEPLOY_PORT }}
+          remote_user: ${{ secrets.PR_DEPLOY_USER }}
+          remote_key:  ${{ secrets.PR_DEPLOY_KEY }}
