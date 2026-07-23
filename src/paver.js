@@ -126,6 +126,22 @@ async function payload_fill($, payload, datasets_func) {
 	return true;
 };
 
+async function bucket_for_geography(geography_id) {
+	const tree = await API.get('geographies_tree_up', { "id": `eq.${geography_id}` }, { "one": true });
+
+	let root = {};
+	if (maybe(tree, 'path', 0))
+		root = await API.get('geographies', { "id": `eq.${tree['path'][0]}`, "select": ["name"] }, { "one": true });
+
+	switch (root['name']) {
+	case 'India':
+		return "india";
+
+	default:
+		return "world";
+	}
+};
+
 export async function routine(obj, { edit_modal, pre }) {
 	if (!await server_check()) return;
 
@@ -143,26 +159,8 @@ export async function routine(obj, { edit_modal, pre }) {
 		"config":       undefined,
 		"resolution":   undefined,
 		"simplify":     undefined,
-		"s3bucket":     undefined,
+		"s3bucket":     await bucket_for_geography(data.geography_id),
 	};
-
-	// const tree = await API.get('geographies_tree_up', { "id": `eq.${data.geography_id}` }, { "one": true });
-	//
-	// let root = {};
-	// if (maybe(tree, 'path', 0))
-	// 	root = await API.get('geographies', { "id": `eq.${tree['path'][0]}`, "select": ["name"] }, { "one": true });
-	//
-	// switch (root['name']) {
-	// case 'India':
-	// 	payload["s3bucket"] = "india";
-	// 	break;
-	//
-	// default:
-	// 	payload["s3bucket"] = "world";
-	// 	break;
-	// }
-	//
-	payload["s3bucket"] = "world";
 
 	let fn;
 	let datasets_func;
@@ -689,14 +687,14 @@ async function simplify($, payload, { paver_modal }) {
 	};
 };
 
-async function subgeography(r, { results, cid, vectors, csv, obj, resolution, level }) {
-	const output = results[r[csv.id]];
-	if (!output) throw new Error(`no paver output for ${r[csv.column]}`);
+async function subgeography(row, { results, cid, vectors, csv, obj, resolution, level }) {
+	const output = results[row[csv.id]];
+	if (!output) throw new Error(`no paver output for ${row[csv.column]}`);
 
 	const g = new dt.object({
 		"module": dt.modules['geographies'],
 		"data":   {
-			"name":       r[csv.column],
+			"name":       row[csv.column],
 			"parent_id":  obj.id,
 			"adm":        obj.adm + level,
 			"resolution": parseInt(resolution),
@@ -706,13 +704,13 @@ async function subgeography(r, { results, cid, vectors, csv, obj, resolution, le
 	});
 
 	let gid, did;
-	await g.create().then(r => gid = r.id);
+	await g.create().then(created => gid = created.id);
 
 	if (!gid) throw new Error(`BU ${gid}`);
 
 	const source_files = [{
 		"func":     "vectors",
-		"endpoint": `https://wri-public-data.s3.amazonaws.com/EnergyAccess/paver-outputs/${output}`,
+		"endpoint": output,
 	}];
 
 	const d = new dt.object({
@@ -748,8 +746,8 @@ async function subgeography(r, { results, cid, vectors, csv, obj, resolution, le
 
 	return d.fetch()
 		.then(_ => routine(d, {}))
-		.then(e => e())
-		.then(r => r ? ds_patch(did, r) : null);
+		.then(go => go())
+		.then(result => result ? ds_patch(did, result) : null);
 };
 
 async function load_division(division) {
@@ -852,7 +850,7 @@ export async function subgeographies(obj, { divisions }) {
 
 	paver_modal.show();
 
-	f.onsubmit = e => {
+	f.onsubmit = async e => {
 		e.preventDefault();
 
 		if (!current) return;
@@ -862,9 +860,8 @@ export async function subgeographies(obj, { divisions }) {
 		const payload = {
 			"dataseturl": vectors.endpoint,
 			"attr":       vectors.id,
-			"s3bucket":   "world",
+			"s3bucket":   await bucket_for_geography(obj.id),
 		};
-		// TODO: fetch the proper s3bucket above...
 
 		const resolution = qs('[name=resolution]', f).value;
 		const selected = [...names_select.selectedOptions].map(o => o.value).filter(v => v !== "");
@@ -906,11 +903,10 @@ export async function subgeographies(obj, { divisions }) {
 
 function ds_patch(id, results) {
 	const processed_files = ['vectors', 'raster', 'csv']
-		.filter(e => results[e])
-		.map(e => ({
-			"func":     e,
-			// tolerate paver builds that returned full URLs instead of bare uuids
-			"endpoint": results[e].match(/^https?:\/\//) ? results[e] : `https://wri-public-data.s3.amazonaws.com/EnergyAccess/paver-outputs/${results[e]}`,
+		.filter(func => results[func])
+		.map(func => ({
+			"func":     func,
+			"endpoint": results[func],
 		}));
 
 	return API.patch('datasets', { "id": `eq.${id}` }, { "payload": { processed_files }, "one": true });
