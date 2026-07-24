@@ -1,0 +1,70 @@
+name: TEST DEPLOY
+
+on:
+  push:
+    branches: [ '**', '!trunk', '!production' ]
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Parse ticket tag from commit message
+        id: ticket
+        run: |
+          MSG=${{ toJSON(github.event.head_commit.message) }}
+          if [[ "$MSG" =~ \[Tests\ ([A-Z]+-[0-9]+)\] ]]; then
+            echo "id=${BASH_REMATCH[1]}" >> "$GITHUB_OUTPUT"
+            echo "matched=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "matched=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.ticket.outputs.matched == 'true'
+
+      - name: Install build dependencies
+        if: steps.ticket.outputs.matched == 'true'
+        run: sudo apt-get install -y bmake curl jq rsync
+
+      - name: Build test.mk from secrets
+        if: steps.ticket.outputs.matched == 'true'
+        run: |
+          cat > test.mk <<EOF
+          DT_BASE = "/${{ steps.ticket.outputs.id }}/admin"
+          DT_LOGO = "/${{ steps.ticket.outputs.id }}/admin/lib/images/eae-logo.svg"
+          DT_API = "${{ vars.DT_API }}"
+          AUTH_SERVER = "${{ vars.AUTH_SERVER }}"
+          AUTH_WORLD = "${{ vars.AUTH_WORLD }}"
+          DT_PRODUCTION = "${{ vars.DT_PRODUCTION }}"
+          DT_UPLOAD = "${{ vars.DT_UPLOAD }}"
+          PAVER_ENDPOINT = "${{ vars.PAVER_ENDPOINT }}"
+          DEPARTER_ENDPOINT = "${{ vars.DEPARTER_ENDPOINT }}"
+          BUCKET_ENDPOINT = "${{ vars.BUCKET_ENDPOINT }}"
+          EOF
+
+      - name: Build
+        if: steps.ticket.outputs.matched == 'true'
+        run: bmake env=test build
+
+      - name: Make destination directory
+        if: steps.ticket.outputs.matched == 'true'
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host:     ${{ secrets.PR_DEPLOY_HOST }}
+          username: ${{ secrets.PR_DEPLOY_USER }}
+          port:     ${{ secrets.PR_DEPLOY_PORT }}
+          key:      ${{ secrets.PR_DEPLOY_KEY }}
+          script:   mkdir -p ${{ secrets.PR_DEPLOY_PATH }}/${{ steps.ticket.outputs.id }}/admin
+
+      - name: Deploy
+        if: steps.ticket.outputs.matched == 'true'
+        uses: burnett01/rsync-deployments@7.1.0
+        with:
+          switches:    --recursive --verbose
+          path:        dist/
+          remote_path: ${{ secrets.PR_DEPLOY_PATH }}/${{ steps.ticket.outputs.id }}/admin/
+          remote_host: ${{ secrets.PR_DEPLOY_HOST }}
+          remote_port: ${{ secrets.PR_DEPLOY_PORT }}
+          remote_user: ${{ secrets.PR_DEPLOY_USER }}
+          remote_key:  ${{ secrets.PR_DEPLOY_KEY }}
