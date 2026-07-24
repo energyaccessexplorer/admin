@@ -7,7 +7,7 @@ DT_SRC = "development"
 DT_PROJECT = "eae"
 
 # Service endpoints — localhost defaults; production.mk overrides per environment
-PAVER_ENDPOINT = "http://eae.localhost/paver"
+PAVER_ENDPOINT = ""
 DEPARTER_ENDPOINT = "http://eae.localhost/departer"
 STATUS_ENDPOINT = "http://eae.localhost/status"
 BUCKET_ENDPOINT = "http://eae.localhost/bucket"

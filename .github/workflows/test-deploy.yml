@@ -27,6 +27,17 @@ jobs:
         if: steps.ticket.outputs.matched == 'true'
         run: sudo apt-get install -y bmake curl jq rsync
 
+      - name: Pick paver endpoint (ticket-specific if deployed, else default)
+        if: steps.ticket.outputs.matched == 'true'
+        id: paver
+        run: |
+          TICKET_URL="https://paver.energyaccessexplorer.org/${{ steps.ticket.outputs.id }}/paver"
+          if curl --fail --silent --show-error --max-time 30 -X OPTIONS --output /dev/null "$TICKET_URL/check"; then
+            echo "endpoint=$TICKET_URL" >> "$GITHUB_OUTPUT"
+          else
+            echo "endpoint=${{ vars.PAVER_ENDPOINT }}" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Build test.mk from secrets
         if: steps.ticket.outputs.matched == 'true'
         run: |
@@ -38,7 +49,7 @@ jobs:
           AUTH_WORLD = "${{ vars.AUTH_WORLD }}"
           DT_PRODUCTION = "${{ vars.DT_PRODUCTION }}"
           DT_UPLOAD = "${{ vars.DT_UPLOAD }}"
-          PAVER_ENDPOINT = "${{ vars.PAVER_ENDPOINT }}"
+          PAVER_ENDPOINT = "${{ steps.paver.outputs.endpoint }}"
           DEPARTER_ENDPOINT = "${{ vars.DEPARTER_ENDPOINT }}"
           BUCKET_ENDPOINT = "${{ vars.BUCKET_ENDPOINT }}"
           EOF
