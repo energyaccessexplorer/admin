@@ -408,16 +408,68 @@ async function submit(routine, dataset_id, payload, { paver_modal, pre }) {
 
 	const socket_id = uuid();
 
-	await socket_listen(socket_id, m => infopre ? infopre.innerText += "\n" + m : console.log(m));
+	const log = m => infopre ? infopre.innerText += "\n" + m : console.log(m);
 
-	return fetch(`${dt.config.paver_endpoint}/routines?routine=${routine}&socket_id=${socket_id}`, {
+	await socket_listen(socket_id, log);
+
+	const url = `${dt.config.paver_endpoint}/routines?routine=${routine}&socket_id=${socket_id}&async=1`;
+
+	const opts = {
 		"method":  'POST',
 		"headers": {
 			"Content-Type":  'application/json',
 			"Authorization": `Bearer ${localStorage.getItem('token')}`,
 		},
 		"body": JSON.stringify(payload),
-	}).then(async r => {
+	};
+
+	const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+	// The server answers 202 while the job runs and 200 with the result
+	// when it is done. Re-POSTing the same payload re-attaches to the same
+	// job (idempotency key), so polling doubles as recovery: a dropped
+	// connection — or a server that never got the memo — just tries again.
+	let failures = 0;
+
+	const fail = r => {
+		if (!r?.error) return r;
+
+		flag(dataset_id);
+
+		FLASH.push({
+			"type":    'error',
+			"title":   `${routine} failed`,
+			"message": "Inspect the error messages",
+		});
+
+		return null;
+	};
+
+	while (true) {
+		let r;
+
+		try {
+			r = await fetch(url, opts);
+		} catch (err) {
+			if (++failures > 12) {
+				log(`PAVER UNREACHABLE: ${err.message}`);
+
+				return fail({ "error": `Paver unreachable: ${err.message}` });
+			}
+
+			log(`Connection dropped (${err.message}). Re-attaching...`);
+
+			await sleep(5000);
+			continue;
+		}
+
+		failures = 0;
+
+		if (r.status === 202) {
+			await sleep(5000);
+			continue;
+		}
+
 		if (!r.ok) {
 			const msg = await r.text();
 
@@ -432,29 +484,11 @@ ${r.status} - ${r.statusText}
 
 ${msg}`;
 
-			return {
-				"error": msg,
-				routine,
-				payload,
-			};
+			return fail({ "error": msg });
 		}
 
-		return await r.json();
-	}).then(r => {
-		if (r.error) {
-			flag(dataset_id);
-
-			FLASH.push({
-				"type":    'error',
-				"title":   `${routine} failed`,
-				"message": "Inspect the error messages",
-			});
-
-			return null;
-		}
-
-		return r;
-	});
+		return fail(await r.json());
+	}
 };
 
 async function outline($, payload, { paver_modal }) {
@@ -854,7 +888,8 @@ function ds_patch(id, results) {
 		.filter(e => results[e])
 		.map(e => ({
 			"func":     e,
-			"endpoint": `https://wri-public-data.s3.amazonaws.com/EnergyAccess/paver-outputs/${results[e]}`,
+			// tolerate paver builds that returned full URLs instead of bare uuids
+			"endpoint": results[e].match(/^https?:\/\//) ? results[e] : `https://wri-public-data.s3.amazonaws.com/EnergyAccess/paver-outputs/${results[e]}`,
 		}));
 
 	return API.patch('datasets', { "id": `eq.${id}` }, { "payload": { processed_files }, "one": true });
