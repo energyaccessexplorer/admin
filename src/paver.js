@@ -410,7 +410,9 @@ async function submit(routine, dataset_id, payload, { paver_modal, pre }) {
 
 	const log = m => infopre ? infopre.innerText += "\n" + m : console.log(m);
 
-	await socket_listen(socket_id, log);
+	const listener = socket_listen(socket_id, log);
+
+	await listener.ready;
 
 	const url = `${dt.config.paver_endpoint}/routines?routine=${routine}&socket_id=${socket_id}&async=1`;
 
@@ -429,6 +431,7 @@ async function submit(routine, dataset_id, payload, { paver_modal, pre }) {
 	// when it is done. Re-POSTing the same payload re-attaches to the same
 	// job (idempotency key), so polling doubles as recovery: a dropped
 	// connection — or a server that never got the memo — just tries again.
+	// Tolerates a ~5 minute outage before giving up with an error.
 	let failures = 0;
 
 	const fail = r => {
@@ -445,49 +448,67 @@ async function submit(routine, dataset_id, payload, { paver_modal, pre }) {
 		return null;
 	};
 
-	while (true) {
-		let r;
+	try {
+		while (true) {
+			let r;
 
-		try {
-			r = await fetch(url, opts);
-		} catch (err) {
-			if (++failures > 12) {
-				log(`PAVER UNREACHABLE: ${err.message}`);
+			try {
+				r = await fetch(url, opts);
+			} catch (err) {
+				if (++failures > 60) {
+					log(`PAVER UNREACHABLE: ${err.message}`);
 
-				return fail({ "error": `Paver unreachable: ${err.message}` });
+					return fail({ "error": `Paver unreachable: ${err.message}` });
+				}
+
+				log(`Connection dropped (${err.message}). Re-attaching...`);
+
+				await sleep(5000);
+				continue;
 			}
 
-			log(`Connection dropped (${err.message}). Re-attaching...`);
-
-			await sleep(5000);
-			continue;
-		}
-
-		failures = 0;
-
-		if (r.status === 202) {
-			await sleep(5000);
-			continue;
-		}
-
-		if (!r.ok) {
-			const msg = await r.text();
-
-			if (!infopre) {
-				console.error(msg);
-				return;
+			if (r.status === 202) {
+				failures = 0;
+				await sleep(5000);
+				continue;
 			}
 
-			infopre.innerText += `
+			// gateway errors mean the proxy cannot reach paver (down or
+			// restarting): retry like a dropped connection
+			if (r.status === 502 || r.status === 504) {
+				if (++failures > 60) {
+					log(`PAVER UNREACHABLE: ${r.status}`);
+
+					return fail({ "error": `Paver unreachable: ${r.status}` });
+				}
+
+				log(`Paver unreachable (${r.status}). Re-attaching...`);
+
+				await sleep(5000);
+				continue;
+			}
+
+			if (!r.ok) {
+				const msg = await r.text();
+
+				if (!infopre) {
+					console.error(msg);
+					return;
+				}
+
+				infopre.innerText += `
 
 ${r.status} - ${r.statusText}
 
 ${msg}`;
 
-			return fail({ "error": msg });
-		}
+				return fail({ "error": msg });
+			}
 
-		return fail(await r.json());
+			return fail(await r.json());
+		}
+	} finally {
+		listener.close();
 	}
 };
 
