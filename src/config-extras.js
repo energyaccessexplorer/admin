@@ -7,7 +7,13 @@ Object.assign(config, {
 	"landing":             config.base + "/?model=geographies",
 	"email_reset":         "https://www.energyaccessexplorer.org/password-reset/",
 
+	// Default to same-origin, not the build-time host: paver/departer reject
+	// cross-origin requests (their Origin header won't match Host on a
+	// worktree/PR-preview domain), so these must track wherever this page is
+	// actually being served. The build can still override paver via
+	// config.paver_endpoint.
 	"paver_endpoint":      config.paver_endpoint || `${location.origin}/paver`,
+	"departer_endpoint":   `${location.origin}/departer`,
 	"pre_view":            async _ => {
 		try {
 			const id = jwt_decode(localStorage['token']).id;

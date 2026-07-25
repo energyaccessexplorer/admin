@@ -1,5 +1,18 @@
 <form style="text-align: right;">
   <div class="input-group">
+    <label>Admin level</label>
+    <select name="admlevel" required></select>
+  </div>
+
+  <div class="input-group">
+    <label>Sub-national geography name</label>
+    <input name="subgeography_name"
+           list="subgeography-name-list"
+           placeholder="Choose all" />
+    <datalist id="subgeography-name-list"></datalist>
+  </div>
+
+  <div class="input-group">
     <label>Resolution</label>
     <input name="resolution"
            type="integer"
