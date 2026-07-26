@@ -465,8 +465,7 @@ async function outline($, payload, { paver_modal }) {
 	}
 
 	return function() {
-		// No modal in the headless subgeographies flow (routine() called with
-		// no edit_modal) — fall back to the dataset's own vectors_id then.
+		// no modal in the headless subgeographies flow
 		payload.attr = paver_modal
 			? paver_modal.content.querySelector('form [name=attr]').value
 			: maybe($, 'vectors_configuration', 'vectors_id');
@@ -636,6 +635,9 @@ async function simplify($, payload, { paver_modal }) {
 };
 
 async function subgeography(r, { results, cid, vectors, csv, obj, resolution, level }) {
+	const output = results[r[csv.id]];
+	if (!output) throw new Error(`no paver output for ${r[csv.column]}`);
+
 	const g = new dt.object({
 		"module": dt.modules['geographies'],
 		"data":   {
@@ -655,7 +657,7 @@ async function subgeography(r, { results, cid, vectors, csv, obj, resolution, le
 
 	const source_files = [{
 		"func":     "vectors",
-		"endpoint": `https://wri-public-data.s3.amazonaws.com/EnergyAccess/paver-outputs/${results[r[csv.id]]}`,
+		"endpoint": `https://wri-public-data.s3.amazonaws.com/EnergyAccess/paver-outputs/${output}`,
 	}];
 
 	const d = new dt.object({
@@ -671,9 +673,7 @@ async function subgeography(r, { results, cid, vectors, csv, obj, resolution, le
 	});
 	await d.create().then(r => did = r.id);
 
-	// create()'s response has no category(*) association (only GET/PATCH
-	// select it) — patch()'s validators (e.g. vectors_configuration_validate)
-	// read data.category, so it must be fetched before patching.
+	// patch()'s validators read data.category, which create() doesn't return
 	await d.fetch();
 
 	d.patch({
@@ -737,8 +737,7 @@ export async function subgeographies(obj, { divisions }) {
 	const f = c.querySelector('form');
 
 	const level_select = qs('[name=admlevel]', f);
-	const name_input = qs('[name=subgeography_name]', f);
-	const name_list = qs('datalist', f);
+	const names_select = qs('[name=subgeography_names]', f);
 
 	level_select.append(...divisions.map(d => ce('option', d.name, { "value": d.level })));
 
@@ -746,8 +745,7 @@ export async function subgeographies(obj, { divisions }) {
 
 	async function select_level() {
 		current = null;
-		name_input.value = "";
-		name_list.replaceChildren();
+		names_select.replaceChildren();
 
 		const division = divisions.find(d => d.level === +level_select.value);
 		if (!division) return;
@@ -756,7 +754,7 @@ export async function subgeographies(obj, { divisions }) {
 
 		current = Object.assign({ "level": division.level }, loaded);
 
-		name_list.append(...loaded.table.map(r => ce('option', null, { "value": r[loaded.csv.column] })));
+		names_select.append(...loaded.table.map(row => ce('option', row[loaded.csv.column], { "value": row[loaded.csv.id] })));
 	};
 
 	level_select.onchange = select_level;
@@ -779,15 +777,30 @@ export async function subgeographies(obj, { divisions }) {
 		// TODO: fetch the proper s3bucket above...
 
 		const resolution = qs('[name=resolution]', f).value;
-		const name = name_input.value.trim();
-		const rows = name ? table.filter(r => r[csv.column] === name) : table;
+		const selected = [...names_select.selectedOptions].map(o => o.value);
+		const rows = selected.length ? table.filter(row => selected.includes(row[csv.id])) : table;
 
 		submit('subgeographies', obj.id, payload, { paver_modal })
 			.then(async results => {
 				if (!results) return;
 
-				for (const r of rows)
-					await subgeography(r, { obj, results, csv, cid, vectors, resolution, level });
+				const failed = [];
+
+				for (const row of rows) {
+					try {
+						await subgeography(row, { obj, results, csv, cid, vectors, resolution, level });
+					} catch (err) {
+						console.error(err);
+						failed.push(row[csv.column]);
+					}
+				}
+
+				if (failed.length)
+					FLASH.push({
+						"type":    'error',
+						"title":   "Could not create some subgeographies",
+						"message": failed.join(', '),
+					});
 			})
 			.catch(err => {
 				console.error(err);
