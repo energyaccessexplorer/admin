@@ -715,9 +715,6 @@ async function load_division(division) {
 
 	const shapes = await fetch(vectors.endpoint).then(r => r.json());
 
-	if (table.length !== shapes.features.length)
-		throw new Error("different lengths. ciao.");
-
 	for (const r of table) {
 		if (!shapes.features.find(f => +f.properties[vectors.id] === +r[csv.id]))
 			throw new Error(`vectors_id ${vectors.id} and csv_id ${csv.id} don't corelate`);
@@ -739,22 +736,60 @@ export async function subgeographies(obj, { divisions }) {
 	const level_select = qs('[name=admlevel]', f);
 	const names_select = qs('[name=subgeography_names]', f);
 
+	qs('[name=multiselect_hint]', f).textContent = navigator.platform.startsWith('Mac')
+		? "⌘-click to toggle areas, ⇧-click to select a range"
+		: "Ctrl-click to toggle areas, Shift-click to select a range";
+
 	level_select.append(...divisions.map(d => ce('option', d.name, { "value": d.level })));
 
 	let current = null;
+	let previous = [];
 
 	async function select_level() {
 		current = null;
+		previous = [];
 		names_select.replaceChildren();
 
 		const division = divisions.find(d => d.level === +level_select.value);
 		if (!division) return;
 
-		const loaded = await load_division(division);
+		let loaded;
+		try {
+			loaded = await load_division(division);
+		} catch (err) {
+			console.error(err);
+
+			FLASH.push({
+				"type":    'error',
+				"title":   `Could not load division '${division.name}'`,
+				"message": err.message,
+			});
+
+			return;
+		}
 
 		current = Object.assign({ "level": division.level }, loaded);
 
-		names_select.append(...loaded.table.map(row => ce('option', row[loaded.csv.column], { "value": row[loaded.csv.id] })));
+		names_select.append(
+			ce('option', "All", { "value": "" }),
+			...loaded.table.map(row => ce('option', row[loaded.csv.column], { "value": row[loaded.csv.id] })),
+		);
+
+		names_select.options[0].selected = true;
+		previous = [names_select.options[0]];
+	};
+
+	// "All" is exclusive: picking it clears the rest and vice versa
+	names_select.onchange = () => {
+		const all = names_select.options[0];
+		const selected = [...names_select.selectedOptions];
+
+		if (selected.includes(all) && !previous.includes(all))
+			[...names_select.options].forEach(o => o.selected = o === all);
+		else if (selected.length > 1)
+			all.selected = false;
+
+		previous = [...names_select.selectedOptions];
 	};
 
 	level_select.onchange = select_level;
@@ -777,7 +812,7 @@ export async function subgeographies(obj, { divisions }) {
 		// TODO: fetch the proper s3bucket above...
 
 		const resolution = qs('[name=resolution]', f).value;
-		const selected = [...names_select.selectedOptions].map(o => o.value);
+		const selected = [...names_select.selectedOptions].map(o => o.value).filter(v => v !== "");
 		const rows = selected.length ? table.filter(row => selected.includes(row[csv.id])) : table;
 
 		submit('subgeographies', obj.id, payload, { paver_modal })
