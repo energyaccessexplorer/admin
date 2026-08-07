@@ -141,23 +141,18 @@ function envelope_validate(newdata) {
 	           e[1] <  e[3]);
 };
 
+function subgeography_divisions(data) {
+	return (maybe(data, 'configuration', 'divisions') || [])
+		.map((d, level) => ({ ...d, level }))
+		.filter(d => d.level > 0 && d.dataset_id);
+};
+
 async function generate_subgeographies() {
-	const dsid = maybe(this, 'configuration', 'divisions', 1, 'dataset_id');
-	if (!dsid)
+	const divisions = subgeography_divisions(this);
+	if (!divisions.length)
 		throw new Error("buah!");
 
-	const div1 = await API.get('datasets', { "id": 'eq.' + dsid }, { "one": true });
-
-	paver.subgeographies(this, {
-		"csv": {
-			"column":   maybe(div1, 'vectors_configuration', 'csv_column'),
-			"endpoint": div1.source_files.find(f => f.func === 'csv').endpoint,
-		},
-		"vectors": {
-			"id":       maybe(div1, 'vectors_configuration', 'vectors_id'),
-			"endpoint": div1.source_files.find(f => f.func === 'vectors').endpoint,
-		},
-	});
+	paver.subgeographies(this, { divisions });
 };
 
 function inherit_datasets() {
@@ -229,7 +224,7 @@ function external_link(object, form) {
 };
 
 function subgeographies_button(object, _, edit_modal) {
-	if (!and(!object.data.has_subgeographies, maybe(object.data, 'configuration', 'divisions', 1))) return;
+	if (!and(!object.data.has_subgeographies, subgeography_divisions(object.data).length)) return;
 
 	const p = ce('button', ce('i', null, { "class": 'bi-filter', "title": 'Subgeographies' }));
 	p.onclick = _ => generate_subgeographies.call(object.data);

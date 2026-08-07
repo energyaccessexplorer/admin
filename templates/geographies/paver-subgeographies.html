@@ -1,5 +1,19 @@
 <form style="text-align: right;">
   <div class="input-group">
+    <label>Admin level</label>
+    <select name="admlevel" required></select>
+  </div>
+
+  <div class="input-group">
+    <label>Areas</label>
+    <select name="subgeography_names"
+            style="width: 100%; min-height: 10em;"
+            multiple></select>
+    <small name="multiselect_hint"
+           style="display: block; opacity: 0.6;"></small>
+  </div>
+
+  <div class="input-group">
     <label>Resolution</label>
     <input name="resolution"
            type="integer"
