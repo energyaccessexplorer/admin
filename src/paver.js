@@ -505,7 +505,7 @@ async function admin_boundaries($, payload, { paver_modal }) {
 async function clip_proximity($, payload, { paver_modal }) {
 	let f;
 	if (f = maybe($, 'vectors_configuration', 'vectors_id'))
-		payload.fields = payload.fields.push('vectors_id');
+		payload.fields.push('vectors_id');
 
 	if (f = maybe($, 'vectors_configuration', 'attributes_map'))
 		payload.fields = payload.fields.concat(f.map(x => x['dataset']));
@@ -519,18 +519,20 @@ async function clip_proximity($, payload, { paver_modal }) {
 	payload.fields = Array.from(new Set(payload.fields)).sort();
 
 	const points = $.type.match(/points/);
+	const simplify_default = maybe($.category, 'vectors', 'paver', 'simplify') || 0;
 
 	if (paver_modal) {
 		bind(paver_modal.content, {
 			"points":     points,
-			"simplify":   maybe($.category, 'vectors', 'paver', 'simplify') || 0,
+			"simplify":   simplify_default,
 			"selectable": select_attributes($, payload),
 		});
 	}
 
 	return function() {
-		payload.dissolve = points ? false :  paver_modal.content.querySelector('form input[name=dissolve]').checked;
-		payload.simplify = points ?   0   : +paver_modal.content.querySelector('form input[name=simplify]').value;
+		// no modal in the headless clip_datasets flow
+		payload.dissolve = points ? false : paver_modal ? paver_modal.content.querySelector('form input[name=dissolve]').checked : false;
+		payload.simplify = points ?   0   : paver_modal ? +paver_modal.content.querySelector('form input[name=simplify]').value : simplify_default;
 
 		return submit('clip-proximity', $.id, payload, { paver_modal });
 	};
@@ -682,7 +684,7 @@ async function subgeography(r, { results, cid, vectors, csv, obj, resolution, le
 		source_files,
 	});
 
-	g.patch({
+	await g.patch({
 		"configuration": {
 			"divisions": [{
 				"name":       "Outline",
@@ -691,10 +693,77 @@ async function subgeography(r, { results, cid, vectors, csv, obj, resolution, le
 		},
 	});
 
-	return d.fetch()
+	await d.fetch()
 		.then(_ => routine(d, {}))
 		.then(e => e())
 		.then(r => r ? ds_patch(did, r) : null);
+
+	const errors = await clip_datasets(obj.id, gid);
+
+	return { gid, errors };
+};
+
+// Clones every non-boundary/non-indicator dataset from `parent_id` into
+// `geography_id` and re-runs it through the appropriate paver routine, so a
+// newly created (sub-)geography automatically gets clipped versions of
+// every layer available on its parent. Headless (no edit_modal/paver_modal),
+// same as subgeography()'s own outline pave above. CSV-sourced datasets are
+// skipped: their lng/lat and value columns are only ever entered by hand in
+// the paver modal and are never persisted on the dataset, so there is
+// nothing to re-derive them from outside that form.
+export async function clip_datasets(parent_id, geography_id, { pre } = {}) {
+	const datasets = await API.get('datasets', {
+		"select":        "*,category_name",
+		"geography_id":  'eq.' + parent_id,
+		"category_name": 'not.in.(indicator,timeline-indicator,boundaries,admin-tiers,outline)',
+		"type":          'not.in.(raster-mutant)',
+	});
+
+	const errors = [];
+
+	for (const d of datasets) {
+		if (d.source_files.find(f => f.func === 'csv')) {
+			errors.push({
+				"data":    d,
+				"routine": null,
+				"error":   "CSV-sourced dataset: column mapping must be redone by hand, skipped.",
+			});
+			continue;
+		}
+
+		const o = new dt.object({
+			"module": datasets_module,
+			"data":   d,
+		});
+
+		const n = await o.clone({
+			"deployment":      ['protected'],
+			"processed_files": [],
+			"geography_id":    geography_id,
+			"source_files":    d.source_files,
+			"name":            d.name,
+		});
+
+		await n.fetch();
+
+		const t = await routine(n, { pre });
+
+		if (typeof t !== 'function') {
+			errors.push(Object.assign({}, t, { "data": n.data }));
+			continue;
+		}
+
+		const x = await t();
+
+		if (!x) {
+			errors.push({ "data": n.data, "error": "Routine failed, see FLASH/console." });
+			continue;
+		}
+
+		await ds_patch(n.data.id, x);
+	}
+
+	return errors;
 };
 
 async function load_division(division) {
@@ -820,10 +889,14 @@ export async function subgeographies(obj, { divisions }) {
 				if (!results) return;
 
 				const failed = [];
+				const clip_failed = [];
 
 				for (const row of rows) {
 					try {
-						await subgeography(row, { obj, results, csv, cid, vectors, resolution, level });
+						const { errors } = await subgeography(row, { obj, results, csv, cid, vectors, resolution, level });
+
+						if (errors.length)
+							clip_failed.push(`${row[csv.column]} (${errors.length})`);
 					} catch (err) {
 						console.error(err);
 						failed.push(row[csv.column]);
@@ -835,6 +908,13 @@ export async function subgeographies(obj, { divisions }) {
 						"type":    'error',
 						"title":   "Could not create some subgeographies",
 						"message": failed.join(', '),
+					});
+
+				if (clip_failed.length)
+					FLASH.push({
+						"type":    'error',
+						"title":   "Some layers were not auto-clipped",
+						"message": clip_failed.join(', '),
 					});
 			})
 			.catch(err => {
