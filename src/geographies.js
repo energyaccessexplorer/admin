@@ -18,15 +18,11 @@ import {
 
 import * as paver from './paver.js';
 
-import * as datasets_module from './datasets.js';
-
 import deployment_options from './deployment-options.js';
 
 let ADM = 0;
 
 const FLASH = dt.FLASH;
-
-const API = dt.API;
 
 export const base = 'geographies';
 
@@ -156,51 +152,18 @@ async function generate_subgeographies() {
 };
 
 function inherit_datasets() {
-	API.get('datasets', {
-		"select":        "*,category_name",
-		"geography_id":  'eq.' + this.data.parent_id,
-		"category_name": 'not.in.(indicator,timeline-indicator,boundaries,admin-tiers,outline)',
-		"type":          'not.in.(raster-mutant)',
-	}).then(async datasets => {
-		const content = await remote_tmpl("geographies/paver-inherit-datasets.html");
-
+	remote_tmpl("geographies/paver-inherit-datasets.html").then(async content => {
 		const m = new modal({
 			content,
 		});
 
 		m.show();
 
-		const errors = [];
+		const infopre = content.querySelector('pre') || document.querySelector('pre');
 
-		for (const d of datasets) {
-			const infopre = content.querySelector('pre') || document.querySelector('pre');
-			infopre.innerText = "";
+		const errors = await paver.clip_datasets(this.data.parent_id, this.data.id, { "pre": infopre });
 
-			const o = new dt.object({
-				"module": datasets_module,
-				"data":   d,
-			});
-
-			const n = await o.clone({
-				"deployment":      ['protected'],
-				"processed_files": [],
-				"geography_id":    this.data.id,
-				"source_files":    d.source_files,
-				"name":            d.name,
-			});
-
-			await n.fetch();
-
-			const t = await paver.routine(n, { "pre": infopre });
-
-			if (typeof t !== 'function') {
-				errors.push(Object.assign(t,n));
-				continue;
-			}
-
-			const x = await t();
-			if (x.error) errors.push(Object.assign(x,n));
-		}
+		if (!errors.length) return;
 
 		for (const e of errors)
 			dt.FLASH.push({
@@ -212,7 +175,7 @@ function inherit_datasets() {
 		dt.FLASH.push({
 			"type":    "error",
 			"title":   "Inheritance errors",
-			"message": "The following datasets were created and flagged.",
+			"message": "The following datasets could not be cloned/paved.",
 		});
 
 		console.error(errors);
