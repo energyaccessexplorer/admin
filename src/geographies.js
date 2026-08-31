@@ -161,7 +161,21 @@ function inherit_datasets() {
 
 		const infopre = content.querySelector('pre') || document.querySelector('pre');
 
-		const errors = await paver.clip_datasets(this.data.parent_id, this.data.id, { "pre": infopre });
+		let errors;
+
+		try {
+			errors = await paver.clip_datasets(this.data.parent_id, this.data.id, { "pre": infopre });
+		} catch (err) {
+			console.error(err);
+
+			dt.FLASH.push({
+				"type":    "error",
+				"title":   "Inheritance failed",
+				"message": err.message,
+			});
+
+			return;
+		}
 
 		if (!errors.length) return;
 

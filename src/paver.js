@@ -243,6 +243,21 @@ export async function routine(obj, { edit_modal, pre }) {
 		break;
 	}
 
+	// A type that matched no case above (e.g. mutant types slipping through)
+	// must not crash at fn.name/fn(...) below — report it as an error object
+	// like any other routine failure.
+	if (!fn) {
+		const msg = `No paver routine for dataset type '${data.type}'.`;
+
+		console.error(msg, data);
+
+		return {
+			"error":   msg,
+			"routine": null,
+			payload,
+		};
+	}
+
 	await obj.fetch();
 
 	const ok = await payload_fill(data, payload, datasets_func);
@@ -421,12 +436,10 @@ async function submit(routine, dataset_id, payload, { paver_modal, pre }) {
 		if (!r.ok) {
 			const msg = await r.text();
 
-			if (!infopre) {
+			if (!infopre)
 				console.error(msg);
-				return;
-			}
-
-			infopre.innerText += `
+			else
+				infopre.innerText += `
 
 ${r.status} - ${r.statusText}
 
@@ -712,55 +725,73 @@ async function subgeography(r, { results, cid, vectors, csv, obj, resolution, le
 // the paver modal and are never persisted on the dataset, so there is
 // nothing to re-derive them from outside that form.
 export async function clip_datasets(parent_id, geography_id, { pre } = {}) {
+	// Whitelist pavable types instead of blacklisting: mutant types
+	// (raster-mutant, raster-valued-mutant, ...) have no routine and would
+	// crash the whole loop below.
 	const datasets = await API.get('datasets', {
 		"select":        "*,category_name",
 		"geography_id":  'eq.' + parent_id,
 		"category_name": 'not.in.(indicator,timeline-indicator,boundaries,admin-tiers,outline)',
-		"type":          'not.in.(raster-mutant)',
+		"type":          'in.(points,lines,polygons,polygons-timeline,raster,raster-valued)',
 	});
 
 	const errors = [];
 
 	for (const d of datasets) {
-		if (d.source_files.find(f => f.func === 'csv')) {
-			errors.push({
-				"data":    d,
-				"routine": null,
-				"error":   "CSV-sourced dataset: column mapping must be redone by hand, skipped.",
+		// One bad dataset must not abort the clipping of all the others.
+		try {
+			if (!(d.source_files || []).length) {
+				errors.push({
+					"data":    d,
+					"routine": null,
+					"error":   "No source files to clip from, skipped.",
+				});
+				continue;
+			}
+
+			if (d.source_files.find(f => f.func === 'csv')) {
+				errors.push({
+					"data":    d,
+					"routine": null,
+					"error":   "CSV-sourced dataset: column mapping must be redone by hand, skipped.",
+				});
+				continue;
+			}
+
+			const o = new dt.object({
+				"module": datasets_module,
+				"data":   d,
 			});
-			continue;
+
+			const n = await o.clone({
+				"deployment":      ['protected'],
+				"processed_files": [],
+				"geography_id":    geography_id,
+				"source_files":    d.source_files,
+				"name":            d.name,
+			});
+
+			await n.fetch();
+
+			const t = await routine(n, { pre });
+
+			if (typeof t !== 'function') {
+				errors.push(Object.assign({}, t, { "data": n.data }));
+				continue;
+			}
+
+			const x = await t();
+
+			if (!x) {
+				errors.push({ "data": n.data, "error": "Routine failed, see FLASH/console." });
+				continue;
+			}
+
+			await ds_patch(n.data.id, x);
+		} catch (err) {
+			console.error(err);
+			errors.push({ "data": d, "error": err.message });
 		}
-
-		const o = new dt.object({
-			"module": datasets_module,
-			"data":   d,
-		});
-
-		const n = await o.clone({
-			"deployment":      ['protected'],
-			"processed_files": [],
-			"geography_id":    geography_id,
-			"source_files":    d.source_files,
-			"name":            d.name,
-		});
-
-		await n.fetch();
-
-		const t = await routine(n, { pre });
-
-		if (typeof t !== 'function') {
-			errors.push(Object.assign({}, t, { "data": n.data }));
-			continue;
-		}
-
-		const x = await t();
-
-		if (!x) {
-			errors.push({ "data": n.data, "error": "Routine failed, see FLASH/console." });
-			continue;
-		}
-
-		await ds_patch(n.data.id, x);
 	}
 
 	return errors;
@@ -895,13 +926,18 @@ export async function subgeographies(obj, { divisions }) {
 					try {
 						const { errors } = await subgeography(row, { obj, results, csv, cid, vectors, resolution, level });
 
-						if (errors.length)
-							clip_failed.push(`${row[csv.column]} (${errors.length})`);
+						if (errors.length) {
+							console.error(`clip errors for ${row[csv.column]}`, errors);
+							clip_failed.push(`${row[csv.column]}: ` + errors.map(e => `${maybe(e, 'data', 'category_name') || 'dataset'} — ${e.error}`).join('; '));
+						}
 					} catch (err) {
 						console.error(err);
 						failed.push(row[csv.column]);
 					}
 				}
+
+				const infopre = c.querySelector('#infopre');
+				if (infopre) infopre.innerText += "\n\nDone.";
 
 				if (failed.length)
 					FLASH.push({
