@@ -777,10 +777,17 @@ async function subgeography(row, { results, cid, vectors, csv, obj, resolution, 
 // skipped: their lng/lat and value columns are only ever entered by hand in
 // the paver modal and are never persisted on the dataset, so there is
 // nothing to re-derive them from outside that form.
+//
+// Datasets are identified the way the tool itself does it (DS.id in
+// tool/src/ds.js: `name` falling back to the category name), which is both
+// what makes a layer unique within a geography and what mutants reference
+// their hosts by.
+const ds_key = d => d.name || d.category_name;
+
 export async function clip_datasets(parent_id, geography_id, { pre } = {}) {
 	// Whitelist pavable types instead of blacklisting: mutant types
 	// (raster-mutant, raster-valued-mutant, ...) have no routine and would
-	// crash the whole loop below.
+	// crash the whole loop below. Mutants are handled separately at the end.
 	const datasets = await API.get('datasets', {
 		"select":        "*,category_name",
 		"geography_id":  'eq.' + parent_id,
@@ -788,11 +795,27 @@ export async function clip_datasets(parent_id, geography_id, { pre } = {}) {
 		"type":          'in.(points,lines,polygons,polygons-timeline,raster,raster-valued)',
 	});
 
+	// Everything already in the target geography. Without this, running the
+	// inheritance twice silently duplicates every layer.
+	const present = new Set((await API.get('datasets', {
+		"select":       "id,name,category_name",
+		"geography_id": 'eq.' + geography_id,
+	})).map(ds_key));
+
 	const errors = [];
 
 	for (const d of datasets) {
 		// One bad dataset must not abort the clipping of all the others.
 		try {
+			if (present.has(ds_key(d))) {
+				errors.push({
+					"data":    d,
+					"routine": null,
+					"error":   "Already present in this geography, skipped.",
+				});
+				continue;
+			}
+
 			if (!(d.source_files || []).length) {
 				errors.push({
 					"data":    d,
@@ -841,9 +864,63 @@ export async function clip_datasets(parent_id, geography_id, { pre } = {}) {
 			}
 
 			await ds_patch(n.data.id, x);
+
+			present.add(ds_key(d));
 		} catch (err) {
 			console.error(err);
 			errors.push({ "data": d, "error": err.message });
+		}
+	}
+
+	return errors.concat(await clip_mutants(parent_id, geography_id, present));
+};
+
+// Mutants hold no data of their own: tool/src/ds.js `mutate()` borrows the
+// raster/vectors/colorscale of whichever host is selected, resolved by name
+// within the geography being viewed. So there is nothing to pave — the row
+// just needs to exist, and its hosts need to have landed in the child.
+async function clip_mutants(parent_id, geography_id, present) {
+	const mutants = await API.get('datasets', {
+		"select":               "*,category_name",
+		"geography_id":         'eq.' + parent_id,
+		"category_name":        'not.in.(indicator,timeline-indicator,boundaries,admin-tiers,outline)',
+		"mutant_configuration": 'not.is.null',
+	});
+
+	const errors = [];
+
+	for (const m of mutants) {
+		try {
+			if (present.has(ds_key(m))) continue;
+
+			const missing = (maybe(m, 'mutant_configuration', 'hosts') || [])
+				.filter(h => !present.has(h));
+
+			if (missing.length) {
+				errors.push({
+					"data":    m,
+					"routine": null,
+					"error":   `Mutant skipped, hosts missing from this geography: ${missing.join(', ')}.`,
+				});
+				continue;
+			}
+
+			const o = new dt.object({
+				"module": datasets_module,
+				"data":   m,
+			});
+
+			await o.clone({
+				"deployment":      ['protected'],
+				"processed_files": [],
+				"geography_id":    geography_id,
+				"name":            m.name,
+			});
+
+			present.add(ds_key(m));
+		} catch (err) {
+			console.error(err);
+			errors.push({ "data": m, "error": err.message });
 		}
 	}
 
