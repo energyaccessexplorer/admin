@@ -408,11 +408,11 @@ export async function routine(obj, { edit_modal, pre }) {
 	paver_modal.show();
 };
 
-function flag(id) {
-	API.patch(
+function flag(id, flagged = true) {
+	return API.patch(
 		'datasets',
 		{ "id": `eq.${id}` },
-		{ "payload": { "flagged": true } },
+		{ "payload": { flagged } },
 	);
 };
 
@@ -795,19 +795,31 @@ export async function clip_datasets(parent_id, geography_id, { pre } = {}) {
 		"type":          'in.(points,lines,polygons,polygons-timeline,raster,raster-valued)',
 	});
 
-	// Everything already in the target geography. Without this, running the
-	// inheritance twice silently duplicates every layer.
-	const present = new Set((await API.get('datasets', {
-		"select":       "id,name,category_name",
+	// What the target geography already holds. A row with no processed_files
+	// is an unfinished clone left by an interrupted or failed run: it gets
+	// re-paved in place, rather than skipped (which would make the failure
+	// permanent) or cloned again (which would duplicate it). That makes
+	// re-running the inheritance both idempotent and a way to resume.
+	const existing = new Map();
+	const paved = new Set();
+
+	for (const e of await API.get('datasets', {
+		"select":       "*,category_name",
 		"geography_id": 'eq.' + geography_id,
-	})).map(ds_key));
+	})) {
+		existing.set(ds_key(e), e);
+
+		if ((e.processed_files || []).length) paved.add(ds_key(e));
+	}
 
 	const errors = [];
 
 	for (const d of datasets) {
+		const key = ds_key(d);
+
 		// One bad dataset must not abort the clipping of all the others.
 		try {
-			if (present.has(ds_key(d))) {
+			if (paved.has(key)) {
 				errors.push({
 					"data":    d,
 					"routine": null,
@@ -834,24 +846,25 @@ export async function clip_datasets(parent_id, geography_id, { pre } = {}) {
 				continue;
 			}
 
-			const o = new dt.object({
-				"module": datasets_module,
-				"data":   d,
-			});
+			const resume = existing.get(key);
 
-			const n = await o.clone({
-				"deployment":      ['protected'],
-				"processed_files": [],
-				"geography_id":    geography_id,
-				"source_files":    d.source_files,
-				"name":            d.name,
-			});
+			const n = resume
+				? new dt.object({ "module": datasets_module, "data": resume })
+				: await (new dt.object({ "module": datasets_module, "data": d })).clone({
+					"deployment":      ['protected'],
+					"processed_files": [],
+					"geography_id":    geography_id,
+					"source_files":    d.source_files,
+					"name":            d.name,
+				});
 
 			await n.fetch();
 
 			const t = await routine(n, { pre });
 
 			if (typeof t !== 'function') {
+				await flag(n.data.id);
+				existing.set(key, n.data);
 				errors.push(Object.assign({}, t, { "data": n.data }));
 				continue;
 			}
@@ -859,27 +872,32 @@ export async function clip_datasets(parent_id, geography_id, { pre } = {}) {
 			const x = await t();
 
 			if (!x) {
+				await flag(n.data.id);
+				existing.set(key, n.data);
 				errors.push({ "data": n.data, "error": "Routine failed, see FLASH/console." });
 				continue;
 			}
 
 			await ds_patch(n.data.id, x);
 
-			present.add(ds_key(d));
+			if (n.data.flagged) await flag(n.data.id, false);
+
+			existing.set(key, n.data);
+			paved.add(key);
 		} catch (err) {
 			console.error(err);
 			errors.push({ "data": d, "error": err.message });
 		}
 	}
 
-	return errors.concat(await clip_mutants(parent_id, geography_id, present));
+	return errors.concat(await clip_mutants(parent_id, geography_id, existing, paved));
 };
 
 // Mutants hold no data of their own: tool/src/ds.js `mutate()` borrows the
 // raster/vectors/colorscale of whichever host is selected, resolved by name
 // within the geography being viewed. So there is nothing to pave — the row
-// just needs to exist, and its hosts need to have landed in the child.
-async function clip_mutants(parent_id, geography_id, present) {
+// just needs to exist, and its hosts need to have been paved in the child.
+async function clip_mutants(parent_id, geography_id, existing, paved) {
 	const mutants = await API.get('datasets', {
 		"select":               "*,category_name",
 		"geography_id":         'eq.' + parent_id,
@@ -891,10 +909,10 @@ async function clip_mutants(parent_id, geography_id, present) {
 
 	for (const m of mutants) {
 		try {
-			if (present.has(ds_key(m))) continue;
+			if (existing.has(ds_key(m))) continue;
 
 			const missing = (maybe(m, 'mutant_configuration', 'hosts') || [])
-				.filter(h => !present.has(h));
+				.filter(h => !paved.has(h));
 
 			if (missing.length) {
 				errors.push({
@@ -910,14 +928,14 @@ async function clip_mutants(parent_id, geography_id, present) {
 				"data":   m,
 			});
 
-			await o.clone({
+			const n = await o.clone({
 				"deployment":      ['protected'],
 				"processed_files": [],
 				"geography_id":    geography_id,
 				"name":            m.name,
 			});
 
-			present.add(ds_key(m));
+			existing.set(ds_key(m), n.data);
 		} catch (err) {
 			console.error(err);
 			errors.push({ "data": m, "error": err.message });
