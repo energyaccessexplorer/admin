@@ -179,18 +179,29 @@ function inherit_datasets() {
 
 		if (!errors.length) return;
 
-		for (const e of errors)
+		// One flash per dataset buries the screen under toasts on any
+		// reasonably sized geography, and a deliberate skip is not an error.
+		const line = e => `${maybe(e, 'data', 'category_name') || '?'}: ${maybe(e, 'error')}`;
+
+		const skipped = errors.filter(e => e.skipped);
+		const failed = errors.filter(e => !e.skipped);
+
+		if (skipped.length)
 			dt.FLASH.push({
-				"type":    "error",
-				"title":   maybe(e, 'data', 'category_name'),
-				"message": "Routine: " + maybe(e, 'routine') + " - " + maybe(e, 'error'),
+				"type":    "info",
+				"title":   `${skipped.length} layer(s) skipped`,
+				"message": skipped.map(line).join("\n"),
 			});
 
-		dt.FLASH.push({
-			"type":    "error",
-			"title":   "Inheritance errors",
-			"message": "The following datasets could not be cloned/paved.",
-		});
+		// Persistent: a run can take long enough that a self-dismissing flash
+		// is gone before anyone looks at it.
+		if (failed.length)
+			dt.FLASH.push({
+				"type":    "error",
+				"title":   `${failed.length} layer(s) could not be cloned/paved`,
+				"message": failed.map(line).join("\n"),
+				"timeout": 0,
+			});
 
 		console.error(errors);
 	});

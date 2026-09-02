@@ -771,6 +771,7 @@ export async function clip_datasets(parent_id, geography_id, { pre } = {}) {
 					"data":    d,
 					"routine": null,
 					"error":   "Already present in this geography, skipped.",
+					"skipped": true,
 				});
 				continue;
 			}
@@ -780,6 +781,7 @@ export async function clip_datasets(parent_id, geography_id, { pre } = {}) {
 					"data":    d,
 					"routine": null,
 					"error":   "No source files to clip from, skipped.",
+					"skipped": true,
 				});
 				continue;
 			}
@@ -789,6 +791,7 @@ export async function clip_datasets(parent_id, geography_id, { pre } = {}) {
 					"data":    d,
 					"routine": null,
 					"error":   "CSV-sourced dataset: column mapping must be redone by hand, skipped.",
+					"skipped": true,
 				});
 				continue;
 			}
@@ -866,6 +869,7 @@ async function clip_mutants(parent_id, geography_id, existing, paved) {
 					"data":    m,
 					"routine": null,
 					"error":   `Mutant skipped, hosts missing from this geography: ${missing.join(', ')}.`,
+					"skipped": true,
 				});
 				continue;
 			}
