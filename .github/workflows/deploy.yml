@@ -25,7 +25,7 @@ jobs:
           DT_SRC = "development"
           DT_PROJECT = "eae"
           PAVER_ENDPOINT = ""
-          DEPARTER_ENDPOINT = "http://eae.localhost/departer"
+          DEPARTER_ENDPOINT = ""
           STATUS_ENDPOINT = "http://eae.localhost/status"
           BUCKET_ENDPOINT = "http://eae.localhost/bucket"
           EOF
@@ -43,7 +43,7 @@ jobs:
           DT_PRODUCTION = "${{ vars.DT_PRODUCTION }}"
           DT_UPLOAD = "${{ vars.DT_UPLOAD }}"
           PAVER_ENDPOINT = "${{ vars.PAVER_ENDPOINT }}"
-          DEPARTER_ENDPOINT = "${{ vars.DEPARTER_ENDPOINT }}"
+          DEPARTER_ENDPOINT = "${{ vars.DEPARTER_ENDPOINT || 'https://paver.energyaccessexplorer.org/departer' }}"
           BUCKET_ENDPOINT = "${{ vars.BUCKET_ENDPOINT }}"
           EOF
 

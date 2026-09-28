@@ -8,7 +8,7 @@ Object.assign(config, {
 	"email_reset":         "https://www.energyaccessexplorer.org/password-reset/",
 
 	"paver_endpoint":      config.paver_endpoint || `${location.origin}/paver`,
-	"departer_endpoint":   `${location.origin}/departer`,
+	"departer_endpoint":   config.departer_endpoint || `${location.origin}/departer`,
 	"pre_view":            async _ => {
 		try {
 			const id = jwt_decode(localStorage['token']).id;
