@@ -39,6 +39,17 @@ jobs:
             echo "endpoint=${{ vars.PAVER_ENDPOINT }}" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Pick departer endpoint (ticket-specific if deployed, else default)
+        if: steps.ticket.outputs.matched == 'true'
+        id: departer
+        run: |
+          TICKET_URL="https://paver.energyaccessexplorer.org/${{ steps.ticket.outputs.id }}/departer"
+          if curl --fail --silent --show-error --max-time 30 -X OPTIONS --output /dev/null "$TICKET_URL/commit"; then
+            echo "endpoint=$TICKET_URL" >> "$GITHUB_OUTPUT"
+          else
+            echo "endpoint=${{ vars.DEPARTER_ENDPOINT }}" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Build test.mk from secrets
         if: steps.ticket.outputs.matched == 'true'
         run: |
@@ -51,7 +62,7 @@ jobs:
           DT_PRODUCTION = "${{ vars.DT_PRODUCTION }}"
           DT_UPLOAD = "${{ vars.DT_UPLOAD }}"
           PAVER_ENDPOINT = "${{ steps.paver.outputs.endpoint }}"
-          DEPARTER_ENDPOINT = "${{ vars.DEPARTER_ENDPOINT }}"
+          DEPARTER_ENDPOINT = "${{ steps.departer.outputs.endpoint }}"
           BUCKET_ENDPOINT = "${{ vars.BUCKET_ENDPOINT }}"
           EOF
 
