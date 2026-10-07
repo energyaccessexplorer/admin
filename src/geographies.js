@@ -158,9 +158,15 @@ export async function init() {
 		const recents = offroad_recents();
 		if (!recents.length) return;
 
+		const box = qs('#offroad-recents', c);
+		const list = qs('#offroad-recents-list', c);
+
+		// A template cached from before this feature existed has neither
+		// element; degrade to no recents instead of breaking the modal.
+		if (!box || !list) return;
+
 		const endpoint = dt.config.departer_endpoint;
 		const token = localStorage.getItem('token');
-		const list = qs('#offroad-recents-list', c);
 
 		for (const b of recents) {
 			const status = ce('span', 'checking…');
@@ -178,7 +184,7 @@ export async function init() {
 			poll_recent(row, status, dl, b, endpoint, token);
 		}
 
-		qs('#offroad-recents', c).style.display = '';
+		box.style.display = '';
 	}
 
 	async function poll_recent(row, status, dl, b, endpoint, token) {
