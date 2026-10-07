@@ -88,7 +88,11 @@ export async function init() {
 			}
 
 			if (state === "done" && zip) {
-				link.href = zip.startsWith("http") ? zip : `${endpoint}${zip}`;
+				// The zip comes back as a full URL (build script with a public
+				// base), an absolute path (without one), or a relative path.
+				link.href = zip.startsWith("http") ? zip :
+					zip.startsWith("/") ? new URL(endpoint).origin + zip :
+						`${endpoint}/${zip}`;
 				progress.style.display = "none";
 				download.style.display = "";
 				return;
