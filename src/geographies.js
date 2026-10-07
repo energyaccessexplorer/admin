@@ -245,7 +245,7 @@ export async function init() {
 			content,
 		});
 
-		render_recents(content);
+		render_recents(m.content);
 
 		form.onsubmit = function(e) {
 			e.preventDefault();
