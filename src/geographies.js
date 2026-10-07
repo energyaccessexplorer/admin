@@ -88,11 +88,7 @@ export async function init() {
 			}
 
 			if (state === "done" && zip) {
-				// The zip comes back as a full URL (build script with a public
-				// base), an absolute path (without one), or a relative path.
-				link.href = zip.startsWith("http") ? zip :
-					zip.startsWith("/") ? new URL(endpoint).origin + zip :
-						`${endpoint}/${zip}`;
+				link.href = zip_href(endpoint, zip);
 				progress.style.display = "none";
 				download.style.display = "";
 				return;
@@ -133,6 +129,97 @@ export async function init() {
 		}
 	}
 
+	// The zip comes back from /status as a full URL (build script with a
+	// public base), an absolute path (without one), or a relative path.
+	function zip_href(endpoint, zip) {
+		return zip.startsWith("http") ? zip :
+			zip.startsWith("/") ? new URL(endpoint).origin + zip :
+				`${endpoint}/${zip}`;
+	}
+
+	// Recent builds, remembered per-browser so a closed tab doesn't lose the
+	// artifact: the id alone is enough to re-ask the departer for status and
+	// the download link (it answers from the log even after restarts).
+	const RECENTS_KEY = 'offroad-builds';
+	const RECENTS_MAX = 10;
+
+	function offroad_recents() {
+		try { return JSON.parse(localStorage.getItem(RECENTS_KEY)) || []; }
+		catch (e) { return []; }
+	}
+
+	function remember_build(id, label) {
+		const r = offroad_recents().filter(b => b.id !== id);
+		r.unshift({ "id": id, "ts": Date.now(), "label": label });
+		localStorage.setItem(RECENTS_KEY, JSON.stringify(r.slice(0, RECENTS_MAX)));
+	}
+
+	function render_recents(c) {
+		const recents = offroad_recents();
+		if (!recents.length) return;
+
+		const endpoint = dt.config.departer_endpoint;
+		const token = localStorage.getItem('token');
+		const list = qs('#offroad-recents-list', c);
+
+		for (const b of recents) {
+			const status = ce('span', 'checking…');
+			const dl = ce('a', 'download', { "href": '#', "download": true, "style": 'display: none; margin-left: 0.4em;' });
+			const log = ce('a', 'log', { "href": `${endpoint}/builds/${b.id}.log`, "target": '_blank' });
+
+			const row = ce('div', null, { "style": 'margin-bottom: 0.35em;' });
+			row.append(
+				ce('span', `${human_time(b.ts)} — ${b.label} — `),
+				status, ce('span', ' ('), log, ce('span', ')'),
+				dl,
+			);
+			list.append(row);
+
+			poll_recent(row, status, dl, b, endpoint, token);
+		}
+
+		qs('#offroad-recents', c).style.display = '';
+	}
+
+	async function poll_recent(row, status, dl, b, endpoint, token) {
+		while (row.isConnected) {
+			let state = null, zip = null;
+
+			try {
+				const r = await fetch(`${endpoint}/status/${b.id}`, {
+					"headers": { "Authorization": `Bearer ${token}` },
+				});
+
+				if (r.status === 404) state = "gone";
+				else ({ state, zip } = await r.json());
+			} catch (e) {
+				await new Promise(res => setTimeout(res, 4000));
+				continue;
+			}
+
+			if (state === "done" && zip) {
+				dl.href = zip_href(endpoint, zip);
+				dl.style.display = "";
+				status.textContent = "done";
+				return;
+			}
+
+			if (state === "error") {
+				status.textContent = "failed";
+				return;
+			}
+
+			if (state === "gone") {
+				status.textContent = "no longer available";
+				localStorage.setItem(RECENTS_KEY, JSON.stringify(offroad_recents().filter(x => x.id !== b.id)));
+				return;
+			}
+
+			status.textContent = "running…";
+			await new Promise(res => setTimeout(res, 4000));
+		}
+	}
+
 	function offroad() {
 		const content = t.cloneNode(true);
 
@@ -151,6 +238,8 @@ export async function init() {
 			"header": ce('h3', "Offroad build"),
 			content,
 		});
+
+		render_recents(content);
 
 		form.onsubmit = function(e) {
 			e.preventDefault();
@@ -172,6 +261,10 @@ export async function init() {
 
 					qs('#offroad-info', c).style.display = "";
 					qs('#log', c).href = `${dt.config.departer_endpoint}/builds/${r.id}.log`;
+
+					const label = arr.filter(o => o.selected).map(o => o.textContent.trim()).join(', ')
+						+ ` (${qs('[name="os"]', form).value}, adm ${depth.value})`;
+					remember_build(r.id, label);
 
 					poll_build(c, r.id);
 				});
