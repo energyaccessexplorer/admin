@@ -39,6 +39,96 @@ export async function init() {
 	const d = 'body main header .actions-drawer';
 	const t = await remote_tmpl("geographies/offroad-form.html");
 
+	// Follow a build through the departer's /status/<id> endpoint and surface
+	// the result in the modal: progress while running, a download link when
+	// done, an error otherwise. The endpoint is the same one the build POST
+	// went to, so this works for production and per-ticket departers alike.
+	async function poll_build(c, id) {
+		const endpoint = dt.config.departer_endpoint;
+		const token = localStorage.getItem('token');
+
+		const progress = qs('#offroad-progress', c);
+		const download = qs('#offroad-download', c);
+		const error = qs('#offroad-error', c);
+		const link = qs('#download', c);
+
+		// A newer Submit on the same modal supersedes this poll.
+		c.dataset.poll = (parseInt(c.dataset.poll || "0", 10) + 1).toString();
+		const mine = c.dataset.poll;
+
+		progress.textContent = "Build starting…";
+		progress.style.display = "";
+		download.style.display = "none";
+		error.style.display = "none";
+
+		const started = Date.now();
+		const timeout = 15 * 60 * 1000;
+
+		while (true) {
+			if (c.dataset.poll !== mine || !c.isConnected) return;
+
+			let state = "running", zip = null, detail = "";
+
+			try {
+				const r = await fetch(`${endpoint}/status/${id}`, {
+					"headers": { "Authorization": `Bearer ${token}` },
+				});
+
+				if (r.status === 404) {
+					state = "error";
+					detail = "the build was not found";
+				} else {
+					const j = await r.json();
+					state = j.state;
+					zip = j.zip;
+					detail = j.detail || "";
+				}
+			} catch (e) {
+				detail = "waiting for the build to start…";
+			}
+
+			if (state === "done" && zip) {
+				link.href = zip.startsWith("http") ? zip : `${endpoint}${zip}`;
+				progress.style.display = "none";
+				download.style.display = "";
+				return;
+			}
+
+			if (state === "error") {
+				progress.style.display = "none";
+				error.textContent = detail ?
+					`The build failed: ${detail}. See the log for details.` :
+					"The build failed. See the log for details.";
+				error.style.display = "";
+				return;
+			}
+
+			// Running: elapsed time plus the log's last line as progress.
+			const elapsed = Math.round((Date.now() - started) / 1000);
+			let line = detail;
+
+			if (!line) {
+				try {
+					const lr = await fetch(`${endpoint}/builds/${id}.log`, {
+						"headers": { "Range": "bytes=-256" },
+					});
+					if (lr.ok) line = (await lr.text()).trim().split("\n").pop() || "";
+				} catch (e) {
+					// Log tail not reachable yet; keep the previous progress line.
+				}
+			}
+
+			progress.textContent = `Building… (${elapsed}s) ${line}`;
+
+			if (Date.now() - started > timeout) {
+				progress.textContent = "The build is taking a long time — follow it in the log.";
+				return;
+			}
+
+			await new Promise(res => setTimeout(res, 4000));
+		}
+	}
+
 	function offroad() {
 		const content = t.cloneNode(true);
 
@@ -78,6 +168,8 @@ export async function init() {
 
 					qs('#offroad-info', c).style.display = "";
 					qs('#log', c).href = `${dt.config.departer_endpoint}/builds/${r.id}.log`;
+
+					poll_build(c, r.id);
 				});
 		};
 
