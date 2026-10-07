@@ -18,15 +18,11 @@ import {
 
 import * as paver from './paver.js';
 
-import * as datasets_module from './datasets.js';
-
 import deployment_options from './deployment-options.js';
 
 let ADM = 0;
 
 const FLASH = dt.FLASH;
-
-const API = dt.API;
 
 export const base = 'geographies';
 
@@ -156,64 +152,56 @@ async function generate_subgeographies() {
 };
 
 function inherit_datasets() {
-	API.get('datasets', {
-		"select":        "*,category_name",
-		"geography_id":  'eq.' + this.data.parent_id,
-		"category_name": 'not.in.(indicator,timeline-indicator,boundaries,admin-tiers,outline)',
-		"type":          'not.in.(raster-mutant)',
-	}).then(async datasets => {
-		const content = await remote_tmpl("geographies/paver-inherit-datasets.html");
-
+	remote_tmpl("geographies/paver-inherit-datasets.html").then(async content => {
 		const m = new modal({
 			content,
 		});
 
 		m.show();
 
-		const errors = [];
+		const infopre = content.querySelector('pre') || document.querySelector('pre');
 
-		for (const d of datasets) {
-			const infopre = content.querySelector('pre') || document.querySelector('pre');
-			infopre.innerText = "";
+		let errors;
 
-			const o = new dt.object({
-				"module": datasets_module,
-				"data":   d,
-			});
+		try {
+			errors = await paver.clip_datasets(this.data.parent_id, this.data.id, { "pre": infopre });
+		} catch (err) {
+			console.error(err);
 
-			const n = await o.clone({
-				"deployment":      ['protected'],
-				"processed_files": [],
-				"geography_id":    this.data.id,
-				"source_files":    d.source_files,
-				"name":            d.name,
-			});
-
-			await n.fetch();
-
-			const t = await paver.routine(n, { "pre": infopre });
-
-			if (typeof t !== 'function') {
-				errors.push(Object.assign(t,n));
-				continue;
-			}
-
-			const x = await t();
-			if (x.error) errors.push(Object.assign(x,n));
-		}
-
-		for (const e of errors)
 			dt.FLASH.push({
 				"type":    "error",
-				"title":   maybe(e, 'data', 'category_name'),
-				"message": "Routine: " + maybe(e, 'routine') + " - " + maybe(e, 'error'),
+				"title":   "Inheritance failed",
+				"message": err.message,
 			});
 
-		dt.FLASH.push({
-			"type":    "error",
-			"title":   "Inheritance errors",
-			"message": "The following datasets were created and flagged.",
-		});
+			return;
+		}
+
+		if (!errors.length) return;
+
+		// One flash per dataset buries the screen under toasts on any
+		// reasonably sized geography, and a deliberate skip is not an error.
+		const line = e => `${maybe(e, 'data', 'category_name') || '?'}: ${maybe(e, 'error')}`;
+
+		const skipped = errors.filter(e => e.skipped);
+		const failed = errors.filter(e => !e.skipped);
+
+		if (skipped.length)
+			dt.FLASH.push({
+				"type":    "info",
+				"title":   `${skipped.length} layer(s) skipped`,
+				"message": skipped.map(line).join("\n"),
+			});
+
+		// Persistent: a run can take long enough that a self-dismissing flash
+		// is gone before anyone looks at it.
+		if (failed.length)
+			dt.FLASH.push({
+				"type":    "error",
+				"title":   `${failed.length} layer(s) could not be cloned/paved`,
+				"message": failed.map(line).join("\n"),
+				"timeout": 0,
+			});
 
 		console.error(errors);
 	});
