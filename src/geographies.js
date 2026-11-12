@@ -419,7 +419,7 @@ function external_link(object, form) {
 };
 
 function subgeographies_button(object, _, edit_modal) {
-	if (!and(!object.data.has_subgeographies, subgeography_divisions(object.data).length)) return;
+	if (!subgeography_divisions(object.data).length) return;
 
 	const p = ce('button', ce('i', null, { "class": 'bi-filter', "title": 'Subgeographies' }));
 	p.onclick = _ => generate_subgeographies.call(object.data);
