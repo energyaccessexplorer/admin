@@ -776,8 +776,23 @@ async function load_division(division) {
 	return { csv, vectors, table };
 };
 
+// division CSVs and hand-made geographies disagree on accents and case
+// ('Galápagos' vs 'Galapagos'): compare the words, not the bytes
+function name_key(s) {
+	return (s ?? "")
+		.normalize('NFD')
+		.replace(/[\u0300-\u036f]/g, "")
+		.trim()
+		.toLowerCase();
+}
+
 export async function subgeographies(obj, { divisions }) {
 	const cid = (await API.get('categories', { "name": "eq.outline", 'select': ['id'] }, { "one": true }))['id'];
+
+	const children = await API.get('geographies', {
+		"parent_id": `eq.${obj.id}`,
+		"select":    ["name", "adm"],
+	});
 
 	const paver_modal = new modal({
 		"content": await remote_tmpl("geographies/paver-subgeographies.html"),
@@ -821,11 +836,22 @@ export async function subgeographies(obj, { divisions }) {
 			return;
 		}
 
-		current = Object.assign({ "level": division.level }, loaded);
+		// a child geography named after the division row already exists at
+		// this level: paver would recreate it, so it is not on offer
+		const taken = new Set(children
+			.filter(c => c.adm === obj.adm + division.level)
+			.map(c => name_key(c.name)));
+
+		const available = loaded.table
+			.filter(row => !taken.has(name_key(row[loaded.csv.column])));
+
+		current = Object.assign({ "level": division.level }, loaded, {
+			"available": available,
+		});
 
 		names_select.append(
 			ce('option', "All", { "value": "" }),
-			...loaded.table.map(row => ce('option', row[loaded.csv.column], { "value": row[loaded.csv.id] })),
+			...available.map(row => ce('option', row[loaded.csv.column], { "value": row[loaded.csv.id] })),
 		);
 
 		names_select.options[0].selected = true;
@@ -855,7 +881,23 @@ export async function subgeographies(obj, { divisions }) {
 
 		if (!current) return;
 
-		const { level, csv, vectors, table } = current;
+		const run = current;
+
+		const { level, csv, vectors, available } = run;
+
+		const resolution = qs('[name=resolution]', f).value;
+		const selected = [...names_select.selectedOptions].map(o => o.value).filter(v => v !== "");
+		const rows = selected.length ? available.filter(row => selected.includes(row[csv.id])) : available;
+
+		if (!rows.length) {
+			FLASH.push({
+				"type":    'info',
+				"title":   "Nothing to create",
+				"message": "Every area of this admin level already has a sub-geography.",
+			});
+
+			return;
+		}
 
 		const payload = {
 			"dataseturl": vectors.endpoint,
@@ -863,23 +905,29 @@ export async function subgeographies(obj, { divisions }) {
 			"s3bucket":   await bucket_for_geography(obj.id),
 		};
 
-		const resolution = qs('[name=resolution]', f).value;
-		const selected = [...names_select.selectedOptions].map(o => o.value).filter(v => v !== "");
-		const rows = selected.length ? table.filter(row => selected.includes(row[csv.id])) : table;
-
 		submit('subgeographies', obj.id, payload, { paver_modal })
 			.then(async results => {
 				if (!results) return;
 
 				const failed = [];
+				const created = [];
 
 				for (const row of rows) {
 					try {
 						await subgeography(row, { obj, results, csv, cid, vectors, resolution, level });
+						created.push(row[csv.id]);
 					} catch (err) {
 						console.error(err);
 						failed.push(row[csv.column]);
 					}
+				}
+
+				// the modal stays open: what was just created is no longer on offer
+				if (created.length && run === current) {
+					run.available = run.available.filter(row => !created.includes(row[csv.id]));
+
+					for (const o of [...names_select.options])
+						if (created.includes(o.value)) o.remove();
 				}
 
 				if (failed.length)
