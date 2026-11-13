@@ -241,6 +241,21 @@ export async function routine(obj, { edit_modal, pre }) {
 		break;
 	}
 
+	// A type that matched no case above (e.g. mutant types slipping through)
+	// must not crash at fn.name/fn(...) below — report it as an error object
+	// like any other routine failure.
+	if (!fn) {
+		const msg = `No paver routine for dataset type '${data.type}'.`;
+
+		console.error(msg, data);
+
+		return {
+			"error":   msg,
+			"routine": null,
+			payload,
+		};
+	}
+
 	await obj.fetch();
 
 	const ok = await payload_fill(data, payload, datasets_func);
@@ -393,11 +408,11 @@ export async function routine(obj, { edit_modal, pre }) {
 	paver_modal.show();
 };
 
-function flag(id) {
-	API.patch(
+function flag(id, flagged = true) {
+	return API.patch(
 		'datasets',
 		{ "id": `eq.${id}` },
-		{ "payload": { "flagged": true } },
+		{ "payload": { flagged } },
 	);
 };
 
@@ -489,12 +504,10 @@ async function submit(routine, dataset_id, payload, { paver_modal, pre }) {
 			if (!r.ok) {
 				const msg = await r.text();
 
-				if (!infopre) {
+				if (!infopre)
 					console.error(msg);
-					return;
-				}
-
-				infopre.innerText += `
+				else
+					infopre.innerText += `
 
 ${r.status} - ${r.statusText}
 
@@ -558,7 +571,7 @@ async function admin_boundaries($, payload, { paver_modal }) {
 async function clip_proximity($, payload, { paver_modal }) {
 	let f;
 	if (f = maybe($, 'vectors_configuration', 'vectors_id'))
-		payload.fields = payload.fields.push('vectors_id');
+		payload.fields.push('vectors_id');
 
 	if (f = maybe($, 'vectors_configuration', 'attributes_map'))
 		payload.fields = payload.fields.concat(f.map(x => x['dataset']));
@@ -572,18 +585,20 @@ async function clip_proximity($, payload, { paver_modal }) {
 	payload.fields = Array.from(new Set(payload.fields)).sort();
 
 	const points = $.type.match(/points/);
+	const simplify_default = maybe($.category, 'vectors', 'paver', 'simplify') || 0;
 
 	if (paver_modal) {
 		bind(paver_modal.content, {
 			"points":     points,
-			"simplify":   maybe($.category, 'vectors', 'paver', 'simplify') || 0,
+			"simplify":   simplify_default,
 			"selectable": select_attributes($, payload),
 		});
 	}
 
 	return function() {
-		payload.dissolve = points ? false :  paver_modal.content.querySelector('form input[name=dissolve]').checked;
-		payload.simplify = points ?   0   : +paver_modal.content.querySelector('form input[name=simplify]').value;
+		// no modal in the headless clip_datasets flow
+		payload.dissolve = points ? false : paver_modal ? paver_modal.content.querySelector('form input[name=dissolve]').checked : false;
+		payload.simplify = points ?   0   : paver_modal ? +paver_modal.content.querySelector('form input[name=simplify]').value : simplify_default;
 
 		return submit('clip-proximity', $.id, payload, { paver_modal });
 	};
@@ -699,7 +714,7 @@ async function subgeography(row, { results, cid, vectors, csv, obj, resolution, 
 			"adm":        obj.adm + level,
 			"resolution": parseInt(resolution),
 			"circle":     obj.circle,
-			"deployment": ['protected'],
+			"deployment": obj.deployment,
 		},
 	});
 
@@ -726,16 +741,17 @@ async function subgeography(row, { results, cid, vectors, csv, obj, resolution, 
 	});
 	await d.create().then(r => did = r.id);
 
-	// patch()'s validators read data.category, which create() doesn't return
+	// routine() branches on type/category_name, which create() does not return
 	await d.fetch();
 
-	d.patch({
-		"deployment":      ['protected'],
-		"processed_files": [],
-		source_files,
+	// dt.object.patch() refuses 'public' for a dataset with no content_date,
+	// which a freshly paven outline does not have.
+	await API.patch('datasets', { "id": `eq.${did}` }, {
+		"payload": { "deployment": obj.deployment },
+		"one":     true,
 	});
 
-	g.patch({
+	await g.patch({
 		"configuration": {
 			"divisions": [{
 				"name":       "Outline",
@@ -744,10 +760,182 @@ async function subgeography(row, { results, cid, vectors, csv, obj, resolution, 
 		},
 	});
 
-	return d.fetch()
+	await d.fetch()
 		.then(_ => routine(d, {}))
-		.then(go => go())
-		.then(result => result ? ds_patch(did, result) : null);
+		.then(e => e())
+		.then(r => r ? ds_patch(did, r) : null);
+
+	const errors = await clip_datasets(obj.id, gid, { "deployment": obj.deployment });
+
+	return { gid, errors };
+};
+
+// DS.id in tool/src/ds.js: `name` falling back to the category name.
+const ds_key = d => d.name || d.category_name;
+
+export async function clip_datasets(parent_id, geography_id, { pre, deployment } = {}) {
+	// Whitelist pavable types instead of blacklisting: mutant types
+	// (raster-mutant, raster-valued-mutant, ...) have no routine and would
+	// crash the whole loop below. Mutants are handled separately at the end.
+	const datasets = await API.get('datasets', {
+		"select":        "*,category_name",
+		"geography_id":  'eq.' + parent_id,
+		"category_name": 'not.in.(indicator,timeline-indicator,boundaries,admin-tiers,outline)',
+		"type":          'in.(points,lines,polygons,polygons-timeline,raster,raster-valued)',
+	});
+
+	// What the target geography already holds. A row with no processed_files
+	// is an unfinished clone left by an interrupted or failed run: it gets
+	// re-paved in place, rather than skipped (which would make the failure
+	// permanent) or cloned again (which would duplicate it). That makes
+	// re-running the inheritance both idempotent and a way to resume.
+	const existing = new Map();
+	const paved = new Set();
+
+	for (const e of await API.get('datasets', {
+		"select":       "*,category_name",
+		"geography_id": 'eq.' + geography_id,
+	})) {
+		existing.set(ds_key(e), e);
+
+		if ((e.processed_files || []).length) paved.add(ds_key(e));
+	}
+
+	const errors = [];
+
+	for (const d of datasets) {
+		const key = ds_key(d);
+
+		// One bad dataset must not abort the clipping of all the others.
+		try {
+			if (paved.has(key)) {
+				errors.push({
+					"data":    d,
+					"routine": null,
+					"error":   "Already present in this geography, skipped.",
+					"skipped": true,
+				});
+				continue;
+			}
+
+			if (!(d.source_files || []).length) {
+				errors.push({
+					"data":    d,
+					"routine": null,
+					"error":   "No source files to clip from, skipped.",
+					"skipped": true,
+				});
+				continue;
+			}
+
+			if (d.source_files.find(f => f.func === 'csv')) {
+				errors.push({
+					"data":    d,
+					"routine": null,
+					"error":   "CSV-sourced dataset: column mapping must be redone by hand, skipped.",
+					"skipped": true,
+				});
+				continue;
+			}
+
+			const resume = existing.get(key);
+
+			const n = resume
+				? new dt.object({ "module": datasets_module, "data": resume })
+				: await (new dt.object({ "module": datasets_module, "data": d })).clone({
+					"deployment":      deployment,
+					"processed_files": [],
+					"geography_id":    geography_id,
+					"source_files":    d.source_files,
+					"name":            d.name,
+				});
+
+			await n.fetch();
+
+			const t = await routine(n, { pre });
+
+			if (typeof t !== 'function') {
+				await flag(n.data.id);
+				existing.set(key, n.data);
+				errors.push(Object.assign({}, t, { "data": n.data }));
+				continue;
+			}
+
+			const x = await t();
+
+			if (!x) {
+				await flag(n.data.id);
+				existing.set(key, n.data);
+				errors.push({ "data": n.data, "error": "Routine failed, see FLASH/console." });
+				continue;
+			}
+
+			await ds_patch(n.data.id, x);
+
+			if (n.data.flagged) await flag(n.data.id, false);
+
+			existing.set(key, n.data);
+			paved.add(key);
+		} catch (err) {
+			console.error(err);
+			errors.push({ "data": d, "error": err.message });
+		}
+	}
+
+	return errors.concat(await clip_mutants(parent_id, geography_id, existing, paved, deployment));
+};
+
+// Mutants hold no data of their own: tool/src/ds.js `mutate()` borrows the
+// raster/vectors/colorscale of whichever host is selected, resolved by name
+// within the geography being viewed. So there is nothing to pave — the row
+// just needs to exist, and its hosts need to have been paved in the child.
+async function clip_mutants(parent_id, geography_id, existing, paved, deployment) {
+	const mutants = await API.get('datasets', {
+		"select":               "*,category_name",
+		"geography_id":         'eq.' + parent_id,
+		"category_name":        'not.in.(indicator,timeline-indicator,boundaries,admin-tiers,outline)',
+		"mutant_configuration": 'not.is.null',
+	});
+
+	const errors = [];
+
+	for (const m of mutants) {
+		try {
+			if (existing.has(ds_key(m))) continue;
+
+			const missing = (maybe(m, 'mutant_configuration', 'hosts') || [])
+				.filter(h => !paved.has(h));
+
+			if (missing.length) {
+				errors.push({
+					"data":    m,
+					"routine": null,
+					"error":   `Mutant skipped, hosts missing from this geography: ${missing.join(', ')}.`,
+					"skipped": true,
+				});
+				continue;
+			}
+
+			const o = new dt.object({
+				"module": datasets_module,
+				"data":   m,
+			});
+
+			const n = await o.clone({
+				"deployment":      deployment,
+				"processed_files": [],
+				"geography_id":    geography_id,
+				"name":            m.name,
+			});
+
+			existing.set(ds_key(m), n.data);
+		} catch (err) {
+			console.error(err);
+			errors.push({ "data": m, "error": err.message });
+		}
+	}
+
+	return errors;
 };
 
 async function load_division(division) {
@@ -911,11 +1099,18 @@ export async function subgeographies(obj, { divisions }) {
 
 				const failed = [];
 				const created = [];
+				const clip_failed = [];
 
 				for (const row of rows) {
 					try {
-						await subgeography(row, { obj, results, csv, cid, vectors, resolution, level });
+						const { errors } = await subgeography(row, { obj, results, csv, cid, vectors, resolution, level });
+
 						created.push(row[csv.id]);
+
+						if (errors.length) {
+							console.error(`clip errors for ${row[csv.column]}`, errors);
+							clip_failed.push(`${row[csv.column]}: ` + errors.map(e => `${maybe(e, 'data', 'category_name') || 'dataset'} — ${e.error}`).join('; '));
+						}
 					} catch (err) {
 						console.error(err);
 						failed.push(row[csv.column]);
@@ -929,12 +1124,21 @@ export async function subgeographies(obj, { divisions }) {
 					for (const o of [...names_select.options])
 						if (created.includes(o.value)) o.remove();
 				}
+				const infopre = c.querySelector('#infopre');
+				if (infopre) infopre.innerText += "\n\nDone.";
 
 				if (failed.length)
 					FLASH.push({
 						"type":    'error',
 						"title":   "Could not create some subgeographies",
 						"message": failed.join(', '),
+					});
+
+				if (clip_failed.length)
+					FLASH.push({
+						"type":    'error',
+						"title":   "Some layers were not auto-clipped",
+						"message": clip_failed.join(', '),
 					});
 			})
 			.catch(err => {
