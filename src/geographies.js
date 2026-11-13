@@ -359,7 +359,7 @@ function inherit_datasets() {
 		let errors;
 
 		try {
-			errors = await paver.clip_datasets(this.data.parent_id, this.data.id, { "pre": infopre });
+			errors = await paver.clip_datasets(this.data.parent_id, this.data.id, { "pre": infopre, "deployment": this.data.deployment });
 		} catch (err) {
 			console.error(err);
 

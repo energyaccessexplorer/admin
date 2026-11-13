@@ -714,7 +714,7 @@ async function subgeography(row, { results, cid, vectors, csv, obj, resolution, 
 			"adm":        obj.adm + level,
 			"resolution": parseInt(resolution),
 			"circle":     obj.circle,
-			"deployment": ['protected'],
+			"deployment": obj.deployment,
 		},
 	});
 
@@ -741,13 +741,14 @@ async function subgeography(row, { results, cid, vectors, csv, obj, resolution, 
 	});
 	await d.create().then(r => did = r.id);
 
-	// patch()'s validators read data.category, which create() doesn't return
+	// routine() branches on type/category_name, which create() does not return
 	await d.fetch();
 
-	d.patch({
-		"deployment":      ['protected'],
-		"processed_files": [],
-		source_files,
+	// dt.object.patch() refuses 'public' for a dataset with no content_date,
+	// which a freshly paven outline does not have.
+	await API.patch('datasets', { "id": `eq.${did}` }, {
+		"payload": { "deployment": obj.deployment },
+		"one":     true,
 	});
 
 	await g.patch({
@@ -764,27 +765,15 @@ async function subgeography(row, { results, cid, vectors, csv, obj, resolution, 
 		.then(e => e())
 		.then(r => r ? ds_patch(did, r) : null);
 
-	const errors = await clip_datasets(obj.id, gid);
+	const errors = await clip_datasets(obj.id, gid, { "deployment": obj.deployment });
 
 	return { gid, errors };
 };
 
-// Clones every non-boundary/non-indicator dataset from `parent_id` into
-// `geography_id` and re-runs it through the appropriate paver routine, so a
-// newly created (sub-)geography automatically gets clipped versions of
-// every layer available on its parent. Headless (no edit_modal/paver_modal),
-// same as subgeography()'s own outline pave above. CSV-sourced datasets are
-// skipped: their lng/lat and value columns are only ever entered by hand in
-// the paver modal and are never persisted on the dataset, so there is
-// nothing to re-derive them from outside that form.
-//
-// Datasets are identified the way the tool itself does it (DS.id in
-// tool/src/ds.js: `name` falling back to the category name), which is both
-// what makes a layer unique within a geography and what mutants reference
-// their hosts by.
+// DS.id in tool/src/ds.js: `name` falling back to the category name.
 const ds_key = d => d.name || d.category_name;
 
-export async function clip_datasets(parent_id, geography_id, { pre } = {}) {
+export async function clip_datasets(parent_id, geography_id, { pre, deployment } = {}) {
 	// Whitelist pavable types instead of blacklisting: mutant types
 	// (raster-mutant, raster-valued-mutant, ...) have no routine and would
 	// crash the whole loop below. Mutants are handled separately at the end.
@@ -854,7 +843,7 @@ export async function clip_datasets(parent_id, geography_id, { pre } = {}) {
 			const n = resume
 				? new dt.object({ "module": datasets_module, "data": resume })
 				: await (new dt.object({ "module": datasets_module, "data": d })).clone({
-					"deployment":      ['protected'],
+					"deployment":      deployment,
 					"processed_files": [],
 					"geography_id":    geography_id,
 					"source_files":    d.source_files,
@@ -893,14 +882,14 @@ export async function clip_datasets(parent_id, geography_id, { pre } = {}) {
 		}
 	}
 
-	return errors.concat(await clip_mutants(parent_id, geography_id, existing, paved));
+	return errors.concat(await clip_mutants(parent_id, geography_id, existing, paved, deployment));
 };
 
 // Mutants hold no data of their own: tool/src/ds.js `mutate()` borrows the
 // raster/vectors/colorscale of whichever host is selected, resolved by name
 // within the geography being viewed. So there is nothing to pave — the row
 // just needs to exist, and its hosts need to have been paved in the child.
-async function clip_mutants(parent_id, geography_id, existing, paved) {
+async function clip_mutants(parent_id, geography_id, existing, paved, deployment) {
 	const mutants = await API.get('datasets', {
 		"select":               "*,category_name",
 		"geography_id":         'eq.' + parent_id,
@@ -933,7 +922,7 @@ async function clip_mutants(parent_id, geography_id, existing, paved) {
 			});
 
 			const n = await o.clone({
-				"deployment":      ['protected'],
+				"deployment":      deployment,
 				"processed_files": [],
 				"geography_id":    geography_id,
 				"name":            m.name,
