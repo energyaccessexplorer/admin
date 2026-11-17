@@ -9,9 +9,10 @@ Object.assign(config, {
 
 	"paver_endpoint":      config.paver_endpoint || `${location.origin}/paver`,
 	"departer_endpoint":   config.departer_endpoint || `${location.origin}/departer`,
+	"api":                 config.api || `${location.origin}/api`,
 	"pre_view":            async _ => {
 		try {
-			const id = jwt_decode(localStorage['token']).id;
+			const id = jwt_decode(localStorage['token']).sub;
 			const u = (await dt.API.get('users', { "id": `eq.${id}` }, { "one": true }));
 
 			window.SELF = u;

@@ -1,0 +1,54 @@
+# Supabase deploy for the "staging" environment.
+name: SUPABASE STAGING DEPLOY
+
+on:
+  push:
+    branches: [ staging ]
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: sudo apt-get install -y bmake curl jq rsync awscli
+
+      - name: Build default.mk
+        run: |
+          cat > default.mk <<'EOF'
+          DT_PRODUCTION = false
+          DT_LOGO = "/admin/lib/images/eae-logo.svg"
+          DT_UPLOAD = "local"
+          DT_SRC = "development"
+          DT_PROJECT = "eae"
+          EOF
+
+      - name: Build staging.mk from vars
+        run: |
+          cat > staging.mk <<EOF
+          DT_BASE = "/staging/admin"
+          DT_API = "${{ vars.STAGING_DT_API }}"
+          AUTH_SERVER = "${{ vars.AUTH_SERVER }}"
+          AUTH_WORLD = "${{ vars.AUTH_WORLD }}"
+          DT_PRODUCTION = "false"
+          DT_UPLOAD = "${{ vars.DT_UPLOAD }}"
+          PAVER_ENDPOINT = "${{ vars.PAVER_ENDPOINT }}"
+          DEPARTER_ENDPOINT = "${{ vars.DEPARTER_ENDPOINT }}"
+          BUCKET_ENDPOINT = "${{ vars.BUCKET_ENDPOINT }}"
+          EOF
+
+      - name: Build
+        run: |
+          bmake env=staging build
+
+      - name: Deploy to Supabase Storage
+        run: |
+          aws s3 sync dist/ "s3://${{ vars.SUPABASE_BUCKET }}/staging/admin/" \
+            --endpoint-url "https://${{ vars.SUPABASE_PROJECT_REF }}.supabase.co/storage/v1/s3" \
+            --delete
+        env:
+          AWS_ACCESS_KEY_ID:     ${{ secrets.SUPABASE_STORAGE_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.SUPABASE_STORAGE_SECRET }}
+          AWS_DEFAULT_REGION:    us-east-1

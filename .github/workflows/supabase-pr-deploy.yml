@@ -1,0 +1,69 @@
+# PR previews on Supabase.
+name: SUPABASE PR DEPLOY
+
+on:
+  pull_request:
+    branches: [ trunk ]
+
+env:
+  DESTINATION: ${{ github.head_ref || github.ref_name }}
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: sudo apt-get install -y bmake curl jq rsync awscli
+
+      - name: Build default.mk
+        run: |
+          cat > default.mk <<'EOF'
+          DT_PRODUCTION = false
+          DT_LOGO = "/admin/lib/images/eae-logo.svg"
+          DT_UPLOAD = "local"
+          DT_SRC = "development"
+          DT_PROJECT = "eae"
+          EOF
+
+      - name: Build preview.mk from vars
+        run: |
+          cat > preview.mk <<EOF
+          DT_BASE = "/preview/${{ env.DESTINATION }}/admin"
+          DT_API = "${{ vars.DT_API }}"
+          AUTH_SERVER = "${{ vars.AUTH_SERVER }}"
+          AUTH_WORLD = "${{ vars.AUTH_WORLD }}"
+          DT_PRODUCTION = "false"
+          DT_UPLOAD = "${{ vars.DT_UPLOAD }}"
+          PAVER_ENDPOINT = "${{ vars.PAVER_ENDPOINT }}"
+          DEPARTER_ENDPOINT = "${{ vars.DEPARTER_ENDPOINT }}"
+          BUCKET_ENDPOINT = "${{ vars.BUCKET_ENDPOINT }}"
+          EOF
+
+      - name: Build
+        run: |
+          bmake env=preview build
+
+      - name: Deploy to Supabase Storage
+        run: |
+          aws s3 sync dist/ "s3://${{ vars.SUPABASE_BUCKET }}/preview/${{ env.DESTINATION }}/admin/" \
+            --endpoint-url "https://${{ vars.SUPABASE_PROJECT_REF }}.supabase.co/storage/v1/s3" \
+            --delete
+        env:
+          AWS_ACCESS_KEY_ID:     ${{ secrets.SUPABASE_STORAGE_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.SUPABASE_STORAGE_SECRET }}
+          AWS_DEFAULT_REGION:    us-east-1
+
+      - name: Comment preview URL
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const url = `${{ vars.SUPABASE_SITE_ROUTER_URL }}/preview/${{ env.DESTINATION }}/admin/`;
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `[Supabase track] Admin preview deployed: ${url}`,
+            });
