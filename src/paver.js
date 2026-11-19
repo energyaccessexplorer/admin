@@ -132,7 +132,7 @@ async function payload_fill($, payload, datasets_func) {
 	return true;
 };
 
-async function bucket_for_geography(geography_id) {
+export async function bucket_for_geography(geography_id) {
 	const tree = await API.get('geographies_tree_up', { "id": `eq.${geography_id}` }, { "one": true });
 
 	let root = {};

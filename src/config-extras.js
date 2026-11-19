@@ -4,6 +4,8 @@
 Object.assign(config, {
 	"storage_track_files": false,
 	"storage_use_prefix":  true,
+	// Uploads to a bucket outside Supabase, where the legacy uploads are.
+	"upload_directory":    "EnergyAccess/uploads",
 	"landing":             config.base + "/?model=geographies",
 	"email_reset":         "https://www.energyaccessexplorer.org/password-reset/",
 

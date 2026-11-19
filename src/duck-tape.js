@@ -1285,7 +1285,7 @@ function upload() {
 		ce('button', "Upload", { "type": "submit" }),
 	]);
 
-	function setup(el) {
+	function setup(el, scm) {
 		for (const t of qsa('[bind="storage"]', el)) {
 			const g = t.closest('.input-group');
 			const l = qs('label', g);
@@ -1302,7 +1302,7 @@ function upload() {
 			if (t.readonly || t.disabled) ;
 			else {
 				const a = ce('a', bi_icon('cloud-upload'), { "bind-upload": "" });
-				a.onclick = _ => run(g);
+				a.onclick = _ => run(g, scm);
 
 				l.prepend(a);
 			}
@@ -1426,6 +1426,32 @@ function upload() {
 				return `${config.supabase_url}/storage/v1${body.url}`;
 			});
 	}
+	// A bucket kept outside Supabase is paver's to sign for: its PUT URL names
+	// the object, and without the signature it is the object's public URL.
+	function paversign(file, platform) {
+		const q = new URLSearchParams({
+			"directory": config.upload_directory,
+			"filename":  file.id,
+			"s3":        platform,
+			"method":    'PUT',
+		});
+
+		return fetch(`${config.paver_endpoint}/s3-presigned?${q}`, {
+			"headers": { "Authorization": `Bearer ${localStorage.getItem(ACCESS_KEY)}` },
+		})
+			.then(async r => {
+				if (!r.ok) throw new Error(`Paver refused the upload (${r.status}): ${await r.text()}`);
+
+				return r.text();
+			});
+	}
+	function unsigned(u) {
+		const url = new URL(u);
+		url.search = "";
+		url.hostname = url.hostname.replace(/\.s3\.[a-z0-9-]+\.amazonaws\.com$/, '.s3.amazonaws.com');
+
+		return url.toString();
+	}
 	function upload(url, file, progress = null) {
 		if (!url) return Promise.reject(new Error("Missing upload URL"));
 
@@ -1490,9 +1516,11 @@ function upload() {
 
 		let m;
 
+		const value = file.url || (config.storage_use_prefix ? bucket : "") + file.id;
+
 		if (input_group) {
 			const t = qs('input', input_group);
-			t.value = (config.storage_use_prefix ? bucket : "") + file.id;
+			t.value = value;
 
 			t.focus();
 
@@ -1504,7 +1532,7 @@ Saved as: <br><br>
 <input bind="response" type="text" pattern="${UUID_REGEXP}">`));
 
 			const i = qs('[bind=response]', form);
-			i.value = (config.storage_use_prefix ? bucket : "") + file.id;
+			i.value = value;
 
 			qs('[type=submit]', form).setAttribute('disabled', true);
 			qs('input[type=file]', form).setAttribute('disabled', true);
@@ -1523,12 +1551,12 @@ Saved as: <br><br>
 
 		return url;
 	}
-	function run(input_group) {
+	function run(input_group, scm) {
 		const f = form.cloneNode(true);
 
 		const mimeinput = mimesetup(f);
 
-		f.addEventListener('submit', function(e) {
+		f.addEventListener('submit', async function(e) {
 			e.preventDefault();
 
 			const input = qs('input[type=file]', f);
@@ -1545,7 +1573,17 @@ Saved as: <br><br>
 
 			let fn = Whatever;
 
-			if (storage) {
+			const platform = typeof scm?.upload_platform === 'function' ?
+				await scm.upload_platform(__data) :
+				null;
+
+			if (storage && platform) {
+				fn = Whatever
+					.then(_ => paversign(file, platform))
+					.then(u => upload(u, file, p))
+					.then(u => file.url = unsigned(u));
+			}
+			else if (storage) {
 				fn = Whatever
 					.then(_ => signupload(file))
 					.then(u => upload(u, file, p))
@@ -2890,7 +2928,7 @@ function field_basics(scm, data, key, is_new, hint_append) {
 	}
 
 	if (scm.bind === 'storage')
-		dt.upload.setup(this.closest('.input-group'));
+		dt.upload.setup(this.closest('.input-group'), scm);
 
 	if (typeof scm.callback === 'function')
 		scm.callback.call(__data, data, this);
