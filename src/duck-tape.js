@@ -1407,7 +1407,7 @@ function upload() {
 	// Storage's signed upload URL names the object in the bucket; the PUT below
 	// carries the file, and the object is public once written.
 	function signupload(file) {
-		const object = `${config.upload_prefix}/${file.id}`;
+		const object = `${config.upload_prefix}/${file.key}`;
 		const url = `${config.supabase_url}/storage/v1/object/upload/sign/${config.upload_bucket}/${object}`;
 
 		return fetch(url, {
@@ -1431,7 +1431,7 @@ function upload() {
 	function paversign(file, platform) {
 		const q = new URLSearchParams({
 			"directory": config.upload_directory,
-			"filename":  file.id,
+			"filename":  file.key,
 			"s3":        platform,
 			"method":    'PUT',
 		});
@@ -1516,7 +1516,7 @@ function upload() {
 
 		let m;
 
-		const value = file.url || (config.storage_use_prefix ? bucket : "") + file.id;
+		const value = file.url || (config.storage_use_prefix ? bucket : "") + file.key;
 
 		if (input_group) {
 			const t = qs('input', input_group);
@@ -1561,8 +1561,14 @@ Saved as: <br><br>
 
 			const input = qs('input[type=file]', f);
 
+			const id = uuid();
+
+			// The object keeps the file's extension, so a download opens by name.
+			const ext = (input.files[0].name.match(/\.[A-Za-z0-9]{1,8}$/) || [""])[0].toLowerCase();
+
 			const file = {
-				"id":       uuid(),
+				id,
+				"key":      id + ext,
 				"raw":      input.files[0],
 				"mimetype": mimeinput.value,
 			};
@@ -1587,7 +1593,7 @@ Saved as: <br><br>
 				fn = Whatever
 					.then(_ => signupload(file))
 					.then(u => upload(u, file, p))
-					.then(_ => bucket + file.id);
+					.then(_ => bucket + file.key);
 			}
 
 			if (maas) {
