@@ -2,7 +2,7 @@
 DT_BASE = "/admin"
 DT_PRODUCTION = false
 DT_LOGO = "/admin/lib/images/eae-logo.svg"
-DT_UPLOAD = "local"
+DT_UPLOAD = "s3"
 DT_SRC = "development"
 DT_PROJECT = "eae"
 
@@ -12,4 +12,8 @@ DT_PROJECT = "eae"
 PAVER_ENDPOINT = ""
 DEPARTER_ENDPOINT = ""
 STATUS_ENDPOINT = "http://eae.localhost/status"
-BUCKET_ENDPOINT = "http://eae.localhost/bucket"
+
+# Uploads go to Supabase Storage: the object is written under UPLOAD_PREFIX in
+# UPLOAD_BUCKET, and duck-tape.js builds its public URL from the two.
+UPLOAD_BUCKET = "wri-public-data"
+UPLOAD_PREFIX = "EnergyAccess/uploads"

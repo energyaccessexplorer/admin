@@ -9,7 +9,7 @@
 .bz2	BZip2 archive	application/x-bzip2
 .csh	C-Shell script	application/x-csh
 .css	Cascading Style Sheets (CSS)	text/css
-.csv	Comma-separated values (CSV)	text/csv
+.csv	Comma-separated values (CSV)	text/plain; charset=utf-8
 .doc	Microsoft Word	application/msword
 .docx	Microsoft Word (OpenXML)	application/vnd.openxmlformats-officedocument.wordprocessingml.document
 .eot	MS Embedded OpenType fonts	application/vnd.ms-fontobject

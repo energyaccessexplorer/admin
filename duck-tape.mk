@@ -22,8 +22,8 @@ build: deps
 	@echo '{}' \
 		| jq '.api = ${DT_API}' \
 		| jq '.logo = ${DT_LOGO}' \
-		| jq '.auth_server = ${AUTH_SERVER}' \
-		| jq '.auth_world = ${AUTH_WORLD}' \
+		| jq '.supabase_url = ${SUPABASE_URL}' \
+		| jq '.supabase_anon_key = ${SUPABASE_ANON_KEY}' \
 		| jq '.production = ${DT_PRODUCTION}' \
 		| jq '.upload = ${DT_UPLOAD}' \
 		| jq '.src = ${DT_SRC}' \
@@ -32,7 +32,8 @@ build: deps
 		| jq '.paver_endpoint = ${PAVER_ENDPOINT}' \
 		| jq '.departer_endpoint = ${DEPARTER_ENDPOINT}' \
 		| jq '.status = ${STATUS_ENDPOINT}' \
-		| jq '.bucket = ${BUCKET_ENDPOINT}' \
+		| jq '.upload_bucket = ${UPLOAD_BUCKET}' \
+		| jq '.upload_prefix = ${UPLOAD_PREFIX}' \
 		> tmpconfig
 
 	@cat tmpconfig | jq

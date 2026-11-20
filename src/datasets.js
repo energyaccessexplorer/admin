@@ -8,6 +8,7 @@ import {
 import {
 	server_check as paver_server_check,
 	routine as paver_routine,
+	bucket_for_geography,
 } from './paver.js';
 
 import {
@@ -133,10 +134,15 @@ export const model = {
 					},
 
 					"endpoint": {
-						"type":     "string",
-						"required": true,
-						"pattern":  "^https://(.+)",
-						"bind":     "storage",
+						"type":            "string",
+						"required":        true,
+						"pattern":         "^https://(.+)",
+						"bind":            "storage",
+						// A country with its own bucket keeps its uploads there.
+						"upload_platform": async data => {
+							const b = data?.geography_id && await bucket_for_geography(data.geography_id);
+							return b && b !== "world" ? b : null;
+						},
 						"callback": show_modal,
 						"hint":     "Enter the secure URL that corresponds to the dataset in the cloud",
 					},

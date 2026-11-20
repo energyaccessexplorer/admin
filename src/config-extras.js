@@ -4,14 +4,17 @@
 Object.assign(config, {
 	"storage_track_files": false,
 	"storage_use_prefix":  true,
+	// Uploads to a bucket outside Supabase, where the legacy uploads are.
+	"upload_directory":    "EnergyAccess/uploads",
 	"landing":             config.base + "/?model=geographies",
 	"email_reset":         "https://www.energyaccessexplorer.org/password-reset/",
 
 	"paver_endpoint":      config.paver_endpoint || `${location.origin}/paver`,
 	"departer_endpoint":   config.departer_endpoint || `${location.origin}/departer`,
+	"api":                 config.api || `${location.origin}/api`,
 	"pre_view":            async _ => {
 		try {
-			const id = jwt_decode(localStorage['token']).id;
+			const id = jwt_decode(localStorage['token']).sub;
 			const u = (await dt.API.get('users', { "id": `eq.${id}` }, { "one": true }));
 
 			window.SELF = u;

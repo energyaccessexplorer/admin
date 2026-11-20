@@ -26,6 +26,12 @@ import * as datasets_module from './datasets.js';
 const FLASH = dt.FLASH;
 const API = dt.API;
 
+// the routine and the parameters a paver result was produced with, keyed onto
+// the result so it travels to ds_patch()
+const PAVER_CALL = Symbol('paver_call');
+
+const PAVER_PARAMS = ['fields', 'dissolve', 'simplify', 'lnglat', 'attr', 'config', 'resolution'];
+
 export function server_check() {
 	return fetch(`${dt.config.paver_endpoint}/check`, {
 		"method":  'OPTIONS',
@@ -126,7 +132,7 @@ async function payload_fill($, payload, datasets_func) {
 	return true;
 };
 
-async function bucket_for_geography(geography_id) {
+export async function bucket_for_geography(geography_id) {
 	const tree = await API.get('geographies_tree_up', { "id": `eq.${geography_id}` }, { "one": true });
 
 	let root = {};
@@ -221,7 +227,8 @@ export async function routine(obj, { edit_modal, pre }) {
 	}
 
 	case 'raster': {
-		if (data.source_files.find(f => f.func === 'csv')) {
+		// a csv source next to a raster one is its class legend, not the data
+		if (data.source_files.find(f => f.func === 'csv') && !data.source_files.find(f => f.func === 'raster')) {
 			fn = csv_raster;
 			datasets_func = 'csv';
 			template = 'datasets/paver-csv-raster.html';
@@ -416,6 +423,20 @@ function flag(id, flagged = true) {
 	);
 };
 
+// the payload paver decodes, minus the inputs that name where its data comes from
+function paver_params(payload) {
+	const params = {};
+
+	for (const k of PAVER_PARAMS) {
+		if (payload[k] !== undefined) params[k] = payload[k];
+	}
+
+	// paver decodes lnglat as a pair of column names, the form gives "lng,lat"
+	if (typeof params.lnglat === 'string') params.lnglat = params.lnglat.split(',');
+
+	return params;
+};
+
 async function submit(routine, dataset_id, payload, { paver_modal, pre }) {
 	const infopre = pre || (paver_modal?.footer || document).querySelector('#infopre');
 
@@ -516,7 +537,14 @@ ${msg}`;
 				return fail({ "error": msg });
 			}
 
-			return fail(await r.json());
+			const result = fail(await r.json());
+
+			if (result) result[PAVER_CALL] = {
+				"routine": routine,
+				"params":  paver_params(payload),
+			};
+
+			return result;
 		}
 	} finally {
 		listener.close();
@@ -1161,5 +1189,15 @@ function ds_patch(id, results) {
 			"endpoint": results[func],
 		}));
 
-	return API.patch('datasets', { "id": `eq.${id}` }, { "payload": { processed_files }, "one": true });
+	const payload = { processed_files };
+
+	const call = results[PAVER_CALL];
+
+	if (call) payload.paver_params = Object.assign(call, {
+		"origin": "admin",
+		"check":  { "status": "unchecked" },
+		"at":     new Date().toISOString(),
+	});
+
+	return API.patch('datasets', { "id": `eq.${id}` }, { "payload": payload, "one": true });
 };

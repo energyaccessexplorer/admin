@@ -410,6 +410,73 @@ background-color: rgba(0,0,0,0.4);
 	}
 }
 
+const ACCESS_KEY = 'token';
+const REFRESH_KEY = 'refresh_token';
+
+function auth_headers(config, token) {
+	const h = {
+		"Content-Type": 'application/json',
+		"apikey":       config.supabase_anon_key,
+	};
+
+	if (token) h['Authorization'] = `Bearer ${token}`;
+
+	return h;
+}
+
+function auth_store(session) {
+	if (session.access_token) localStorage.setItem(ACCESS_KEY, session.access_token);
+	if (session.refresh_token) localStorage.setItem(REFRESH_KEY, session.refresh_token);
+}
+
+function auth_clear() {
+	localStorage.removeItem(ACCESS_KEY);
+	localStorage.removeItem(REFRESH_KEY);
+}
+
+function auth_message(body) {
+	return body.msg || body.error_description || body.message || body.error || '';
+}
+
+let auth_pending = null;
+
+// One grant at a time: GoTrue rotates the refresh token on use, so a second
+// concurrent refresh would present one that the first has already spent.
+function auth_refresh(config) {
+	const rt = localStorage.getItem(REFRESH_KEY);
+
+	if (!rt) return Promise.reject(new Error("No refresh token"));
+
+	if (!auth_pending)
+		auth_pending = fetch(`${config.supabase_url}/auth/v1/token?grant_type=refresh_token`, {
+			"method":  'POST',
+			"headers": auth_headers(config),
+			"body":    JSON.stringify({ "refresh_token": rt }),
+		})
+			.then(async r => {
+				const body = await r.json().catch(_ => ({}));
+
+				if (!r.ok) {
+					auth_clear();
+					throw new Error(auth_message(body) || `Refresh failed (${r.status})`);
+				}
+
+				auth_store(body);
+
+				return body.access_token;
+			})
+			.finally(_ => { auth_pending = null; });
+
+	return auth_pending;
+}
+
+function auth_retoken(request, token) {
+	return {
+		...request,
+		"headers": { ...request.headers, "Authorization": `Bearer ${token}` },
+	};
+}
+
 class pgrest {
 	constructor(base, flash, login_redirect) {
 		this.base = base;
@@ -450,13 +517,14 @@ class pgrest {
 	req(method, options) {
 		const {contenttype, one, expect, count, schema} = options;
 
-		const t = localStorage.getItem('token');
+		const t = localStorage.getItem(ACCESS_KEY);
 
 		const r = {
 			"method":  method,
 			"headers": {
 				"Authorization": t ? `Bearer ${t}` : undefined,
 				"Content-Type":  (contenttype || 'application/json'),
+				"apikey":        config.supabase_anon_key,
 			},
 		};
 
@@ -489,6 +557,23 @@ class pgrest {
 		return r;
 	};
 
+	renew(url, request) {
+		return fetch(url, request)
+			.catch(_ => ({
+				"ok":     false,
+				"status": 0,
+				"json":   _ => null,
+			}))
+			.then(r => {
+				if (r.status !== 401 || !localStorage.getItem(REFRESH_KEY))
+					return r;
+
+				return auth_refresh(config)
+					.catch(_ => null)
+					.then(t => t ? fetch(url, auth_retoken(request, t)).catch(_ => r) : r);
+			});
+	};
+
 	go(request, table, params = {}, options = {}) {
 		const url = new URL(this.base + "/" + table);
 
@@ -499,12 +584,7 @@ class pgrest {
 			url.searchParams.set(k,v);
 		}
 
-		return fetch(url, request)
-			.catch(_ => ({
-				"ok":     false,
-				"status": 0,
-				"json":   _ => null,
-			}))
+		return this.renew(url, request)
 			.then(async r => {
 				if (request.method === "HEAD")
 					return r.headers;
@@ -541,17 +621,10 @@ class pgrest {
 					}
 
 					case 401: {
-						if (message === "JWT expired") {
-							message = "Authentication token expired. Log in on the other tab.";
+						message = "Authentication token expired or invalid. Log in again.";
 
-							localStorage.removeItem('token');
-							redirect();
-						} else if (message.match(/JWSError .*/)) {
-							message = "Invalid authentication token. Log in on the other tab.";
-
-							localStorage.removeItem('token');
-							redirect();
-						}
+						auth_clear();
+						redirect();
 
 						break;
 					}
@@ -651,25 +724,13 @@ class pgrest {
 
 const noop = _ => null;
 
-async function sha(str, size = 256) {
-	if (![1,256,384,512].includes(size)) throw new Error(`sha: algorithm SHA-${size} not supported.`);
-
-	const hb = await crypto.subtle.digest('SHA-'+size, new TextEncoder().encode(str));
-	return Array.from(new Uint8Array(hb)).map(b => b.toString(16).padStart(2, '0')).join('');
-}
-async function login$1({ endpoint, email, password, world, error, success }) {
+async function login$1({ config, email, password, error, success }) {
 	const url = new URL(location);
 
-	return fetch(endpoint, {
-		"method": "POST",
-		"body":   JSON.stringify({
-			"email":    email,
-			"password": await sha(password),
-			"world":    world,
-		}),
-		"headers": {
-			"content-type": 'application/json',
-		},
+	return fetch(`${config.supabase_url}/auth/v1/token?grant_type=password`, {
+		"method":  "POST",
+		"body":    JSON.stringify({ email, password }),
+		"headers": auth_headers(config),
 	})
 		.catch(r => {
 			error({
@@ -682,13 +743,13 @@ async function login$1({ endpoint, email, password, world, error, success }) {
 		})
 		.then(async r => ({
 			"status":   r.status,
-			"response": await r.text(),
+			"response": await r.json().catch(_ => ({})),
 		}))
 		.then(r => {
 			switch (r.status) {
 			case 200: {
 				let rd;
-				localStorage.setItem("token", r.response);
+				auth_store(r.response);
 
 				if (url.searchParams.get('popup') === "true")
 					window.close();
@@ -706,21 +767,12 @@ async function login$1({ endpoint, email, password, world, error, success }) {
 				break;
 			}
 
-			case 400: {
-				error({
-					"type":    'error',
-					"title":   "Bad Request",
-					"message": r.response,
-				});
-
-				break;
-			}
-
+			case 400:
 			case 401: {
 				error({
 					"type":    'error',
 					"title":   "Unauthorized",
-					"message": r.response,
+					"message": auth_message(r.response),
 				});
 
 				break;
@@ -730,7 +782,7 @@ async function login$1({ endpoint, email, password, world, error, success }) {
 				error({
 					"type":    'error',
 					"title":   "Server Error!",
-					"message": r.response,
+					"message": auth_message(r.response) || `Status code: ${r.status}`,
 				});
 
 				break;
@@ -786,14 +838,12 @@ function form$1(args) {
 	return f;
 }
 function init$2({
-	endpoint,
-	world,
+	config,
 	success = noop,
 	error = m => { alert(m.message); },
 }) {
 	return form$1({
-		endpoint,
-		world,
+		config,
 		success,
 		error,
 	});
@@ -937,13 +987,23 @@ function login(config) {
 
 	console.log(config);
 
-	if (and$1(!localStorage.getItem('token'),
+	if (and$1(!localStorage.getItem(ACCESS_KEY),
 	        !location.href.match(login_path))) {
 		window.location = config.base + '/?login';
 		return true;
 	}
 
 	else if (location.href.match(login_path)) {
+		const session = localStorage.getItem(ACCESS_KEY);
+
+		auth_clear();
+
+		if (session)
+			fetch(`${config.supabase_url}/auth/v1/logout`, {
+				"method":  'POST',
+				"headers": auth_headers(config, session),
+			}).catch(_ => null);
+
 		document.body.replaceChildren();
 
 		const FLASH = new flash();
@@ -957,8 +1017,7 @@ function login(config) {
 		document.body.append(d);
 
 		const lf = init$2({
-			"endpoint": config.auth_server + "/login",
-			"world":    config.auth_world,
+			config,
 			"success":  _ => window.location = config.base,
 			"error":    m => {
 				if (config.email_reset &&
@@ -1205,8 +1264,12 @@ function upload() {
 	const API = dt.API;
 	const FLASH = dt.FLASH;
 
-	const s3 = config.upload === "s3";
-	const maas = and$1(!s3, !!config.upload);
+	const storage = config.upload === "s3";
+	const maas = and$1(!storage, !!config.upload);
+
+	// Public URL of the object signupload() writes, derived from the same two
+	// names so the field can never point somewhere the PUT did not write.
+	const bucket = `${config.supabase_url}/storage/v1/object/public/${config.upload_bucket}/${config.upload_prefix}/`;
 
 	const storage_modal = new modal({ "id": 'storage-modal' });
 
@@ -1222,7 +1285,7 @@ function upload() {
 		ce('button', "Upload", { "type": "submit" }),
 	]);
 
-	function setup(el) {
+	function setup(el, scm) {
 		for (const t of qsa('[bind="storage"]', el)) {
 			const g = t.closest('.input-group');
 			const l = qs('label', g);
@@ -1239,7 +1302,7 @@ function upload() {
 			if (t.readonly || t.disabled) ;
 			else {
 				const a = ce('a', bi_icon('cloud-upload'), { "bind-upload": "" });
-				a.onclick = _ => run(g);
+				a.onclick = _ => run(g, scm);
 
 				l.prepend(a);
 			}
@@ -1341,18 +1404,53 @@ function upload() {
 
 		else return Whatever.then(_ => path);
 	}
-	function s3signedurl(file) {
-		const signer = new pgrest(config.auth_server, FLASH);
+	// Storage's signed upload URL names the object in the bucket; the PUT below
+	// carries the file, and the object is public once written.
+	function signupload(file) {
+		const object = `${config.upload_prefix}/${file.key}`;
+		const url = `${config.supabase_url}/storage/v1/object/upload/sign/${config.upload_bucket}/${object}`;
 
-		return signer.post('s3-signed-url', null, {
-			"payload": {
-				"method":       "PUT",
-				"world":        config.auth_world,
-				"path":         file.id,
-				"content-type": file.mimetype,
+		return fetch(url, {
+			"method":  'POST',
+			// No body, so no content-type: Storage rejects an empty JSON request.
+			"headers": {
+				"apikey":        config.supabase_anon_key,
+				"Authorization": `Bearer ${localStorage.getItem(ACCESS_KEY)}`,
 			},
-			"expect": "text",
+		})
+			.then(async r => {
+				const body = await r.json().catch(_ => ({}));
+
+				if (!r.ok) throw new Error(auth_message(body) || `Storage refused the upload (${r.status})`);
+
+				return `${config.supabase_url}/storage/v1${body.url}`;
+			});
+	}
+	// A bucket kept outside Supabase is paver's to sign for: its PUT URL names
+	// the object, and without the signature it is the object's public URL.
+	function paversign(file, platform) {
+		const q = new URLSearchParams({
+			"directory": config.upload_directory,
+			"filename":  file.key,
+			"s3":        platform,
+			"method":    'PUT',
 		});
+
+		return fetch(`${config.paver_endpoint}/s3-presigned?${q}`, {
+			"headers": { "Authorization": `Bearer ${localStorage.getItem(ACCESS_KEY)}` },
+		})
+			.then(async r => {
+				if (!r.ok) throw new Error(`Paver refused the upload (${r.status}): ${await r.text()}`);
+
+				return r.text();
+			});
+	}
+	function unsigned(u) {
+		const url = new URL(u);
+		url.search = "";
+		url.hostname = url.hostname.replace(/\.s3\.[a-z0-9-]+\.amazonaws\.com$/, '.s3.amazonaws.com');
+
+		return url.toString();
 	}
 	function upload(url, file, progress = null) {
 		if (!url) return Promise.reject(new Error("Missing upload URL"));
@@ -1391,10 +1489,9 @@ function upload() {
 					}
 				});
 
-				if (s3) {
+				if (storage) {
 					xhr.open('PUT', url, true);
 					xhr.setRequestHeader("content-type", file.mimetype);
-					xhr.setRequestHeader("x-amz-acl", file.acl);
 					xhr.send(e.target.result);
 				}
 
@@ -1419,9 +1516,11 @@ function upload() {
 
 		let m;
 
+		const value = file.url || (config.storage_use_prefix ? bucket : "") + file.key;
+
 		if (input_group) {
 			const t = qs('input', input_group);
-			t.value = (config.storage_use_prefix ? config.bucket : "") + file.id;
+			t.value = value;
 
 			t.focus();
 
@@ -1433,7 +1532,7 @@ Saved as: <br><br>
 <input bind="response" type="text" pattern="${UUID_REGEXP}">`));
 
 			const i = qs('[bind=response]', form);
-			i.value = (config.storage_use_prefix ? config.bucket : "") + file.id;
+			i.value = value;
 
 			qs('[type=submit]', form).setAttribute('disabled', true);
 			qs('input[type=file]', form).setAttribute('disabled', true);
@@ -1452,24 +1551,26 @@ Saved as: <br><br>
 
 		return url;
 	}
-	function run(input_group) {
+	function run(input_group, scm) {
 		const f = form.cloneNode(true);
 
 		const mimeinput = mimesetup(f);
 
-		f.addEventListener('submit', function(e) {
+		f.addEventListener('submit', async function(e) {
 			e.preventDefault();
 
 			const input = qs('input[type=file]', f);
 
-			console.info("ACL is temporarily hard-coded to 'public-read'");
-			const acl = "public-read";
+			const id = uuid();
+
+			// The object keeps the file's extension, so a download opens by name.
+			const ext = (input.files[0].name.match(/\.[A-Za-z0-9]{1,8}$/) || [""])[0].toLowerCase();
 
 			const file = {
-				"id":       uuid(),
+				id,
+				"key":      id + ext,
 				"raw":      input.files[0],
 				"mimetype": mimeinput.value,
-				"acl":      acl,
 			};
 
 			const p = qs('progress', f) || ce('progress');
@@ -1478,10 +1579,21 @@ Saved as: <br><br>
 
 			let fn = Whatever;
 
-			if (s3) {
+			const platform = typeof scm?.upload_platform === 'function' ?
+				await scm.upload_platform(__data) :
+				null;
+
+			if (storage && platform) {
 				fn = Whatever
-					.then(_ => s3signedurl(file))
-					.then(u => upload(u, file, p));
+					.then(_ => paversign(file, platform))
+					.then(u => upload(u, file, p))
+					.then(u => file.url = unsigned(u));
+			}
+			else if (storage) {
+				fn = Whatever
+					.then(_ => signupload(file))
+					.then(u => upload(u, file, p))
+					.then(_ => bucket + file.key);
 			}
 
 			if (maas) {
@@ -2822,7 +2934,7 @@ function field_basics(scm, data, key, is_new, hint_append) {
 	}
 
 	if (scm.bind === 'storage')
-		dt.upload.setup(this.closest('.input-group'));
+		dt.upload.setup(this.closest('.input-group'), scm);
 
 	if (typeof scm.callback === 'function')
 		scm.callback.call(__data, data, this);
