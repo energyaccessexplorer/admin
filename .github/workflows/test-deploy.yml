@@ -7,6 +7,8 @@ on:
 jobs:
   build-deploy:
     runs-on: ubuntu-latest
+    # The Supabase project this branch builds against.
+    environment: staging
 
     steps:
       - name: Parse ticket tag from commit message
@@ -64,17 +66,29 @@ jobs:
             echo "endpoint=${{ vars.DEPARTER_ENDPOINT }}" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Check the staging environment
+        if: steps.ticket.outputs.matched == 'true'
+        run: |
+          test -n "${{ vars.SUPABASE_URL }}" && test -n "${{ vars.SUPABASE_ANON_KEY }}" || {
+            echo "::error::the staging environment needs the variables SUPABASE_URL and SUPABASE_ANON_KEY"
+            exit 1
+          }
+
       - name: Build test.mk from secrets
         if: steps.ticket.outputs.matched == 'true'
         run: |
           cat > test.mk <<EOF
           DT_BASE = "/${{ steps.ticket.outputs.id }}/admin"
           DT_LOGO = "/${{ steps.ticket.outputs.id }}/admin/lib/images/eae-logo.svg"
-          DT_API = "${{ vars.DT_API }}"
+          DT_API = "${{ vars.SUPABASE_URL }}/rest/v1"
+          SUPABASE_URL = "${{ vars.SUPABASE_URL }}"
+          SUPABASE_ANON_KEY = "${{ vars.SUPABASE_ANON_KEY }}"
+          UPLOAD_BUCKET = "paver-outputs"
+          UPLOAD_PREFIX = "EnergyAccess/uploads"
           AUTH_SERVER = "${{ vars.AUTH_SERVER }}"
           AUTH_WORLD = "${{ vars.AUTH_WORLD }}"
           DT_PRODUCTION = "${{ vars.DT_PRODUCTION }}"
-          DT_UPLOAD = "${{ vars.DT_UPLOAD }}"
+          DT_UPLOAD = "s3"
           PAVER_ENDPOINT = "${{ steps.paver.outputs.endpoint }}"
           DEPARTER_ENDPOINT = "${{ steps.departer.outputs.endpoint }}"
           BUCKET_ENDPOINT = "${{ vars.BUCKET_ENDPOINT }}"
