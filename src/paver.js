@@ -939,11 +939,20 @@ function ds_patch(id, results) {
 
 	const payload = { processed_files };
 
-	const call = results[PAVER_CALL];
+	// paver says what it ran and which build ran it; one that does not is
+	// recorded with what was sent, to be checked later
+	const paver = results.paver;
+	const call = paver ?
+		{ "routine": paver.routine, "params": paver.params } :
+		results[PAVER_CALL];
+
+	const check = paver ?
+		{ "status": "paved", "paver": paver.version || null } :
+		{ "status": "unchecked" };
 
 	if (call) payload.paver_params = Object.assign(call, {
 		"origin": "admin",
-		"check":  { "status": "unchecked" },
+		"check":  check,
 		"at":     new Date().toISOString(),
 	});
 
