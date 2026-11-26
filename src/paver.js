@@ -46,6 +46,29 @@ export function server_check() {
 	});
 };
 
+// The field names a dataset's source offers: a CSV's header, or the
+// properties of a GeoJSON's first feature.
+export async function available_properties(d) {
+	const csv = ['points', 'raster'].includes(d.type) && maybe(d.source_files?.find(f => f.func === 'csv'), 'endpoint');
+
+	if (csv)
+		return fetch(csv)
+			.then(r => r.text())
+			.then(t => t.split(/(\r\n|\n)/)[0].split(','));
+
+	const vectors = maybe(d.source_files?.find(f => f.func === 'vectors'), 'endpoint');
+
+	if (!vectors) return [];
+
+	return fetch(vectors)
+		.then(r => r.json())
+		.then(r => Object.keys(r.features[0]['properties']))
+		.catch(e => {
+			console.warn("Could not read the fields of", vectors, "(a zip file?)", e);
+			return [];
+		});
+};
+
 function select_attributes($, payload) {
 	const arr = $._available_properties.map(a => {
 		const o = ce('option', a, { "value": a });
@@ -273,6 +296,11 @@ export async function routine(obj, { edit_modal, pre }) {
 	if (!edit_modal)
 		return (await fn(data, payload, { pre }));
 
+	// The editor starts reading these without waiting; on a large source a
+	// quick click gets here first.
+	if (!data._available_properties)
+		data._available_properties = await available_properties(data);
+
 	const formid = "form-" + uuid();
 	const paver_modal = new modal({
 		header,
@@ -299,110 +327,55 @@ export async function routine(obj, { edit_modal, pre }) {
 		b.innerText = "Paving...";
 		b.setAttribute('disabled', '');
 
-		await go()
-			.then(r => r ? ds_patch(data.id, r) : null)
-			.then(r => {
-				const form = qs('form', edit_modal.content);
+		try {
+			const r = await go();
 
-				const changes = [];
+			// a failed pave leaves nothing to pass on to the subgeographies
+			if (!r) return;
 
-				for (const k in r) {
-					const d = typeof data[k];
+			const patched = await ds_patch(data.id, r);
 
-					switch (d) {
-					case 'object': {
-						if (JSON.stringify(data[k]) !== JSON.stringify(r[k]))
-							changes.push(k);
-						break;
-					}
+			const changes = Object.keys(patched)
+				.filter(k => JSON.stringify(data[k]) !== JSON.stringify(patched[k]));
 
-					default: {
-						if (data[k] !== r[k])
-							changes.push(k);
-						break;
-					}
-					}
-				}
+			const form = qs('form', edit_modal.content);
 
-				obj.fetch()
-					.then(_ => dt.edit_update(form, changes, obj));
-			})
-			.then(async _ => {
-				const tree = await API.get('geographies_tree_down', { "id": `eq.${data.geography_id}` });
+			if (data.flagged) {
+				await flag(data.id, false);
 
-				if (tree.length <= 1) return;
+				// dt.edit_update sets .value, which a checkbox ignores: left
+				// checked, saving the form would flag the dataset again.
+				const c = qs('[name="flagged"]', form);
+				if (c) c.checked = false;
+			}
 
-				if (!confirm(`Inherit to ${tree.length - 1} subgeographies?`)) return;
+			obj.fetch()
+				.then(_ => dt.edit_update(form, changes, obj));
 
-				let count = 0;
-				for await (const b of tree) {
-					const path = b['path'];
-					if (path.length === 1) continue;
+			const tree = await API.get('geographies_tree_down', { "id": `eq.${data.geography_id}` });
 
-					const leaf = path[path.length - 1];
+			if (tree.length <= 1) return;
 
-					const g = await API.get('geographies', {
-						"id":     `eq.${leaf}`,
-						"select": ["id", "name", "configuration", "resolution"],
-					}, { "one": true });
+			if (!confirm(`Inherit to ${tree.length - 1} subgeographies?`)) return;
 
-					const rid = maybe(g, 'configuration', 'divisions', 0, 'dataset_id');
+			const errors = await inherit_to_subgeographies(data.id, tree, { "pre": p });
 
-					if (!rid) {
-						alert(`MISSING: ${g.name} -> configuration -> divisions -> 0 -> dataset_id`);
-						continue;
-					}
+			p.innerText += "\nDone.";
 
-					const refs = await API.get(
-						'datasets',
-						{
-							"id":     `eq.${rid}`,
-							"select": ["processed_files"],
-						},
-						{ "one": true },
-					);
+			inheritance_report(errors, e => e.where);
+		} catch (err) {
+			console.error(err);
 
-					payload.referenceurl = maybe(refs.processed_files.find(x => x.func === 'vectors'), 'endpoint');
-					payload.baseurl = maybe(refs.processed_files.find(x => x.func === 'raster'), 'endpoint');
-
-					const opts = {
-						"geography_id": `eq.${g.id}`,
-						"category_id":  `eq.${data.category_id}`,
-						"flagged":      "is.false",
-					};
-
-					if (data.name === null) {
-						opts['name'] = "is.null";
-					} else {
-						opts['name'] = `eq.${data.name}`;
-					}
-
-					let ds = await API.get('datasets', opts);
-
-					count += 1;
-					document.querySelector('#infopre').innerText = `Pavering ${g.name} (${count}/${tree.length - 1})\n\n`;
-
-					if (ds.length === 0) {
-						const o = new dt.object({
-							"module": dt.modules['datasets'],
-							"data":   data,
-						});
-
-						ds = (await o.clone({ "geography_id": leaf }))['data'];
-					} else if (ds.length > 1) {
-						console.warn("Cannot choose. NEXT!");
-						continue;
-					}
-
-					const p = Object.assign(ds, payload, { "geographyid": leaf });
-
-					const f = (await fn(g, p, { paver_modal }));
-					await f();
-				}
+			FLASH.push({
+				"type":    'error',
+				"title":   "Paving failed",
+				"message": err.message,
+				"timeout": 0,
 			});
-
-		b.removeAttribute('disabled');
-		b.innerText = "Pave it!";
+		} finally {
+			b.removeAttribute('disabled');
+			b.innerText = "Pave it!";
+		}
 	};
 
 	paver_modal.show();
@@ -838,43 +811,15 @@ export async function clip_datasets(parent_id, geography_id, { pre, deployment }
 				continue;
 			}
 
-			const resume = existing.get(key);
-
-			const n = resume
-				? new dt.object({ "module": datasets_module, "data": resume })
-				: await (new dt.object({ "module": datasets_module, "data": d })).clone({
-					"deployment":      deployment,
-					"processed_files": [],
-					"geography_id":    geography_id,
-					"source_files":    d.source_files,
-					"name":            d.name,
-				});
-
-			await n.fetch();
-
-			const t = await routine(n, { pre });
-
-			if (typeof t !== 'function') {
-				await flag(n.data.id);
-				existing.set(key, n.data);
-				errors.push(Object.assign({}, t, { "data": n.data }));
-				continue;
-			}
-
-			const x = await t();
-
-			if (!x) {
-				await flag(n.data.id);
-				existing.set(key, n.data);
-				errors.push({ "data": n.data, "error": "Routine failed, see FLASH/console." });
-				continue;
-			}
-
-			await ds_patch(n.data.id, x);
-
-			if (n.data.flagged) await flag(n.data.id, false);
+			const { n, error } = await clip_dataset(d, geography_id, existing.get(key), { pre, deployment });
 
 			existing.set(key, n.data);
+
+			if (error) {
+				errors.push(error);
+				continue;
+			}
+
 			paved.add(key);
 		} catch (err) {
 			console.error(err);
@@ -883,6 +828,154 @@ export async function clip_datasets(parent_id, geography_id, { pre, deployment }
 	}
 
 	return errors.concat(await clip_mutants(parent_id, geography_id, existing, paved, deployment));
+};
+
+// Paves `d` into a geography: into `copy`, the row it already has there, or
+// else into a fresh clone. The outcome is recorded on that row —
+// processed_files on success, 'flagged' on failure.
+async function clip_dataset(d, geography_id, copy, { pre, deployment }) {
+	const n = copy
+		? new dt.object({ "module": datasets_module, "data": copy })
+		: await (new dt.object({ "module": datasets_module, "data": d })).clone({
+			"deployment":      deployment,
+			"processed_files": [],
+			"geography_id":    geography_id,
+			"source_files":    d.source_files,
+			"name":            d.name,
+		});
+
+	await n.fetch();
+
+	const t = await routine(n, { pre });
+
+	if (typeof t !== 'function') {
+		await flag(n.data.id);
+		return { n, "error": Object.assign({}, t, { "data": n.data }) };
+	}
+
+	const x = await t();
+
+	if (!x) {
+		await flag(n.data.id);
+		return { n, "error": { "data": n.data, "error": "Routine failed, see FLASH/console." } };
+	}
+
+	await ds_patch(n.data.id, x);
+
+	if (n.data.flagged) await flag(n.data.id, false);
+
+	return { n, "error": null };
+};
+
+const source_endpoints = d => (d.source_files || []).map(f => `${f.func} ${f.endpoint}`).sort().join("\n");
+
+// Pushes a freshly paved dataset down to every geography below its own.
+// Unlike clip_datasets, a copy that is already paved is re-paved, taking the
+// parent's configuration first. A copy whose source differs from the parent's
+// is left alone: an own source is indistinguishable from an outdated one, and
+// discarding a deliberate choice is the worse mistake.
+async function inherit_to_subgeographies(id, tree, { pre }) {
+	const d = await API.get('datasets', { "id": `eq.${id}`, "select": "*,category_name" }, { "one": true });
+	const key = ds_key(d);
+
+	const leaves = tree
+		.map(b => b['path'])
+		.filter(path => path.length > 1)
+		.map(path => path[path.length - 1]);
+
+	const errors = [];
+
+	for (const [i, leaf] of leaves.entries()) {
+		const g = await API.get('geographies', {
+			"id":     `eq.${leaf}`,
+			"select": ["id", "name", "deployment", "configuration"],
+		}, { "one": true });
+
+		pre.innerText = `Pavering ${g.name} (${i + 1}/${leaves.length})\n`;
+
+		const fail = (error, skipped = false, kept = false) => errors.push({ "data": d, "where": g.name, error, skipped, kept });
+
+		try {
+			if (!maybe(g, 'configuration', 'divisions', 0, 'dataset_id')) {
+				fail("No outline configured, skipped.", true);
+				continue;
+			}
+
+			const copies = (await API.get('datasets', {
+				"select":       "*,category_name",
+				"geography_id": `eq.${g.id}`,
+			})).filter(e => ds_key(e) === key);
+
+			if (copies.length > 1) {
+				fail(`${copies.length} copies of this layer here: remove the extra ones and retry.`);
+				continue;
+			}
+
+			const [copy] = copies;
+
+			if (copy && source_endpoints(copy) !== source_endpoints(d)) {
+				fail("has a source file of its own, kept as it is.", true, true);
+				continue;
+			}
+
+			if (copy) {
+				await API.patch('datasets', { "id": `eq.${copy.id}` }, {
+					"payload": {
+						"vectors_configuration": d.vectors_configuration,
+					},
+					"one": true,
+				});
+			}
+
+			const { error } = await clip_dataset(d, g.id, copy, { pre, "deployment": g.deployment });
+
+			if (error) fail(error.error);
+		} catch (err) {
+			console.error(err);
+			fail(err.message);
+		}
+	}
+
+	return errors;
+};
+
+// One flash per entry buries the screen under toasts on any reasonably sized
+// geography, and a deliberate skip is not an error.
+export function inheritance_report(errors, label = e => maybe(e, 'data', 'category_name') || '?') {
+	const line = e => `${label(e)}: ${maybe(e, 'error')}`;
+
+	const kept = errors.filter(e => e.kept);
+	const skipped = errors.filter(e => e.skipped && !e.kept);
+	const failed = errors.filter(e => !e.skipped);
+
+	// Persistent: each of these is a decision left to the admin.
+	if (kept.length)
+		FLASH.push({
+			"type":    "warn",
+			"title":   `${kept.length} copy(ies) with their own source were not updated`,
+			"message": kept.map(line).join("\n") +
+				"\n\nTo replace one with this layer, set its source file\nto this layer's (or delete it) and inherit again.",
+			"timeout": 0,
+		});
+
+	if (skipped.length)
+		FLASH.push({
+			"type":    "info",
+			"title":   `${skipped.length} layer(s) skipped`,
+			"message": skipped.map(line).join("\n"),
+		});
+
+	// Persistent: a run can take long enough that a self-dismissing flash is
+	// gone before anyone looks at it.
+	if (failed.length)
+		FLASH.push({
+			"type":    "error",
+			"title":   `${failed.length} layer(s) could not be cloned/paved`,
+			"message": failed.map(line).join("\n"),
+			"timeout": 0,
+		});
+
+	if (errors.length) console.error(errors);
 };
 
 // Mutants hold no data of their own: tool/src/ds.js `mutate()` borrows the
