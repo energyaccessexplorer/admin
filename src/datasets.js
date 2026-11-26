@@ -6,6 +6,7 @@ import {
 } from './extras.js';
 
 import {
+	available_properties as paver_available_properties,
 	server_check as paver_server_check,
 	routine as paver_routine,
 } from './paver.js';
@@ -456,24 +457,8 @@ export const model = {
 		async function columns_and_paver(object, _, edit_modal) {
 			if (!object.data.haspaver) return;
 
-			const s = maybe(object.data.source_files?.find(f => f.func === 'vectors'), 'endpoint');
-
-			if (s) fetch(s)
-				.then(r => r.json())
-				.catch(e => {
-					console.warn("ERROR", e);
-					console.log("zipfile? auto available_properties feature on paver will not work.");
-
-					return { "features": [ { "properties": {} } ] };
-				})
-				.then(r => object.data._available_properties = Object.keys(r.features[0]['properties']));
-
-			if (or(object.data.type === 'points', object.data.type === 'raster')) {
-				const ps = maybe(object.data.source_files?.find(f => f.func === 'csv'), 'endpoint');
-
-				if (ps) fetch(ps).then(r => r.text())
-					.then(r => object.data._available_properties = r.split(/(\r\n|\n)/)[0].split(','));
-			}
+			paver_available_properties(object.data)
+				.then(p => object.data._available_properties = p);
 
 			const v = maybe(object.data.processed_files?.find(f => f.func === 'vectors'), 'endpoint');
 
